@@ -6,7 +6,7 @@ authors = [
     "Aaron Askew <aaronaskew@gmail.com>",
     "Nathan Grubbs <jimnateg@gmail.com>",
 ]
-edition = "2021"
+edition = "2024"
 exclude = ["dist", "build", "assets", "credits"]
 
 [profile.dev.package."*"]
@@ -83,6 +83,7 @@ log = { version = "0.4", features = [
     "max_level_debug",
     "release_max_level_warn",
 ] }
+bevy-inspector-egui = "0.32.0"
 
 [build-dependencies]
 embed-resource = "1"
