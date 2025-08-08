@@ -2,23 +2,23 @@
 
 mod actions;
 mod audio;
+mod debug;
 mod loading;
 mod menu;
 mod player;
 pub mod pung;
 
-use crate::actions::ActionsPlugin;
-use crate::audio::InternalAudioPlugin;
-use crate::loading::LoadingPlugin;
-use crate::menu::MenuPlugin;
-use crate::player::PlayerPlugin;
-use crate::pung::PungPlugin;
+// use crate::actions::ActionsPlugin;
+// use crate::audio::InternalAudioPlugin;
+// use crate::loading::LoadingPlugin;
+// use crate::menu::MenuPlugin;
+// use crate::player::PlayerPlugin;
+use crate::{debug::DebugPlugin, pung::PungPlugin};
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -47,6 +47,7 @@ impl Plugin for GamePlugin {
             //     PlayerPlugin,
             // ))
             // .add_plugins((EguiPlugin::default(), WorldInspectorPlugin::new()))
+            .add_plugins(DebugPlugin)
             .add_plugins(PungPlugin);
 
         #[cfg(debug_assertions)]
