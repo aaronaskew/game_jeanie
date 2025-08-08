@@ -2,6 +2,7 @@
 
 mod actions;
 mod audio;
+mod debug;
 mod loading;
 mod menu;
 mod player;
@@ -12,7 +13,7 @@ pub mod pung;
 // use crate::loading::LoadingPlugin;
 // use crate::menu::MenuPlugin;
 // use crate::player::PlayerPlugin;
-use crate::pung::PungPlugin;
+use crate::{debug::DebugPlugin, pung::PungPlugin};
 
 use bevy::app::App;
 use bevy::asset::AssetMetaCheck;
@@ -47,25 +48,7 @@ impl Plugin for GamePlugin {
             //     PlayerPlugin,
             // ))
             // .add_plugins((EguiPlugin::default(), WorldInspectorPlugin::new()))
-            .add_plugins(
-                DefaultPlugins
-                    .set(WindowPlugin {
-                        primary_window: Some(Window {
-                            title: "Bevy game".to_string(), // ToDo
-                            // Bind to canvas included in `index.html`
-                            canvas: Some("#bevy".to_owned()),
-                            fit_canvas_to_parent: true,
-                            // Tells wasm not to override default event handling, like F5 and Ctrl+R
-                            prevent_default_event_handling: false,
-                            ..default()
-                        }),
-                        ..default()
-                    })
-                    .set(AssetPlugin {
-                        meta_check: AssetMetaCheck::Never,
-                        ..default()
-                    }),
-            )
+            .add_plugins(DebugPlugin)
             .add_plugins(PungPlugin);
 
         #[cfg(debug_assertions)]
