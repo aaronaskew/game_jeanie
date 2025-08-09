@@ -1,16 +1,26 @@
+use std::ops::DerefMut;
+
 use bevy::{
     math::bounding::{Aabb2d, BoundingCircle, BoundingVolume, IntersectsVolume},
     prelude::*,
 };
-use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_inspector_egui::{bevy_egui::EguiPlugin, egui::text_selection::PCursorRange};
 
-const BALL_SPEED: f32 = 1.;
+use crate::{Game, GameState};
+
+const BALL_SPEED: f32 = 10.;
 const BALL_SIZE: f32 = 5.;
 const PADDLE_SPEED: f32 = 4.;
 const PADDLE_WIDTH: f32 = 10.;
 const PADDLE_HEIGHT: f32 = 50.;
 const GUTTER_HEIGHT: f32 = 96.;
+
+const MAX_SCORE: u32 = 1;
+
+/// Marker Component for Pung
+#[derive(Component)]
+struct Pung;
 
 #[derive(Component)]
 struct PlayerScore;
@@ -19,7 +29,7 @@ struct PlayerScore;
 struct AiScore;
 
 #[derive(Resource, Default)]
-struct Score {
+struct PungScore {
     player: u32,
     ai: u32,
 }
@@ -30,7 +40,7 @@ enum Scorer {
 }
 
 #[derive(Event)]
-struct Scored(Scorer);
+struct PungScored(Scorer);
 
 #[derive(Component)]
 #[require(
@@ -79,13 +89,12 @@ pub struct PungPlugin;
 
 impl Plugin for PungPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(EguiPlugin::default())
-            .add_plugins(WorldInspectorPlugin::new())
-            .init_resource::<Score>()
-            .add_event::<Scored>()
+        app.init_resource::<PungScore>()
+            .add_event::<PungScored>()
             .add_systems(
-                Startup,
+                OnEnter(GameState::Playing(Game::Pung)),
                 (
+                    reset_score,
                     spawn_ball,
                     spawn_camera,
                     spawn_paddles,
@@ -106,9 +115,16 @@ impl Plugin for PungPlugin {
                     move_paddles.after(handle_player_input),
                     project_positions.after(move_ball),
                     handle_collisions.after(move_ball),
-                ),
-            );
+                    check_for_game_over.after(update_scoreboard),
+                )
+                    .run_if(in_state(GameState::Playing(Game::Pung))),
+            )
+            .add_systems(OnExit(GameState::Playing(Game::Pung)), cleanup);
     }
+}
+
+fn reset_score(mut score: ResMut<PungScore>) {
+    *score = PungScore::default();
 }
 
 fn move_ai(
@@ -126,7 +142,7 @@ fn move_ai(
 fn update_scoreboard(
     mut player_score: Query<&mut Text, With<PlayerScore>>,
     mut ai_score: Query<&mut Text, (With<AiScore>, Without<PlayerScore>)>,
-    score: Res<Score>,
+    score: Res<PungScore>,
 ) {
     if score.is_changed() {
         if let Ok(mut player_score) = player_score.single_mut() {
@@ -155,6 +171,7 @@ fn spawn_scoreboard(mut commands: Commands) {
             right: Val::Px(15.0),
             ..default()
         },
+        Pung,
     ));
 
     commands.spawn((
@@ -172,10 +189,11 @@ fn spawn_scoreboard(mut commands: Commands) {
             left: Val::Px(15.0),
             ..default()
         },
+        Pung,
     ));
 }
 
-fn update_score(mut score: ResMut<Score>, mut events: EventReader<Scored>) {
+fn update_score(mut score: ResMut<PungScore>, mut events: EventReader<PungScored>) {
     for event in events.read() {
         match event.0 {
             Scorer::Ai => score.ai += 1,
@@ -187,16 +205,16 @@ fn update_score(mut score: ResMut<Score>, mut events: EventReader<Scored>) {
 fn detect_scoring(
     mut ball: Query<&mut Position, With<Ball>>,
     window: Query<&Window>,
-    mut events: EventWriter<Scored>,
+    mut events: EventWriter<PungScored>,
 ) {
     if let Ok(window) = window.single() {
         let window_width = window.resolution.width();
 
         if let Ok(ball) = ball.single_mut() {
             if ball.0.x > window_width / 2. {
-                events.write(Scored(Scorer::Ai));
+                events.write(PungScored(Scorer::Ai));
             } else if ball.0.x < -window_width / 2. {
-                events.write(Scored(Scorer::Player));
+                events.write(PungScored(Scorer::Player));
             }
         }
     }
@@ -204,7 +222,7 @@ fn detect_scoring(
 
 fn reset_ball(
     mut ball: Query<(&mut Position, &mut Velocity), With<Ball>>,
-    mut events: EventReader<Scored>,
+    mut events: EventReader<PungScored>,
 ) {
     for event in events.read() {
         if let Ok((mut position, mut velocity)) = ball.single_mut() {
@@ -266,6 +284,7 @@ fn spawn_gutters(
             Position(Vec2::new(0., top_gutter_y)),
             Mesh2d(mesh_handle.clone()),
             MeshMaterial2d(material_handle.clone()),
+            Pung,
         ));
 
         commands.spawn((
@@ -274,6 +293,7 @@ fn spawn_gutters(
             Position(Vec2::new(0., bottom_gutter_y)),
             Mesh2d(mesh_handle.clone()),
             MeshMaterial2d(material_handle.clone()),
+            Pung,
         ));
     }
 }
@@ -390,6 +410,7 @@ fn spawn_paddles(
             Position(Vec2::new(right_paddle_x, 0.)),
             Mesh2d(mesh.clone()),
             MeshMaterial2d(player_color.clone()),
+            Pung,
         ));
 
         commands.spawn((
@@ -398,6 +419,7 @@ fn spawn_paddles(
             Position(Vec2::new(left_paddle_x, 0.)),
             Mesh2d(mesh.clone()),
             MeshMaterial2d(ai_color.clone()),
+            Pung,
         ));
     }
 }
@@ -421,9 +443,27 @@ fn spawn_ball(
     // Here we are using `spawn` instead of `spawn_empty` followed by an
     // `insert`. They mean the same thing, letting us spawn many components on a
     // new entity at once.
-    commands.spawn((Ball, Mesh2d(mesh), MeshMaterial2d(material)));
+    commands.spawn((Ball, Mesh2d(mesh), MeshMaterial2d(material), Pung));
 }
 
 fn spawn_camera(mut commands: Commands) {
-    commands.spawn(Camera2d);
+    commands.spawn((Camera2d, Pung));
+}
+
+fn check_for_game_over(score: Res<PungScore>, mut next_state: ResMut<NextState<GameState>>) {
+    if score.ai >= MAX_SCORE || score.player >= MAX_SCORE {
+        next_state.set(GameState::Menu);
+    }
+}
+
+fn cleanup(
+    mut commands: Commands,
+    entities: Query<Entity, With<Pung>>,
+    mut events: EventReader<PungScored>,
+) {
+    for entity in entities {
+        commands.entity(entity).despawn();
+    }
+
+    events.clear();
 }

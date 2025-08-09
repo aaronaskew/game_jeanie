@@ -1,5 +1,5 @@
 use crate::loading::TextureAssets;
-use crate::GameState;
+use crate::{Game, GameState};
 use bevy::prelude::*;
 
 pub struct MenuPlugin;
@@ -14,7 +14,7 @@ impl Plugin for MenuPlugin {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 struct ButtonColors {
     normal: Color,
     hovered: Color,
@@ -34,7 +34,7 @@ struct Menu;
 
 fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
     info!("menu");
-    commands.spawn((Camera2d, Msaa::Off));
+    commands.spawn((Camera2d, Msaa::Off, Menu));
     commands
         .spawn((
             Node {
@@ -49,6 +49,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
         ))
         .with_children(|children| {
             let button_colors = ButtonColors::default();
+
             children
                 .spawn((
                     Button,
@@ -60,11 +61,56 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                         ..Default::default()
                     },
                     BackgroundColor(button_colors.normal),
-                    button_colors,
-                    ChangeState(GameState::Playing),
+                    button_colors.clone(),
+                    ChangeState(GameState::Playing(Game::Pung)),
                 ))
                 .with_child((
-                    Text::new("Play"),
+                    Text::new("Play Pung"),
+                    TextFont {
+                        font_size: 40.0,
+                        ..default()
+                    },
+                    TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                ));
+
+            children
+                .spawn((
+                    Button,
+                    Node {
+                        width: Val::Px(140.0),
+                        height: Val::Px(50.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    BackgroundColor(button_colors.normal),
+                    button_colors.clone(),
+                    ChangeState(GameState::Playing(Game::Asteroids)),
+                ))
+                .with_child((
+                    Text::new("Play Asteroids"),
+                    TextFont {
+                        font_size: 40.0,
+                        ..default()
+                    },
+                    TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
+                ));
+            children
+                .spawn((
+                    Button,
+                    Node {
+                        width: Val::Px(140.0),
+                        height: Val::Px(50.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    BackgroundColor(button_colors.normal),
+                    button_colors.clone(),
+                    ChangeState(GameState::Playing(Game::PolePosition)),
+                ))
+                .with_child((
+                    Text::new("Play Pole Position"),
                     TextFont {
                         font_size: 40.0,
                         ..default()
