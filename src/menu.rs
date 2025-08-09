@@ -46,9 +46,14 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 ..default()
             },
             Menu,
+            Name::new("Menu Node"),
         ))
         .with_children(|children| {
             let button_colors = ButtonColors::default();
+            let font = TextFont {
+                font_size: 20.,
+                ..default()
+            };
 
             children
                 .spawn((
@@ -66,10 +71,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 ))
                 .with_child((
                     Text::new("Play Pung"),
-                    TextFont {
-                        font_size: 40.0,
-                        ..default()
-                    },
+                    font.clone(),
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));
 
@@ -89,10 +91,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 ))
                 .with_child((
                     Text::new("Play Asteroids"),
-                    TextFont {
-                        font_size: 40.0,
-                        ..default()
-                    },
+                    font.clone(),
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));
             children
@@ -111,10 +110,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 ))
                 .with_child((
                     Text::new("Play Pole Position"),
-                    TextFont {
-                        font_size: 40.0,
-                        ..default()
-                    },
+                    font.clone(),
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));
         });

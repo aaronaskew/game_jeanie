@@ -1,11 +1,7 @@
-use std::ops::DerefMut;
-
 use bevy::{
     math::bounding::{Aabb2d, BoundingCircle, BoundingVolume, IntersectsVolume},
     prelude::*,
 };
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_inspector_egui::{bevy_egui::EguiPlugin, egui::text_selection::PCursorRange};
 
 use crate::{Game, GameState};
 
