@@ -34,7 +34,7 @@ struct Menu;
 
 fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
     info!("menu");
-    commands.spawn((Camera2d, Msaa::Off, Menu));
+    commands.spawn((Camera2d, Msaa::Off, StateScoped(GameState::Menu)));
     commands
         .spawn((
             Node {
@@ -45,7 +45,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 justify_content: JustifyContent::Center,
                 ..default()
             },
-            Menu,
+            StateScoped(GameState::Menu),
             Name::new("Menu Node"),
         ))
         .with_children(|children| {
@@ -54,17 +54,18 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 font_size: 20.,
                 ..default()
             };
+            let button_node = Node {
+                width: Val::Px(230.0),
+                height: Val::Px(50.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            };
 
             children
                 .spawn((
                     Button,
-                    Node {
-                        width: Val::Px(140.0),
-                        height: Val::Px(50.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
+                    button_node.clone(),
                     BackgroundColor(button_colors.normal),
                     button_colors.clone(),
                     ChangeState(GameState::Playing(Game::Pung)),
@@ -78,13 +79,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
             children
                 .spawn((
                     Button,
-                    Node {
-                        width: Val::Px(140.0),
-                        height: Val::Px(50.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
+                    button_node.clone(),
                     BackgroundColor(button_colors.normal),
                     button_colors.clone(),
                     ChangeState(GameState::Playing(Game::Asteroids)),
@@ -94,16 +89,11 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     font.clone(),
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));
+
             children
                 .spawn((
                     Button,
-                    Node {
-                        width: Val::Px(140.0),
-                        height: Val::Px(50.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
+                    button_node.clone(),
                     BackgroundColor(button_colors.normal),
                     button_colors.clone(),
                     ChangeState(GameState::Playing(Game::PolePosition)),
@@ -125,7 +115,7 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 position_type: PositionType::Absolute,
                 ..default()
             },
-            Menu,
+            StateScoped(GameState::Menu),
         ))
         .with_children(|children| {
             children
@@ -244,8 +234,8 @@ fn click_play_button(
     }
 }
 
-fn cleanup_menu(mut commands: Commands, menu: Query<Entity, With<Menu>>) {
-    for entity in menu.iter() {
-        commands.entity(entity).despawn();
-    }
+fn cleanup_menu(mut _commands: Commands, _menu: Query<Entity, With<Menu>>) {
+    // for entity in menu.iter() {
+    //     commands.entity(entity).despawn();
+    // }
 }

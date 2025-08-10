@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{Game, GameState};
+use crate::{Game, GameResult, GameState};
 
 const BALL_SPEED: f32 = 10.;
 const BALL_SIZE: f32 = 5.;
@@ -14,9 +14,14 @@ const GUTTER_HEIGHT: f32 = 96.;
 
 const MAX_SCORE: u32 = 1;
 
-/// Marker Component for Pung
-#[derive(Component)]
-struct Pung;
+#[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
+#[source(GameState = GameState::Playing(Game::Pung))]
+#[states(scoped_entities)]
+pub(crate) enum PungState {
+    #[default]
+    Running,
+    GameOver,
+}
 
 #[derive(Component)]
 struct PlayerScore;
@@ -24,10 +29,11 @@ struct PlayerScore;
 #[derive(Component)]
 struct AiScore;
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Debug)]
 struct PungScore {
     player: u32,
     ai: u32,
+    result: Option<GameResult>,
 }
 
 enum Scorer {
@@ -85,10 +91,11 @@ pub struct PungPlugin;
 
 impl Plugin for PungPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<PungScore>()
-            .add_event::<PungScored>()
+        app.add_sub_state::<PungState>()
+            .init_resource::<PungScore>()
+            .add_state_scoped_event::<PungScored>(PungState::Running)
             .add_systems(
-                OnEnter(GameState::Playing(Game::Pung)),
+                OnEnter(PungState::Running),
                 (
                     reset_score,
                     spawn_ball,
@@ -113,9 +120,13 @@ impl Plugin for PungPlugin {
                     handle_collisions.after(move_ball),
                     check_for_game_over.after(update_scoreboard),
                 )
-                    .run_if(in_state(GameState::Playing(Game::Pung))),
+                    .run_if(in_state(PungState::Running)),
             )
-            .add_systems(OnExit(GameState::Playing(Game::Pung)), cleanup);
+            .add_systems(OnEnter(PungState::GameOver), game_over)
+            .add_systems(
+                Update,
+                click_gameover_button.run_if(in_state(PungState::GameOver)),
+            );
     }
 }
 
@@ -167,7 +178,7 @@ fn spawn_scoreboard(mut commands: Commands) {
             right: Val::Px(15.0),
             ..default()
         },
-        Pung,
+        StateScoped(GameState::Playing(Game::Pung)),
     ));
 
     commands.spawn((
@@ -185,7 +196,7 @@ fn spawn_scoreboard(mut commands: Commands) {
             left: Val::Px(15.0),
             ..default()
         },
-        Pung,
+        StateScoped(GameState::Playing(Game::Pung)),
     ));
 }
 
@@ -280,7 +291,7 @@ fn spawn_gutters(
             Position(Vec2::new(0., top_gutter_y)),
             Mesh2d(mesh_handle.clone()),
             MeshMaterial2d(material_handle.clone()),
-            Pung,
+            StateScoped(GameState::Playing(Game::Pung)),
         ));
 
         commands.spawn((
@@ -289,7 +300,7 @@ fn spawn_gutters(
             Position(Vec2::new(0., bottom_gutter_y)),
             Mesh2d(mesh_handle.clone()),
             MeshMaterial2d(material_handle.clone()),
-            Pung,
+            StateScoped(GameState::Playing(Game::Pung)),
         ));
     }
 }
@@ -406,7 +417,7 @@ fn spawn_paddles(
             Position(Vec2::new(right_paddle_x, 0.)),
             Mesh2d(mesh.clone()),
             MeshMaterial2d(player_color.clone()),
-            Pung,
+            StateScoped(GameState::Playing(Game::Pung)),
         ));
 
         commands.spawn((
@@ -415,7 +426,7 @@ fn spawn_paddles(
             Position(Vec2::new(left_paddle_x, 0.)),
             Mesh2d(mesh.clone()),
             MeshMaterial2d(ai_color.clone()),
-            Pung,
+            StateScoped(GameState::Playing(Game::Pung)),
         ));
     }
 }
@@ -439,27 +450,73 @@ fn spawn_ball(
     // Here we are using `spawn` instead of `spawn_empty` followed by an
     // `insert`. They mean the same thing, letting us spawn many components on a
     // new entity at once.
-    commands.spawn((Ball, Mesh2d(mesh), MeshMaterial2d(material), Pung));
+    commands.spawn((
+        Ball,
+        Mesh2d(mesh),
+        MeshMaterial2d(material),
+        StateScoped(GameState::Playing(Game::Pung)),
+    ));
 }
 
 fn spawn_camera(mut commands: Commands) {
-    commands.spawn((Camera2d, Pung));
+    commands.spawn((Camera2d, StateScoped(GameState::Playing(Game::Pung))));
 }
 
-fn check_for_game_over(score: Res<PungScore>, mut next_state: ResMut<NextState<GameState>>) {
-    if score.ai >= MAX_SCORE || score.player >= MAX_SCORE {
-        next_state.set(GameState::Menu);
+fn check_for_game_over(mut score: ResMut<PungScore>, mut next_state: ResMut<NextState<PungState>>) {
+    if score.result.is_some() {
+        panic!("Game result should not exist yet");
+    }
+
+    if score.ai >= MAX_SCORE {
+        score.result = Some(GameResult::Lose);
+        next_state.set(PungState::GameOver);
+    }
+
+    if score.player >= MAX_SCORE {
+        score.result = Some(GameResult::Win);
+        next_state.set(PungState::GameOver);
     }
 }
 
-fn cleanup(
-    mut commands: Commands,
-    entities: Query<Entity, With<Pung>>,
-    mut events: EventReader<PungScored>,
+#[derive(Component)]
+struct ReturnToMenu;
+
+fn game_over(mut commands: Commands, score: Res<PungScore>) {
+    let message_text = Text::new(match score.result {
+        Some(GameResult::Win) => "You win!",
+        Some(GameResult::Lose) => "You lose!",
+        None => panic!("GameResult should be some."),
+    });
+
+    commands.spawn((
+        StateScoped(PungState::GameOver),
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        children![(Button, message_text, ReturnToMenu)],
+    ));
+}
+
+fn click_gameover_button(
+    mut next_state: ResMut<NextState<GameState>>,
+    interaction_query: Query<
+        (&Interaction, Option<&ReturnToMenu>),
+        (Changed<Interaction>, With<Button>),
+    >,
 ) {
-    for entity in entities {
-        commands.entity(entity).despawn();
+    for (interaction, return_to_menu) in &interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                if let Some(_) = return_to_menu {
+                    next_state.set(GameState::Menu);
+                }
+            }
+            Interaction::Hovered => {}
+            Interaction::None => {}
+        }
     }
-
-    events.clear();
 }

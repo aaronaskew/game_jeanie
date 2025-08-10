@@ -26,17 +26,25 @@ enum Game {
     PolePosition,
 }
 
+#[derive(States, Clone, PartialEq, Eq, Debug, Hash)]
+enum GameResult {
+    Win,
+    Lose,
+}
+
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
 // Or https://github.com/bevyengine/bevy/blob/main/examples/ecs/state.rs
 #[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
-enum GameState {
-    // During the loading State the LoadingPlugin will load our assets
+#[states(scoped_entities)]
+pub(crate) enum GameState {
+    /// During the loading State the LoadingPlugin will load our assets
     #[default]
     Loading,
-    // During this State the actual game logic is executed
+    /// During this State the actual game logic is executed
     Playing(Game),
-    // Here the menu is drawn and waiting for player interaction
+
+    /// Here the menu is drawn and waiting for player interaction
     Menu,
 }
 
@@ -53,8 +61,7 @@ impl Plugin for GamePlugin {
             // .add_plugins(PlayerPlugin)
             // .add_plugins((EguiPlugin::default(), WorldInspectorPlugin::new()))
             //
-            .add_plugins(PungPlugin)
-            ;
+            .add_plugins(PungPlugin);
 
         #[cfg(debug_assertions)]
         {
