@@ -6,7 +6,9 @@ mod debug;
 mod loading;
 mod menu;
 // mod player;
-pub mod pung;
+pub(crate) mod pung;
+pub(crate) mod asteroids;
+pub(crate) mod pole_position;
 
 // use crate::actions::ActionsPlugin;
 // use crate::audio::InternalAudioPlugin;
