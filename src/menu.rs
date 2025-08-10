@@ -4,13 +4,12 @@ use bevy::prelude::*;
 
 pub struct MenuPlugin;
 
-/// This plugin is responsible for the game menu (containing only one button...)
+/// This plugin is responsible for the game menu
 /// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Menu), setup_menu)
-            .add_systems(Update, click_play_button.run_if(in_state(GameState::Menu)))
-            .add_systems(OnExit(GameState::Menu), cleanup_menu);
+            .add_systems(Update, click_play_button.run_if(in_state(GameState::Menu)));
     }
 }
 
@@ -29,15 +28,9 @@ impl Default for ButtonColors {
     }
 }
 
-#[derive(Component)]
-struct Menu;
-
 fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
     info!("menu");
-    commands.spawn((
-        Camera2d,
-        Msaa::Off, // , StateScoped(GameState::Menu)
-    ));
+
     commands
         .spawn((
             Node {
@@ -235,10 +228,4 @@ fn click_play_button(
             }
         }
     }
-}
-
-fn cleanup_menu(mut _commands: Commands, _menu: Query<Entity, With<Menu>>) {
-    // for entity in menu.iter() {
-    //     commands.entity(entity).despawn();
-    // }
 }

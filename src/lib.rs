@@ -1,26 +1,25 @@
 #![allow(clippy::type_complexity)]
 
 mod actions;
-// mod audio;
-mod debug;
+pub mod asteroids;
 mod loading;
 mod menu;
-// mod player;
-pub(crate) mod asteroids;
-pub(crate) mod pole_position;
-pub(crate) mod pung;
+pub mod pole_position;
+pub mod pung;
 
-use crate::asteroids::AsteroidsPlugin;
 use crate::actions::ActionsPlugin;
-// use crate::audio::InternalAudioPlugin;
+use crate::asteroids::AsteroidsPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
-// use crate::player::PlayerPlugin;
-use crate::{debug::DebugPlugin, pung::PungPlugin};
+use crate::pung::PungPlugin;
 
 use bevy::app::App;
-#[cfg(debug_assertions)]
 use bevy::prelude::*;
+
+#[cfg(debug_assertions)]
+mod debug;
+#[cfg(debug_assertions)]
+use crate::debug::DebugPlugin;
 
 #[derive(Component)]
 pub struct Player;
@@ -38,9 +37,6 @@ enum GameResult {
     Lose,
 }
 
-// This example game uses States to separate logic
-// See https://bevy-cheatbook.github.io/programming/states.html
-// Or https://github.com/bevyengine/bevy/blob/main/examples/ecs/state.rs
 #[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[states(scoped_entities)]
 pub(crate) enum GameState {
@@ -49,7 +45,6 @@ pub(crate) enum GameState {
     Loading,
     /// During this State the actual game logic is executed
     Playing(Game),
-
     /// Here the menu is drawn and waiting for player interaction
     Menu,
 }
@@ -61,18 +56,18 @@ impl Plugin for GamePlugin {
         app.init_state::<GameState>()
             .add_plugins(LoadingPlugin)
             .add_plugins(MenuPlugin)
-            //
             .add_plugins(ActionsPlugin)
-            // .add_plugins(InternalAudioPlugin)
-            // .add_plugins(PlayerPlugin)
-            // .add_plugins((EguiPlugin::default(), WorldInspectorPlugin::new()))
-            //
             .add_plugins(PungPlugin)
-            .add_plugins(AsteroidsPlugin);
+            .add_plugins(AsteroidsPlugin)
+            .add_systems(Startup, setup_camera);
 
         #[cfg(debug_assertions)]
         {
             app.add_plugins(DebugPlugin);
         }
     }
+}
+
+fn setup_camera(mut commands: Commands) {
+    commands.spawn((Camera2d::default(), Msaa::Off));
 }

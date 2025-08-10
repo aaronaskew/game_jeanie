@@ -96,7 +96,6 @@ impl Plugin for PungPlugin {
                 (
                     reset_score,
                     spawn_ball,
-                    spawn_camera,
                     spawn_paddles,
                     spawn_gutters,
                     spawn_scoreboard,
@@ -453,10 +452,6 @@ fn spawn_ball(
         MeshMaterial2d(material),
         StateScoped(GameState::Playing(Game::Pung)),
     ));
-}
-
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn((Camera2d, StateScoped(GameState::Playing(Game::Pung))));
 }
 
 fn check_for_game_over(mut score: ResMut<PungScore>, mut next_state: ResMut<NextState<PungState>>) {
