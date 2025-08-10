@@ -86,6 +86,10 @@ log = { version = "0.4", features = [
     "release_max_level_warn",
 ] }
 bevy-inspector-egui = "0.32.0"
+avian2d = "0.3.1"
+egui_dock = "0.16.0"
+transform-gizmo-egui = "0.6.0"
+bevy_enhanced_input = "0.15.3"
 
 [build-dependencies]
 embed-resource = "1"

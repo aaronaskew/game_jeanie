@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{Game, GameResult, GameState};
+use crate::{Game, GameResult, GameState, Player};
 
 const BALL_SPEED: f32 = 10.;
 const BALL_SIZE: f32 = 5.;
@@ -74,9 +74,6 @@ struct Velocity(Vec2);
 struct Shape(Vec2);
 
 #[derive(Component)]
-struct Player;
-
-#[derive(Component)]
 struct Ai;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -138,11 +135,11 @@ fn move_ai(
     mut ai: Query<(&mut Velocity, &Position), With<Ai>>,
     ball: Query<&Position, With<Ball>>,
 ) {
-    if let Ok((mut velocity, position)) = ai.single_mut() {
-        if let Ok(ball_position) = ball.single() {
-            let a_to_b = ball_position.0 - position.0;
-            velocity.0.y = a_to_b.y.signum();
-        }
+    if let Ok((mut velocity, position)) = ai.single_mut()
+        && let Ok(ball_position) = ball.single()
+    {
+        let a_to_b = ball_position.0 - position.0;
+        velocity.0.y = a_to_b.y.signum();
     }
 }
 
@@ -511,7 +508,7 @@ fn click_gameover_button(
     for (interaction, return_to_menu) in &interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                if let Some(_) = return_to_menu {
+                if return_to_menu.is_some() {
                     next_state.set(GameState::Menu);
                 }
             }

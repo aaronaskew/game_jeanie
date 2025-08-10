@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 
 
-use crate::{Game, GameResult, GameState};
+use crate::{Game, GameState};
 
-const MAX_SCORE: u32 = 1;
-const NUM_LIVES: u32 = 3;
+const _MAX_SCORE: u32 = 1;
+const _NUM_LIVES: u32 = 3;
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[source(GameState = GameState::Playing(Game::Asteroids))]
 #[states(scoped_entities)]
-pub(crate) enum PolePositionState {
+pub(crate) enum _PolePositionState {
     #[default]
     Running,
     GameOver,

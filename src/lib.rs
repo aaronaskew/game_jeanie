@@ -1,16 +1,17 @@
 #![allow(clippy::type_complexity)]
 
-// mod actions;
+mod actions;
 // mod audio;
 mod debug;
 mod loading;
 mod menu;
 // mod player;
-pub(crate) mod pung;
 pub(crate) mod asteroids;
 pub(crate) mod pole_position;
+pub(crate) mod pung;
 
-// use crate::actions::ActionsPlugin;
+use crate::asteroids::AsteroidsPlugin;
+use crate::actions::ActionsPlugin;
 // use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
@@ -20,6 +21,9 @@ use crate::{debug::DebugPlugin, pung::PungPlugin};
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::prelude::*;
+
+#[derive(Component)]
+pub struct Player;
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash)]
 enum Game {
@@ -58,12 +62,13 @@ impl Plugin for GamePlugin {
             .add_plugins(LoadingPlugin)
             .add_plugins(MenuPlugin)
             //
-            // .add_plugins(ActionsPlugin)
+            .add_plugins(ActionsPlugin)
             // .add_plugins(InternalAudioPlugin)
             // .add_plugins(PlayerPlugin)
             // .add_plugins((EguiPlugin::default(), WorldInspectorPlugin::new()))
             //
-            .add_plugins(PungPlugin);
+            .add_plugins(PungPlugin)
+            .add_plugins(AsteroidsPlugin);
 
         #[cfg(debug_assertions)]
         {
