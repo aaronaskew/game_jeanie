@@ -69,5 +69,5 @@ impl Plugin for GamePlugin {
 }
 
 fn setup_camera(mut commands: Commands) {
-    commands.spawn((Camera2d::default(), Msaa::Off));
+    commands.spawn((Camera2d, Msaa::Off));
 }
