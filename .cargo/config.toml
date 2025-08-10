@@ -1,0 +1,5 @@
+# Needed to fix wasm builds 
+# See here: https://github.com/bevyengine/bevy/issues/17699
+[target.'cfg(target_family = "wasm")']
+runner = "wasm-server-runner"
+rustflags = ['--cfg=getrandom_backend="wasm_js"']
