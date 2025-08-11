@@ -1,8 +1,5 @@
 use avian2d::{math::PI, prelude::*};
-use bevy::{
-    color::palettes::css::WHITE, prelude::*,
-    window::PrimaryWindow,
-};
+use bevy::{color::palettes::css::WHITE, prelude::*, window::PrimaryWindow};
 use bevy_enhanced_input::prelude::*;
 
 use crate::{Game, GameState, Player};

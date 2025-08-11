@@ -1,4 +1,4 @@
-use crate::{asteroids::AsteroidsState, pung::PungState, GameState};
+use crate::{GameState, asteroids::AsteroidsState, pung::PungState};
 use avian2d::prelude::PhysicsDebugPlugin;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{dev_tools::states::log_transitions, prelude::*, window::PrimaryWindow};
