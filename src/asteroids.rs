@@ -1,6 +1,6 @@
 use avian2d::{math::PI, prelude::*};
 use bevy::{
-    color::palettes::css::WHITE, dev_tools::states::log_transitions, prelude::*,
+    color::palettes::css::WHITE, prelude::*,
     window::PrimaryWindow,
 };
 use bevy_enhanced_input::prelude::*;
@@ -32,7 +32,6 @@ impl Plugin for AsteroidsPlugin {
         app.add_plugins(PhysicsPlugins::default())
             .insert_resource(Gravity::ZERO)
             .add_sub_state::<AsteroidsState>()
-            .add_systems(Update, log_transitions::<AsteroidsState>)
             .add_systems(OnEnter(AsteroidsState::Running), spawn_ship)
             .add_systems(
                 FixedUpdate,

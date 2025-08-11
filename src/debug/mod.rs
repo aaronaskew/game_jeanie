@@ -1,4 +1,4 @@
-use crate::{GameState, pung::PungState};
+use crate::{asteroids::AsteroidsState, pung::PungState, GameState};
 use avian2d::prelude::PhysicsDebugPlugin;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{dev_tools::states::log_transitions, prelude::*, window::PrimaryWindow};
@@ -15,6 +15,7 @@ impl Plugin for DebugPlugin {
             // .add_plugins(LogDiagnosticsPlugin::default())
             .add_systems(Update, log_transitions::<GameState>)
             .add_systems(Update, log_transitions::<PungState>)
+            .add_systems(Update, log_transitions::<AsteroidsState>)
             .add_systems(Update, escape)
             .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(DebugWorldInspectorPlugin);
