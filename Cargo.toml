@@ -4,7 +4,7 @@ authors = [
     "Aaron Askew <aaronaskew@gmail.com>",
     "Nathan Grubbs <jimnateg@gmail.com>",
 ]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
