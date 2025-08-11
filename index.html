@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <title>Bevy game</title> <!-- ToDo -->
+        <title>Game Genie</title> <!-- ToDo -->
         
         
         
@@ -62,7 +62,7 @@ body {
     z-index: 2;
 }
 </style>
-    <link rel="modulepreload" href="./game_genie-5d4cdc0b29d6caf1.js" crossorigin="anonymous" integrity="sha384-L+UvFpOHPXnxFBLiPrTMQ4go/poP/FHlZZyCMsEBTCo7Stz4tmxMCxp5yjwqXZc9"><link rel="preload" href="./game_genie-5d4cdc0b29d6caf1_bg.wasm" crossorigin="anonymous" integrity="sha384-2I6+kUd8+/KqjsFLHvHOp2Lo5OnZTaIDVwYAi+JqE5EsFI0noVukpvfHHEU+qCPL" as="fetch" type="application/wasm"></head>
+    <link rel="modulepreload" href="./game_genie-a4d30fcc0e0286ba.js" crossorigin="anonymous" integrity="sha384-L+UvFpOHPXnxFBLiPrTMQ4go/poP/FHlZZyCMsEBTCo7Stz4tmxMCxp5yjwqXZc9"><link rel="preload" href="./game_genie-a4d30fcc0e0286ba_bg.wasm" crossorigin="anonymous" integrity="sha384-XsD3uJMqnmiN4lFCG3agnL6P3QZnRUh9OJL8/X4cje+xwg9uOpX3asnQCZmoX/+2" as="fetch" type="application/wasm"></head>
     <body>
         <script>// Insert hack to make sound autoplay on Chrome as soon as the user interacts with the tab:
 // https://developers.google.com/web/updates/2018/11/web-audio-autoplay#moving-forward
@@ -135,8 +135,8 @@ body {
         </div>
     
 <script type="module">
-import init, * as bindings from './game_genie-5d4cdc0b29d6caf1.js';
-const wasm = await init({ module_or_path: './game_genie-5d4cdc0b29d6caf1_bg.wasm' });
+import init, * as bindings from './game_genie-a4d30fcc0e0286ba.js';
+const wasm = await init({ module_or_path: './game_genie-a4d30fcc0e0286ba_bg.wasm' });
 
 
 window.wasmBindings = bindings;
