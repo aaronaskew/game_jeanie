@@ -1,102 +1,134 @@
 [package]
-name = "game_genie" # ToDo
-version = "0.1.0"
-publish = false
+name = "game_genie"
 authors = [
     "Aaron Askew <aaronaskew@gmail.com>",
     "Nathan Grubbs <jimnateg@gmail.com>",
 ]
+version = "0.1.0"
 edition = "2024"
-exclude = ["dist", "build", "assets", "credits"]
 
-[profile.dev.package."*"]
-opt-level = 3
-
-[profile.dev]
-opt-level = 1
-
-# This is used by trunk as it doesn't support custom profiles: https://github.com/trunk-rs/trunk/issues/605
-# xbuild also uses this profile for building android AABs because I couldn't find a configuration for it
-[profile.release]
-opt-level = "s"
-lto = true
-codegen-units = 1
-strip = true
-
-# Profile for distribution
-[profile.dist]
-inherits = "release"
-opt-level = 3
-lto = true
-codegen-units = 1
-strip = true
-
-[features]
-dev = ["bevy/dynamic_linking"]
-
-# All of Bevy's default features exept for the audio related ones (bevy_audio, vorbis), since they clash with bevy_kira_audio
-#   and android_shared_stdcxx/android-game-activity, since those are covered in `mobile`
 [dependencies]
-bevy = { version = "0.16", default-features = false, features = [
-    "animation",
-    "bevy_asset",
-    "bevy_color",
-    "bevy_core_pipeline",
-    "bevy_gilrs",
-    "bevy_gizmos",
-    "bevy_gltf",
-    "bevy_log",
-    "bevy_mesh_picking_backend",
-    "bevy_pbr",
-    "bevy_picking",
-    "bevy_render",
-    "bevy_scene",
-    "bevy_sprite",
-    "bevy_sprite_picking_backend",
-    "bevy_state",
-    "bevy_text",
-    "bevy_ui",
-    "bevy_ui_picking_backend",
-    "bevy_window",
-    "bevy_winit",
-    "custom_cursor",
-    "default_font",
-    "hdr",
-    "multi_threaded",
-    "png",
-    "smaa_luts",
-    "sysinfo_plugin",
-    "tonemapping_luts",
-    "webgl2",
-    "x11",
-    # 
-    "bevy_dev_tools",
-] }
-bevy_kira_audio = { version = "0.23.0", features = ["android_shared_stdcxx"] }
-bevy_asset_loader = { version = "0.23.0" }
-rand = { version = "0.8.3" }
-webbrowser = { version = "1", features = ["hardened"] }
-
-# keep the following in sync with Bevy's dependencies
-winit = { version = "0.30", default-features = false }
-image = { version = "0.25", default-features = false }
-## This greatly improves WGPU's performance due to its heavy use of trace! calls
+bevy = { version = "0.16", features = ["wayland"] }
+rand = { version = "0.8" }
+# Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [
     "max_level_debug",
     "release_max_level_warn",
 ] }
+# Compile low-severity logs out of web builds for performance.
+tracing = { version = "0.1", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
+bevy_asset_loader = { version = "0.23.0" }
+webbrowser = { version = "1", features = ["hardened"] }
 bevy-inspector-egui = "0.32.0"
 avian2d = "0.3.1"
-egui_dock = "0.16.0"
-transform-gizmo-egui = "0.6.0"
 bevy_enhanced_input = "0.15.3"
 
-# Needed to fix wasm builds 
-# See here: https://github.com/bevyengine/bevy/issues/17699
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { version = "0.3", default-features = false, features = [
-    "wasm_js",
-] }
+# Your web builds will start failing if you add a dependency that pulls in `getrandom` v0.3+.
+# To fix this, you should tell `getrandom` to use the `wasm_js` backend on Wasm.
+# See: <https://docs.rs/getrandom/0.3.3/getrandom/#webassembly-support>.
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
+# In addition to enabling the `wasm_js` feature, you need to include `--cfg 'getrandom_backend="wasm_js"'`
+# in your rustflags for both local and CI/CD web builds, taking into account that rustflags specified in
+# multiple places are NOT combined (see <https://github.com/rust-lang/cargo/issues/5376>).
+# Alternatively, you can opt out of the rustflags check with this patch:
+[patch.crates-io]
+getrandom = { git = "https://github.com/benfrankel/getrandom" }
 
-[build-dependencies]
-embed-resource = "1"
+
+[features]
+# Default to a native dev build.
+default = ["dev_native"]
+dev = [
+    # Improve compile times for dev builds by linking Bevy as a dynamic library.
+    "bevy/dynamic_linking",
+    "bevy/bevy_dev_tools",
+    "bevy/bevy_ui_debug",
+    # Improve error messages coming from Bevy
+    "bevy/track_location",
+]
+dev_native = [
+    "dev",
+    # Enable asset hot reloading for native dev builds.
+    "bevy/file_watcher",
+    # Enable embedded asset hot reloading for native dev builds.
+    "bevy/embedded_watcher",
+]
+
+[package.metadata.bevy_cli.release]
+# Disable dev features for release builds.
+default-features = false
+
+[package.metadata.bevy_cli.web]
+# Disable native features for web builds.
+default-features = false
+
+[package.metadata.bevy_cli.web.dev]
+features = ["dev"]
+
+
+[lints.rust]
+# Mark `bevy_lint` as a valid `cfg`, as it is set when the Bevy linter runs.
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
+
+[lints.clippy]
+# Bevy supplies arguments to systems via dependency injection, so it's natural for systems to
+# request more than 7 arguments, which would undesirably trigger this lint.
+too_many_arguments = "allow"
+# Queries may access many components, which would undesirably trigger this lint.
+type_complexity = "allow"
+# Make sure macros use their standard braces, such as `[]` for `bevy_ecs::children!`.
+nonstandard_macro_braces = "warn"
+
+# You can configure the warning levels of Bevy lints here. For a list of all lints, see:
+# <https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/>
+[package.metadata.bevy_lint]
+# panicking_methods = "deny"
+# pedantic = "warn"
+
+
+# Compile with Performance Optimizations:
+# <https://bevyengine.org/learn/quick-start/getting-started/setup/#compile-with-performance-optimizations>
+
+# Enable a small amount of optimization in the dev profile.
+[profile.dev]
+opt-level = 1
+
+# Enable a large amount of optimization in the dev profile for dependencies.
+[profile.dev.package."*"]
+opt-level = 3
+
+# Remove expensive debug assertions due to <https://github.com/bevyengine/bevy/issues/14291>
+[profile.dev.package.wgpu-types]
+debug-assertions = false
+
+[profile.release]
+# Compile the entire crate as one unit.
+# Slows compile times, marginal improvements.
+codegen-units = 1
+# Do a second optimization pass over the entire program, including dependencies.
+# Slows compile times, marginal improvements.
+lto = "thin"
+
+# This profile will be used by `bevy run web` automatically.
+[profile.web-release]
+# Default to release profile values.
+inherits = "release"
+# Optimize with size in mind (also try "z", sometimes it is better).
+# Slightly slows compile times, great improvements to file size and runtime performance.
+opt-level = "s"
+# Strip all debugging information from the binary to slightly reduce file size.
+strip = "debuginfo"
+
+# Optimize for build time in CI.
+[profile.ci]
+inherits = "dev"
+opt-level = 0
+debug = "line-tables-only"
+codegen-units = 4
+
+[profile.ci.package."*"]
+opt-level = 0

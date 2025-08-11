@@ -1,5 +1,4 @@
-target/
-.idea/
-.DS_Store
-
-dist/
+# Rust builds
+/target
+# This file contains environment-specific configuration like linker settings
+.cargo/config.toml
