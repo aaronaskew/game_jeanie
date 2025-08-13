@@ -195,12 +195,17 @@ jobs:
 
       - name: Install Rust toolchain
         if: ${{ env.is_platform_enabled == 'true' }}
-        # Pin nightly build to `nightly-2025-08-08` until this is corrected in nightly
+        # Pin nightly build to `nightly-2025-08-09` until this is corrected in nightly
         # https://github.com/bevyengine/bevy/issues/20555
         # TODO: revert back to nightly when regression is corrected
+        #
         # uses: dtolnay/rust-toolchain@nightly
-        uses: dtolnay/rust-toolchain@nightly-2025-08-08
+        # with:
+        #   targets: ${{ matrix.targets }}
+        # 
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: nightly-2025-08-09
           targets: ${{ matrix.targets }}
 
       - name: Restore Rust cache
