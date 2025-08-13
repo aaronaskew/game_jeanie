@@ -34,7 +34,7 @@ impl Plugin for AppPlugin {
                 })
                 .set(WindowPlugin {
                     primary_window: Window {
-                        title: "Game Genie Bevyflock Template".to_string(),
+                        title: "Game Jeanie Bevyflock Template".to_string(),
                         fit_canvas_to_parent: true,
                         ..default()
                     }

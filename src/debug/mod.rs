@@ -1,4 +1,4 @@
-use crate::{GameCanvas, GameState, asteroids::AsteroidsState, pung::PungState};
+use crate::{GameCanvas, GameState, beef_blastoids::BeefBlastoidsState, pung::PungState};
 use avian2d::prelude::PhysicsDebugPlugin;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{
@@ -18,7 +18,7 @@ impl Plugin for DebugPlugin {
             // .add_plugins(LogDiagnosticsPlugin::default())
             .add_systems(Update, log_transitions::<GameState>)
             .add_systems(Update, log_transitions::<PungState>)
-            .add_systems(Update, log_transitions::<AsteroidsState>)
+            .add_systems(Update, log_transitions::<BeefBlastoidsState>)
             .add_systems(Update, game_canvas_gizmo)
             .add_systems(Update, escape)
             .add_plugins(PhysicsDebugPlugin::default())

@@ -78,10 +78,10 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     button_node.clone(),
                     BackgroundColor(button_colors.normal),
                     button_colors.clone(),
-                    ChangeState(GameState::Playing(Game::Asteroids)),
+                    ChangeState(GameState::Playing(Game::BeefBlastoids)),
                 ))
                 .with_child((
-                    Text::new("Play Asteroids"),
+                    Text::new("Play Beef Blastoids"),
                     font.clone(),
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));
@@ -92,10 +92,10 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     button_node.clone(),
                     BackgroundColor(button_colors.normal),
                     button_colors.clone(),
-                    ChangeState(GameState::Playing(Game::PolePosition)),
+                    ChangeState(GameState::Playing(Game::RacePlace)),
                 ))
                 .with_child((
-                    Text::new("Play Pole Position"),
+                    Text::new("Play Race Place"),
                     font.clone(),
                     TextColor(Color::linear_rgb(0.9, 0.9, 0.9)),
                 ));

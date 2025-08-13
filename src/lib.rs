@@ -3,15 +3,15 @@
 use bevy::prelude::*;
 
 mod actions;
-pub mod asteroids;
+pub mod beef_blastoids;
 mod game_canvas;
 mod loading;
 mod menu;
-pub mod pole_position;
 pub mod pung;
+pub mod race_place;
 
 use crate::actions::ActionsPlugin;
-use crate::asteroids::AsteroidsPlugin;
+use crate::beef_blastoids::BeefBlastoidsPlugin;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
@@ -32,8 +32,8 @@ pub struct Player;
 #[derive(Clone, PartialEq, Eq, Debug, Hash)]
 enum Game {
     Pung,
-    Asteroids,
-    PolePosition,
+    BeefBlastoids,
+    RacePlace,
 }
 
 #[derive(States, Clone, PartialEq, Eq, Debug, Hash)]
@@ -63,7 +63,7 @@ impl Plugin for GamePlugin {
             .add_plugins(MenuPlugin)
             .add_plugins(ActionsPlugin)
             .add_plugins(PungPlugin)
-            .add_plugins(AsteroidsPlugin)
+            .add_plugins(BeefBlastoidsPlugin)
             .add_systems(
                 Startup,
                 (setup_camera, setup_game_canvas, setup_root_node).chain(),
