@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 mod actions;
 pub mod asteroids;
+mod game_canvas;
 mod loading;
 mod menu;
 pub mod pole_position;
@@ -11,6 +12,7 @@ pub mod pung;
 
 use crate::actions::ActionsPlugin;
 use crate::asteroids::AsteroidsPlugin;
+use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::pung::PungPlugin;
@@ -21,20 +23,6 @@ mod debug;
 use crate::debug::DebugPlugin;
 
 const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
-
-/// Component that designates the area that sub-games will use to mimic
-/// their 4:3 aspect ratios. Child of the main camera to allow arbitrary
-/// placement of the game screen.
-#[derive(Component, Reflect, Debug, Deref)]
-#[reflect(Component)]
-struct GameCanvas(Vec2);
-
-#[derive(Bundle, Debug)]
-struct GameCanvasBundle {
-    game_canvas: GameCanvas,
-    child_of: ChildOf,
-    transform: Transform,
-}
 
 #[derive(Component)]
 pub struct Player;
