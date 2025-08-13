@@ -11,9 +11,9 @@ const THRUST_MAGNITUDE: f32 = 100.;
 const ROTATION_SPEED: f32 = 0.5 * 2. * PI;
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
-#[source(GameState = GameState::Playing(Game::Asteroids))]
+#[source(GameState = GameState::Playing(Game::BeefBlastoids))]
 #[states(scoped_entities)]
-pub(crate) enum AsteroidsState {
+pub(crate) enum BeefBlastoidsState {
     #[default]
     Running,
     _GameOver,
@@ -22,17 +22,17 @@ pub(crate) enum AsteroidsState {
 #[derive(Resource, Deref)]
 struct _Lives(u32);
 
-pub(crate) struct AsteroidsPlugin;
+pub(crate) struct BeefBlastoidsPlugin;
 
-impl Plugin for AsteroidsPlugin {
+impl Plugin for BeefBlastoidsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(PhysicsPlugins::default())
             .insert_resource(Gravity::ZERO)
-            .add_sub_state::<AsteroidsState>()
-            .add_systems(OnEnter(AsteroidsState::Running), spawn_ship)
+            .add_sub_state::<BeefBlastoidsState>()
+            .add_systems(OnEnter(BeefBlastoidsState::Running), spawn_ship)
             .add_systems(
                 FixedUpdate,
-                handle_screen_wrap.run_if(in_state(GameState::Playing(Game::Asteroids))),
+                handle_screen_wrap.run_if(in_state(GameState::Playing(Game::BeefBlastoids))),
             )
             .add_observer(apply_rotation)
             .add_observer(apply_thrust)
@@ -146,7 +146,7 @@ fn spawn_ship(mut commands: Commands, mut gizmo_assets: ResMut<Assets<GizmoAsset
         RigidBody::Kinematic,
         // ExternalForce::ZERO.with_persistence(false),
         Collider::triangle(verts[0], verts[1], verts[2]),
-        StateScoped(AsteroidsState::Running),
+        StateScoped(BeefBlastoidsState::Running),
     ));
 }
 
