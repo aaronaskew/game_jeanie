@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{Game, GameResult, GameState, Player};
+use crate::{Game, GameResult, GameState, Player, RootNode, game_canvas::GameCanvas};
 
 const BALL_SPEED: f32 = 4.;
 const BALL_SIZE: f32 = 5.;
@@ -157,12 +157,14 @@ fn update_scoreboard(
     }
 }
 
-fn spawn_scoreboard(mut commands: Commands) {
+fn spawn_scoreboard(mut commands: Commands, root_node: Single<Entity, With<RootNode>>) {
+    let font_size = 24.0;
+
     commands.spawn((
         PlayerScore,
         Text::new("0"),
         TextFont {
-            font_size: 72.0,
+            font_size,
             ..default()
         },
         TextColor(Color::WHITE),
@@ -173,6 +175,7 @@ fn spawn_scoreboard(mut commands: Commands) {
             right: Val::Px(15.0),
             ..default()
         },
+        ChildOf(*root_node),
         StateScoped(GameState::Playing(Game::Pung)),
     ));
 
@@ -180,7 +183,7 @@ fn spawn_scoreboard(mut commands: Commands) {
         AiScore,
         Text::new("0"),
         TextFont {
-            font_size: 72.0,
+            font_size,
             ..default()
         },
         TextColor(Color::WHITE),
@@ -191,6 +194,7 @@ fn spawn_scoreboard(mut commands: Commands) {
             left: Val::Px(15.0),
             ..default()
         },
+        ChildOf(*root_node),
         StateScoped(GameState::Playing(Game::Pung)),
     ));
 }
@@ -206,18 +210,16 @@ fn update_score(mut score: ResMut<PungScore>, mut events: EventReader<PungScored
 
 fn detect_scoring(
     mut ball: Query<&mut Position, With<Ball>>,
-    window: Query<&Window>,
     mut events: EventWriter<PungScored>,
+    canvas: Single<&GameCanvas>,
 ) {
-    if let Ok(window) = window.single() {
-        let window_width = window.resolution.width();
+    let width = canvas.width();
 
-        if let Ok(ball) = ball.single_mut() {
-            if ball.0.x > window_width / 2. {
-                events.write(PungScored(Scorer::Ai));
-            } else if ball.0.x < -window_width / 2. {
-                events.write(PungScored(Scorer::Player));
-            }
+    if let Ok(ball) = ball.single_mut() {
+        if ball.0.x > width / 2. {
+            events.write(PungScored(Scorer::Ai));
+        } else if ball.0.x < -width / 2. {
+            events.write(PungScored(Scorer::Player));
         }
     }
 }
@@ -261,43 +263,45 @@ fn spawn_gutters(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    window: Query<&Window>,
+    query: Single<(Entity, &GameCanvas)>,
 ) {
-    if let Ok(window) = window.single() {
-        let window_width = window.resolution.width();
-        let window_height = window.resolution.height();
+    let (canvas_entity, canvas) = *query;
 
-        // We take half the window height because the center of our screen
-        // is (0, 0). The padding would be half the height of the gutter as its
-        // origin is also center rather than top left
-        let top_gutter_y = window_height / 2. - GUTTER_HEIGHT / 2.;
-        let bottom_gutter_y = -window_height / 2. + GUTTER_HEIGHT / 2.;
+    let width = canvas.width();
+    let height = canvas.height();
 
-        let shape = Rectangle::from_size(Vec2::new(window_width, GUTTER_HEIGHT));
-        let color = Color::srgb(0., 0., 0.);
+    // We take half the height because the center of our screen
+    // is (0, 0). The padding would be half the height of the gutter as its
+    // origin is also center rather than top left
+    let top_gutter_y = height / 2. - GUTTER_HEIGHT / 2.;
+    let bottom_gutter_y = -height / 2. + GUTTER_HEIGHT / 2.;
 
-        // We can share these meshes between our gutters by cloning them
-        let mesh_handle = meshes.add(shape);
-        let material_handle = materials.add(color);
+    let shape = Rectangle::from_size(Vec2::new(width, GUTTER_HEIGHT));
+    let color = Color::srgb(0., 0., 0.);
 
-        commands.spawn((
-            Gutter,
-            Shape(shape.size()),
-            Position(Vec2::new(0., top_gutter_y)),
-            Mesh2d(mesh_handle.clone()),
-            MeshMaterial2d(material_handle.clone()),
-            StateScoped(GameState::Playing(Game::Pung)),
-        ));
+    // We can share these meshes between our gutters by cloning them
+    let mesh_handle = meshes.add(shape);
+    let material_handle = materials.add(color);
 
-        commands.spawn((
-            Gutter,
-            Shape(shape.size()),
-            Position(Vec2::new(0., bottom_gutter_y)),
-            Mesh2d(mesh_handle.clone()),
-            MeshMaterial2d(material_handle.clone()),
-            StateScoped(GameState::Playing(Game::Pung)),
-        ));
-    }
+    commands.spawn((
+        Gutter,
+        Shape(shape.size()),
+        Position(Vec2::new(0., top_gutter_y)),
+        Mesh2d(mesh_handle.clone()),
+        MeshMaterial2d(material_handle.clone()),
+        StateScoped(GameState::Playing(Game::Pung)),
+        ChildOf(canvas_entity),
+    ));
+
+    commands.spawn((
+        Gutter,
+        Shape(shape.size()),
+        Position(Vec2::new(0., bottom_gutter_y)),
+        Mesh2d(mesh_handle.clone()),
+        MeshMaterial2d(material_handle.clone()),
+        StateScoped(GameState::Playing(Game::Pung)),
+        ChildOf(canvas_entity),
+    ));
 }
 
 fn project_positions(mut positionables: Query<(&mut Transform, &Position)>) {
@@ -314,16 +318,14 @@ fn move_ball(mut ball: Query<(&mut Position, &Velocity), With<Ball>>) {
 
 fn move_paddles(
     mut paddle: Query<(&mut Position, &Velocity), With<Paddle>>,
-    window: Query<&Window>,
+    canvas: Single<&GameCanvas>,
 ) {
-    if let Ok(window) = window.single() {
-        let window_height = window.resolution.height();
+    let height = canvas.height();
 
-        for (mut position, velocity) in &mut paddle {
-            let new_position = position.0 + velocity.0 * PADDLE_SPEED;
-            if new_position.y.abs() < window_height / 2. - GUTTER_HEIGHT - PADDLE_HEIGHT / 2. {
-                position.0 = new_position;
-            }
+    for (mut position, velocity) in &mut paddle {
+        let new_position = position.0 + velocity.0 * PADDLE_SPEED;
+        if new_position.y.abs() < height / 2. - GUTTER_HEIGHT - PADDLE_HEIGHT / 2. {
+            position.0 = new_position;
         }
     }
 }
@@ -389,47 +391,50 @@ fn spawn_paddles(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    window: Query<&Window>,
+    query: Single<(Entity, &GameCanvas)>,
 ) {
     println!("Spawning paddles...");
 
-    if let Ok(window) = window.single() {
-        let window_width = window.resolution.width();
-        let padding = 50.;
-        let right_paddle_x = window_width / 2. - padding;
-        let left_paddle_x = -window_width / 2. + padding;
+    let (canvas_entity, canvas) = *query;
 
-        let shape = Rectangle::new(PADDLE_WIDTH, PADDLE_HEIGHT);
+    let width = canvas.width();
+    let padding = 50.;
+    let right_paddle_x = width / 2. - padding;
+    let left_paddle_x = -width / 2. + padding;
 
-        let mesh = meshes.add(shape);
-        let player_color = materials.add(Color::srgb(0., 1., 0.));
-        let ai_color = materials.add(Color::srgb(0., 0., 1.));
+    let shape = Rectangle::new(PADDLE_WIDTH, PADDLE_HEIGHT);
 
-        commands.spawn((
-            Player,
-            Paddle,
-            Shape(shape.size()),
-            Position(Vec2::new(right_paddle_x, 0.)),
-            Mesh2d(mesh.clone()),
-            MeshMaterial2d(player_color.clone()),
-            StateScoped(GameState::Playing(Game::Pung)),
-        ));
+    let mesh = meshes.add(shape);
+    let player_color = materials.add(Color::srgb(0., 1., 0.));
+    let ai_color = materials.add(Color::srgb(0., 0., 1.));
 
-        commands.spawn((
-            Ai,
-            Paddle,
-            Position(Vec2::new(left_paddle_x, 0.)),
-            Mesh2d(mesh.clone()),
-            MeshMaterial2d(ai_color.clone()),
-            StateScoped(GameState::Playing(Game::Pung)),
-        ));
-    }
+    commands.spawn((
+        Player,
+        Paddle,
+        Shape(shape.size()),
+        Position(Vec2::new(right_paddle_x, 0.)),
+        Mesh2d(mesh.clone()),
+        MeshMaterial2d(player_color.clone()),
+        StateScoped(GameState::Playing(Game::Pung)),
+        ChildOf(canvas_entity),
+    ));
+
+    commands.spawn((
+        Ai,
+        Paddle,
+        Position(Vec2::new(left_paddle_x, 0.)),
+        Mesh2d(mesh.clone()),
+        MeshMaterial2d(ai_color.clone()),
+        StateScoped(GameState::Playing(Game::Pung)),
+        ChildOf(canvas_entity),
+    ));
 }
 
 fn spawn_ball(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    canvas_entity: Single<Entity, With<GameCanvas>>,
 ) {
     println!("Spawning ball...");
 
@@ -450,6 +455,7 @@ fn spawn_ball(
         Mesh2d(mesh),
         MeshMaterial2d(material),
         StateScoped(GameState::Playing(Game::Pung)),
+        ChildOf(*canvas_entity),
     ));
 }
 
@@ -472,7 +478,11 @@ fn check_for_game_over(mut score: ResMut<PungScore>, mut next_state: ResMut<Next
 #[derive(Component)]
 struct ReturnToMenu;
 
-fn game_over(mut commands: Commands, score: Res<PungScore>) {
+fn game_over(
+    mut commands: Commands,
+    score: Res<PungScore>,
+    root_node: Single<Entity, With<RootNode>>,
+) {
     let message_text = Text::new(match score.result {
         Some(GameResult::Win) => "You win!",
         Some(GameResult::Lose) => "You lose!",
@@ -481,6 +491,7 @@ fn game_over(mut commands: Commands, score: Res<PungScore>) {
 
     commands.spawn((
         StateScoped(PungState::GameOver),
+        ChildOf(*root_node),
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),

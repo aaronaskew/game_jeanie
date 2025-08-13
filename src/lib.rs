@@ -23,6 +23,8 @@ mod debug;
 use crate::debug::DebugPlugin;
 
 const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
+const GAME_CANVAS_POS: Vec2 = Vec2::new(150., 100.);
+const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(470., 20.);
 
 #[derive(Component)]
 pub struct Player;
@@ -62,7 +64,10 @@ impl Plugin for GamePlugin {
             .add_plugins(ActionsPlugin)
             .add_plugins(PungPlugin)
             .add_plugins(AsteroidsPlugin)
-            .add_systems(Startup, (setup_camera, setup_game_canvas).chain());
+            .add_systems(
+                Startup,
+                (setup_camera, setup_game_canvas, setup_root_node).chain(),
+            );
 
         #[cfg(debug_assertions)]
         {
@@ -75,13 +80,38 @@ fn setup_camera(mut commands: Commands) {
     commands.spawn((Camera2d, Msaa::Off));
 }
 
-fn setup_game_canvas(mut commands: Commands, camera_entity: Single<Entity, With<Camera>>) {
-    // Position the GameCanvas relative to the camera
-    let transform = Transform::from_xyz(150., 100., 0.);
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct RootNode;
 
-    commands.spawn((GameCanvasBundle {
-        game_canvas: GameCanvas(GAME_CANVAS_SIZE),
-        child_of: ChildOf(*camera_entity),
-        transform,
-    },));
+fn setup_game_canvas(mut commands: Commands) {
+    let transform = Transform::from_translation(GAME_CANVAS_POS.extend(0.));
+
+    commands.spawn((
+        GameCanvasBundle {
+            game_canvas: GameCanvas(GAME_CANVAS_SIZE),
+            transform,
+            visibility: InheritedVisibility::default(),
+        },
+        Name::new("GameCanvas"),
+    ));
+}
+
+fn setup_root_node(mut commands: Commands, canvas: Single<(&GameCanvas,)>) {
+    let screen_position_top_left = ROOT_NODE_UI_TOP_LEFT;
+
+    dbg!(screen_position_top_left);
+
+    commands.spawn((
+        RootNode,
+        Name::new("RootNode"),
+        Node {
+            position_type: PositionType::Absolute,
+            width: Val::Px(canvas.0.width()),
+            height: Val::Px(canvas.0.height()),
+            left: Val::Px(screen_position_top_left.x),
+            top: Val::Px(screen_position_top_left.y),
+            ..Default::default()
+        },
+    ));
 }

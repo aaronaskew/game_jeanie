@@ -7,9 +7,19 @@ use bevy::prelude::*;
 #[reflect(Component)]
 pub struct GameCanvas(pub Vec2);
 
+impl GameCanvas {
+    pub fn width(&self) -> f32 {
+        self.x
+    }
+
+    pub fn height(&self) -> f32 {
+        self.y
+    }
+}
+
 #[derive(Bundle, Debug)]
 pub struct GameCanvasBundle {
     pub game_canvas: GameCanvas,
-    pub child_of: ChildOf,
     pub transform: Transform,
+    pub visibility: InheritedVisibility,
 }
