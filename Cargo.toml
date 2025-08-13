@@ -25,6 +25,7 @@ webbrowser = { version = "1", features = ["hardened"] }
 bevy-inspector-egui = "0.32.0"
 avian2d = "0.3.1"
 bevy_enhanced_input = "0.15.3"
+bevy_simple_subsecond_system = "0.2.0"
 
 # Your web builds will start failing if you add a dependency that pulls in `getrandom` v0.3+.
 # To fix this, you should tell `getrandom` to use the `wasm_js` backend on Wasm.
