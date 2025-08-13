@@ -1,8 +1,8 @@
 use avian2d::{math::PI, prelude::*};
-use bevy::{color::palettes::css::WHITE, prelude::*, window::PrimaryWindow};
+use bevy::{color::palettes::css::WHITE, prelude::*};
 use bevy_enhanced_input::prelude::*;
 
-use crate::{Game, GameState, Player};
+use crate::{Game, GameState, Player, game_canvas::GameCanvas};
 
 const _MAX_SCORE: u32 = 1;
 const _NUM_LIVES: u32 = 3;
@@ -56,21 +56,39 @@ struct Teleport;
 struct ScreenWrap;
 
 fn handle_screen_wrap(
-    transforms: Query<&mut Transform, With<ScreenWrap>>,
-    window: Single<&Window, With<PrimaryWindow>>,
+    wrappng_transforms: Query<&mut Transform, (With<ScreenWrap>, Without<GameCanvas>)>,
+    canvas: Single<(&GameCanvas, &Transform)>,
 ) {
-    let width = window.resolution.width();
-    let height = window.resolution.height();
+    let (canvas, canvas_transform) = *canvas;
 
-    for mut transform in transforms {
+    // TODO put this into a resource during startup
+
+    let canvas_min_pos = Vec2::new(
+        canvas_transform.translation.x - canvas.width() / 2.,
+        canvas_transform.translation.y - canvas.height() / 2.,
+    );
+    let canvas_max_pos = Vec2::new(
+        canvas_transform.translation.x + canvas.width() / 2.,
+        canvas_transform.translation.y + canvas.height() / 2.,
+    );
+
+    for mut transform in wrappng_transforms {
         let t = &mut transform.translation;
 
-        if t.x < -width / 2.0 || t.x > width / 2.0 {
-            t.x *= -1.0;
+        if t.x < canvas_min_pos.x {
+            t.x = canvas_max_pos.x;
         }
 
-        if t.y < -height / 2.0 || t.y > height / 2.0 {
-            t.y *= -1.0;
+        if t.x > canvas_max_pos.x {
+            t.x = canvas_min_pos.x;
+        }
+
+        if t.y < canvas_min_pos.y {
+            t.y = canvas_max_pos.y;
+        }
+
+        if t.y > canvas_max_pos.y {
+            t.y = canvas_min_pos.y;
         }
     }
 }

@@ -1,7 +1,10 @@
-use crate::{GameState, asteroids::AsteroidsState, pung::PungState};
+use crate::{GameCanvas, GameState, asteroids::AsteroidsState, pung::PungState};
 use avian2d::prelude::PhysicsDebugPlugin;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::{dev_tools::states::log_transitions, prelude::*, window::PrimaryWindow};
+use bevy::{
+    color::palettes::css::GREEN, dev_tools::states::log_transitions, prelude::*,
+    window::PrimaryWindow,
+};
 
 mod world_inspector;
 use world_inspector::DebugWorldInspectorPlugin;
@@ -16,6 +19,7 @@ impl Plugin for DebugPlugin {
             .add_systems(Update, log_transitions::<GameState>)
             .add_systems(Update, log_transitions::<PungState>)
             .add_systems(Update, log_transitions::<AsteroidsState>)
+            .add_systems(Update, game_canvas_gizmo)
             .add_systems(Update, escape)
             .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(DebugWorldInspectorPlugin);
@@ -48,4 +52,14 @@ fn escape(
             }
         }
     }
+}
+
+fn game_canvas_gizmo(game_canvas_query: Single<(&GameCanvas, &Transform)>, mut gizmos: Gizmos) {
+    let (game_canvas, transform) = *game_canvas_query;
+
+    gizmos.rect_2d(
+        Isometry2d::from_translation(transform.translation.truncate()),
+        **game_canvas,
+        GREEN,
+    );
 }
