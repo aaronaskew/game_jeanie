@@ -2559,7 +2559,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "game_genie"
+name = "game_jeanie"
 version = "0.1.1"
 dependencies = [
  "avian2d",

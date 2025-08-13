@@ -9,7 +9,7 @@ use bevy::prelude::*;
 // use std::io::Cursor;
 // use winit::window::Icon;
 
-use game_genie::GamePlugin;
+use game_jeanie::GamePlugin;
 
 fn main() {
     App::new()
@@ -18,7 +18,7 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "Game Genie".to_string(), // ToDo
+                        title: "Game Jeanie".to_string(), // ToDo
                         // Bind to canvas included in `index.html`
                         canvas: Some("#bevy".to_owned()),
                         fit_canvas_to_parent: true,
