@@ -5,13 +5,12 @@ use bevy::{
 
 use crate::{Game, GameResult, GameState, Player};
 
-const BALL_SPEED: f32 = 10.;
+const BALL_SPEED: f32 = 4.;
 const BALL_SIZE: f32 = 5.;
 const PADDLE_SPEED: f32 = 4.;
 const PADDLE_WIDTH: f32 = 10.;
 const PADDLE_HEIGHT: f32 = 50.;
 const GUTTER_HEIGHT: f32 = 96.;
-
 const MAX_SCORE: u32 = 1;
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]

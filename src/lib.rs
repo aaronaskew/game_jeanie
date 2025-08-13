@@ -1,5 +1,7 @@
 #![allow(clippy::type_complexity)]
 
+use bevy::prelude::*;
+
 mod actions;
 pub mod asteroids;
 mod loading;
@@ -13,13 +15,26 @@ use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::pung::PungPlugin;
 
-use bevy::app::App;
-use bevy::prelude::*;
-
 #[cfg(debug_assertions)]
 mod debug;
 #[cfg(debug_assertions)]
 use crate::debug::DebugPlugin;
+
+const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
+
+/// Component that designates the area that sub-games will use to mimic
+/// their 4:3 aspect ratios. Child of the main camera to allow arbitrary
+/// placement of the game screen.
+#[derive(Component, Reflect, Debug, Deref)]
+#[reflect(Component)]
+struct GameCanvas(Vec2);
+
+#[derive(Bundle, Debug)]
+struct GameCanvasBundle {
+    game_canvas: GameCanvas,
+    child_of: ChildOf,
+    transform: Transform,
+}
 
 #[derive(Component)]
 pub struct Player;
@@ -59,7 +74,7 @@ impl Plugin for GamePlugin {
             .add_plugins(ActionsPlugin)
             .add_plugins(PungPlugin)
             .add_plugins(AsteroidsPlugin)
-            .add_systems(Startup, setup_camera);
+            .add_systems(Startup, (setup_camera, setup_game_canvas).chain());
 
         #[cfg(debug_assertions)]
         {
@@ -70,4 +85,15 @@ impl Plugin for GamePlugin {
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn((Camera2d, Msaa::Off));
+}
+
+fn setup_game_canvas(mut commands: Commands, camera_entity: Single<Entity, With<Camera>>) {
+    // Position the GameCanvas relative to the camera
+    let transform = Transform::from_xyz(150., 100., 0.);
+
+    commands.spawn((GameCanvasBundle {
+        game_canvas: GameCanvas(GAME_CANVAS_SIZE),
+        child_of: ChildOf(*camera_entity),
+        transform,
+    },));
 }
