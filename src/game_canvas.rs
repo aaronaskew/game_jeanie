@@ -17,6 +17,8 @@ impl GameCanvas {
     }
 }
 
+// TODO: Init a resource to store all the transform logic
+
 #[derive(Bundle, Debug)]
 pub struct GameCanvasBundle {
     pub game_canvas: GameCanvas,
