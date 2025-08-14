@@ -19,7 +19,7 @@ impl Plugin for DebugPlugin {
             .add_systems(Update, log_transitions::<GameState>)
             .add_systems(Update, log_transitions::<PungState>)
             .add_systems(Update, log_transitions::<BeefBlastoidsState>)
-            .add_systems(Update, game_canvas_gizmo)
+            // .add_systems(Update, game_canvas_gizmo)
             .add_systems(Update, escape)
             .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(DebugWorldInspectorPlugin);
