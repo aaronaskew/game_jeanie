@@ -1,10 +1,7 @@
-use crate::{GameCanvas, GameState, beef_blastoids::BeefBlastoidsState, pung::PungState};
+use crate::{GameState, beef_blastoids::BeefBlastoidsState, pung::PungState};
 use avian2d::prelude::PhysicsDebugPlugin;
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::{
-    color::palettes::css::GREEN, dev_tools::states::log_transitions, prelude::*,
-    window::PrimaryWindow,
-};
+use bevy::{dev_tools::states::log_transitions, prelude::*, window::PrimaryWindow};
 
 mod world_inspector;
 use world_inspector::DebugWorldInspectorPlugin;
@@ -54,12 +51,12 @@ fn escape(
     }
 }
 
-fn game_canvas_gizmo(game_canvas_query: Single<(&GameCanvas, &Transform)>, mut gizmos: Gizmos) {
-    let (game_canvas, transform) = *game_canvas_query;
+// fn game_canvas_gizmo(game_canvas_query: Single<(&GameCanvas, &Transform)>, mut gizmos: Gizmos) {
+//     let (game_canvas, transform) = *game_canvas_query;
 
-    gizmos.rect_2d(
-        Isometry2d::from_translation(transform.translation.truncate()),
-        **game_canvas,
-        GREEN,
-    );
-}
+//     gizmos.rect_2d(
+//         Isometry2d::from_translation(transform.translation.truncate()),
+//         **game_canvas,
+//         GREEN,
+//     );
+// }
