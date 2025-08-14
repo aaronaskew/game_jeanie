@@ -13,7 +13,7 @@ pub mod race_place;
 use crate::actions::ActionsPlugin;
 use crate::beef_blastoids::BeefBlastoidsPlugin;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
-use crate::loading::LoadingPlugin;
+use crate::loading::{LoadingPlugin, TextureAssets};
 use crate::menu::MenuPlugin;
 use crate::pung::PungPlugin;
 
@@ -23,8 +23,8 @@ mod debug;
 use crate::debug::DebugPlugin;
 
 const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
-const GAME_CANVAS_POS: Vec2 = Vec2::new(150., 100.);
-const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(470., 20.);
+const GAME_CANVAS_POS: Vec2 = Vec2::new(243., 43.);
+const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(563., 77.);
 
 #[derive(Component)]
 pub struct Player;
@@ -69,12 +69,36 @@ impl Plugin for GamePlugin {
                 (setup_camera, setup_game_canvas, setup_root_node).chain(),
             );
 
+        app.add_systems(OnEnter(GameState::Menu), setup_playing_background);
+
         #[cfg(debug_assertions)]
         {
             app.add_plugins(DebugPlugin);
         }
     }
 }
+
+/// High-level groupings of systems for the app in the `Update` schedule.
+/// When adding a new variant, make sure to order it in the `configure_sets`
+/// call above.
+#[derive(SystemSet, Debug, Clone, Copy, Eq, PartialEq, Hash, PartialOrd, Ord)]
+enum AppSystems {
+    /// Tick timers.
+    TickTimers,
+    /// Record player input.
+    RecordInput,
+    /// Do everything else (consider splitting this into further variants).
+    Update,
+}
+
+/// Whether or not the game is paused.
+#[derive(States, Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
+#[states(scoped_entities)]
+struct Pause(pub bool);
+
+/// A system set for systems that shouldn't run while the game is paused.
+#[derive(SystemSet, Copy, Clone, Eq, PartialEq, Hash, Debug)]
+struct PausableSystems;
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn((Camera2d, Msaa::Off));
@@ -111,6 +135,20 @@ fn setup_root_node(mut commands: Commands, canvas: Single<(&GameCanvas,)>) {
             height: Val::Px(canvas.0.height()),
             left: Val::Px(screen_position_top_left.x),
             top: Val::Px(screen_position_top_left.y),
+            ..Default::default()
+        },
+        BackgroundColor(Color::srgba(1.0, 0.0, 0.0, 0.0)),
+    ));
+}
+
+// TODO: Move this to the appropriate file/state.
+fn setup_playing_background(mut commands: Commands, texture_assets: Res<TextureAssets>) {
+    commands.spawn((
+        Name::new("Playing Background"),
+        Sprite {
+            image: texture_assets.panel4.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
             ..Default::default()
         },
     ));
