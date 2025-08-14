@@ -27,7 +27,7 @@ impl Default for ButtonColors {
     }
 }
 
-fn setup_menu(mut commands: Commands, ) {
+fn setup_menu(mut commands: Commands) {
     info!("menu");
 
     commands

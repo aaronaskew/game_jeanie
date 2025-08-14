@@ -69,7 +69,7 @@ impl Plugin for GamePlugin {
                 (setup_camera, setup_game_canvas, setup_root_node).chain(),
             );
 
-        app.add_systems(OnEnter(GameState::Menu), setup_playing_background);
+        app.add_systems(OnExit(GameState::Loading), setup_playing_background);
 
         #[cfg(debug_assertions)]
         {
@@ -129,5 +129,6 @@ fn setup_playing_background(mut commands: Commands, texture_assets: Res<TextureA
             image_mode: SpriteImageMode::Auto,
             ..Default::default()
         },
+        Transform::from_xyz(0., 0., 10.),
     ));
 }
