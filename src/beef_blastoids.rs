@@ -6,17 +6,19 @@ use bevy::{
     prelude::*,
 };
 use bevy_enhanced_input::prelude::*;
+use bevy_enoki::Particle2dEffect;
 use rand::{Rng, thread_rng};
 
 use crate::{Game, GameState, Player, game_canvas::GameCanvas};
 
-const _MAX_SCORE: u32 = 1;
-const _NUM_LIVES: u32 = 3;
+const _MAX_SCORE: u32 = 100;
+const NUM_LIVES: u32 = 3;
 const PIXEL_SCALE: f32 = 25.;
 
 const SHIP_THRUST_MAGNITUDE: f32 = 100.;
 const SHIP_MAX_VELOCITY: f32 = 750.;
 const SHIP_ROTATION_SPEED: f32 = 0.5 * 2. * PI;
+const SHIP_INVINCIBLE_TIME: f32 = 2.0;
 
 const BLASTER_COOLDOWN: f32 = 0.1;
 const BULLET_TTL: f32 = 1.0;
@@ -39,10 +41,18 @@ pub fn plugin(app: &mut App) {
             Duration::from_secs_f32(BLASTER_COOLDOWN),
             TimerMode::Once,
         )))
+        .insert_resource(Lives(3))
+        .insert_resource(Score(0))
         .add_sub_state::<BeefBlastoidsState>()
         .add_systems(
             OnEnter(BeefBlastoidsState::Running),
-            (spawn_ship, spawn_beef),
+            (spawn_ship, spawn_beef, reset_game),
+        )
+        .add_sub_state::<RunningState>()
+        .add_systems(OnEnter(RunningState::ShipDestroyed), destroy_ship)
+        .add_systems(
+            Update,
+            handle_ship_particles.run_if(in_state(RunningState::ShipDestroyed)),
         )
         .add_systems(
             FixedUpdate,
@@ -69,8 +79,27 @@ pub(crate) enum BeefBlastoidsState {
     _GameOver,
 }
 
-#[derive(Resource, Deref)]
-struct _Lives(u32);
+#[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
+#[source(BeefBlastoidsState = BeefBlastoidsState::Running)]
+#[states(scoped_entities)]
+pub(crate) enum RunningState {
+    #[default]
+    Normal,
+    ShipInvincible,
+    ShipDestroyed,
+}
+
+#[derive(Resource, Reflect, Debug, Default, Deref, DerefMut)]
+#[reflect(Resource)]
+struct Lives(u32);
+
+#[derive(Resource, Reflect, Debug, Default, Deref, DerefMut)]
+#[reflect(Resource)]
+struct Score(u32);
+
+#[derive(Resource, Reflect, Debug, Default)]
+#[reflect(Resource)]
+struct BlasterCooldown(Timer);
 
 #[derive(InputAction)]
 #[action_output(bool)]
@@ -87,10 +116,6 @@ struct Shoot;
 #[derive(Component)]
 struct ScreenWrap;
 
-#[derive(Resource, Reflect, Debug, Default)]
-#[reflect(Resource)]
-struct BlasterCooldown(Timer);
-
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 struct Bullet(f32);
@@ -98,6 +123,11 @@ struct Bullet(f32);
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 struct Beef;
+
+fn reset_game(mut score: ResMut<Score>, mut lives: ResMut<Lives>) {
+    **score = 0;
+    **lives = NUM_LIVES;
+}
 
 fn spawn_ship(
     mut commands: Commands,
@@ -144,6 +174,7 @@ fn spawn_ship(
             ),
             (
                 Action::<Shoot>::new(),
+                Press::new(1.0),
                 bindings![
                     (KeyCode::Space),
                 ]
@@ -342,7 +373,7 @@ fn generate_beef(radius: f32) -> BoxedPolygon {
 }
 
 fn handle_collisions(
-    // mut commands: Commands,
+    mut commands: Commands,
     mut collision_event_reader: EventReader<CollisionStarted>,
     bullets_query: Query<&Bullet>,
     player_query: Single<(Entity, &Player)>,
@@ -357,7 +388,20 @@ fn handle_collisions(
         let other_collider_entity = collision.1;
 
         if this_collider_entity == player_entity && beef_query.contains(other_collider_entity) {
-            info!("Player hit a beef!");
+            info!("Ship hit a beef!");
+
+            // Destroy ship
+            commands.queue(|world: &mut World| {
+                if let Some(mut lives) = world.get_resource_mut::<Lives>() {
+                    // destroy ship
+
+                    if **lives == 1 {
+                        //game over
+                    } else {
+                        **lives -= 1;
+                    }
+                }
+            });
         }
 
         if bullets_query.contains(this_collider_entity)
@@ -367,3 +411,13 @@ fn handle_collisions(
         }
     }
 }
+
+fn destroy_ship(
+    commands: Commands,
+    particle_assets: Res<Assets<Particle2dEffect>>,
+    lives: ResMut<Lives>,
+    next_state: ResMut<NextState<RunningState>>,
+) {
+}
+
+fn handle_ship_particles(next_state: ResMut<NextState<RunningState>>) {}

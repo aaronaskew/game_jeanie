@@ -1,6 +1,7 @@
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_enoki::Particle2dEffect;
 // use bevy_kira_audio::AudioSource;
 
 pub struct LoadingPlugin;
@@ -32,4 +33,10 @@ impl Plugin for LoadingPlugin {
 pub struct TextureAssets {
     #[asset(path = "textures/panel4.png")]
     pub panel4: Handle<Image>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct ParticleAssets {
+    #[asset(path = "particles/beef_blastoids_explosion.ron")]
+    pub beef_blastoids_explosion: Handle<Particle2dEffect>,
 }
