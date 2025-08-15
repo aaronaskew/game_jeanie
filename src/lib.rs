@@ -11,7 +11,6 @@ pub mod pung;
 pub mod race_place;
 
 use crate::actions::ActionsPlugin;
-use crate::beef_blastoids::BeefBlastoidsPlugin;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::{LoadingPlugin, TextureAssets};
 use crate::menu::MenuPlugin;
@@ -63,7 +62,7 @@ impl Plugin for GamePlugin {
             .add_plugins(MenuPlugin)
             .add_plugins(ActionsPlugin)
             .add_plugins(PungPlugin)
-            .add_plugins(BeefBlastoidsPlugin)
+            .add_plugins(beef_blastoids::plugin)
             .add_systems(
                 Startup,
                 (setup_camera, setup_game_canvas, setup_root_node).chain(),
