@@ -1,4 +1,4 @@
-use std::{f32::consts::TAU, time::Duration};
+use std::{f32::consts::TAU, ops::Deref, time::Duration};
 
 use avian2d::{math::PI, prelude::*};
 use bevy::{
@@ -62,7 +62,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(RunningState::ShipDestroyed), destroy_ship)
         .add_systems(
             Update,
-            handle_ship_particles.run_if(in_state(RunningState::ShipDestroyed)),
+            respawn_timer.run_if(in_state(RunningState::ShipDestroyed)),
         )
         // .add_systems(
         //     FixedUpdate,
@@ -234,7 +234,7 @@ fn spawn_ship(
         CollisionMargin(0.1),
         SweptCcd::default(),
         CollisionLayers::new(SHIP_LAYER_MASK, BEEF_LAYER_MASK | BULLET_LAYER_MASK),
-        CollisionEventsEnabled,
+        CollidingEntities::default(),
         ChildOf(*canvas),
         StateScoped(BeefBlastoidsState::Running),
     ));
@@ -340,7 +340,7 @@ fn shoot_blaster(
             LinearVelocity(BULLET_SPEED * (ship_rotation * Vec2::Y)),
             Position(**ship_position),
             CollisionLayers::new(BULLET_LAYER_MASK, BEEF_LAYER_MASK),
-            CollisionEventsEnabled,
+            CollidingEntities::default(),
             StateScoped(BeefBlastoidsState::Running),
             ChildOf(*canvas),
         ));
@@ -426,32 +426,40 @@ fn generate_beef(radius: f32) -> BoxedPolygon {
 }
 
 fn handle_collisions(
-    mut collision_event_reader: EventReader<CollisionStarted>,
-    bullets_query: Query<&Bullet>,
-    player_query: Single<(Entity, &Player, Option<&Invincible>)>,
+    bullets_query: Query<&CollidingEntities, With<Bullet>>,
+    player_query: Single<(Entity, &Player, Option<&Invincible>, &CollidingEntities)>,
     beef_query: Query<(Entity, &Beef)>,
     mut next_state: ResMut<NextState<RunningState>>,
 ) {
-    let player_entity = player_query.0;
     let player_invincible = player_query.2.is_some();
+    let player_colliding_entities = player_query.3;
 
-    for collision in collision_event_reader.read() {
-        info!("{collision:?}");
+    if !player_colliding_entities.is_empty() {
+        info!("player colliding with {player_colliding_entities:?}");
 
-        let this_collider_entity = collision.0;
-        let other_collider_entity = collision.1;
-
-        if this_collider_entity == player_entity && beef_query.contains(other_collider_entity) {
+        if player_colliding_entities
+            .iter()
+            .any(|entity| beef_query.contains(*entity))
+        {
             info!("Ship hit a beef!");
 
             if !player_invincible {
                 // Destroy ship
                 next_state.set(RunningState::ShipDestroyed);
             }
-        } else if bullets_query.contains(this_collider_entity)
-            && beef_query.contains(other_collider_entity)
-        {
-            info!("Bullet hit a beef!");
+        }
+    }
+
+    for bullet_colliding_entities in bullets_query {
+        if !bullet_colliding_entities.is_empty() {
+            info!("a bullet is colliding with {bullet_colliding_entities:?}");
+
+            for entity in bullet_colliding_entities.iter() {
+                if beef_query.contains(*entity) {
+                    // destroy beef
+                    info!("Bullet hit a beef!");
+                }
+            }
         }
     }
 }
@@ -461,7 +469,6 @@ fn destroy_ship(
     particle_assets: Res<ParticleAssets>,
     mut lives: ResMut<Lives>,
     mut next_state_bb: ResMut<NextState<BeefBlastoidsState>>,
-    mut next_state_running: ResMut<NextState<RunningState>>,
     ship: Single<(Entity, &Transform), With<Player>>,
     canvas: Single<Entity, With<GameCanvas>>,
 ) {
@@ -472,7 +479,7 @@ fn destroy_ship(
         ShipExplosion,
         ParticleSpawner::default(),
         ParticleEffectHandle(particle_assets.beef_blastoids_explosion.clone()),
-        OneShot::Deactivate,
+        OneShot::Despawn,
         Transform::from_translation(ship_transform.translation),
         ChildOf(*canvas),
         Name::new("Ship Explosion"),
@@ -483,18 +490,25 @@ fn destroy_ship(
         next_state_bb.set(BeefBlastoidsState::_GameOver);
     } else {
         **lives -= 1;
-        // next_state_running.set(RunningState::SpawnShip);
     }
 
     commands.entity(ship_entity).despawn();
 }
 
-fn handle_ship_particles(
+fn respawn_timer(
     mut next_state: ResMut<NextState<RunningState>>,
-    explosion_state: Single<&ParticleSpawnerState, With<ShipExplosion>>,
+    mut respawn_timer: Local<Option<Timer>>,
+    time: Res<Time>,
 ) {
-    if !explosion_state.active {
-        next_state.set(RunningState::SpawnShip);
+    if respawn_timer.is_some() {
+        respawn_timer.as_mut().unwrap().tick(time.delta());
+
+        if respawn_timer.as_ref().unwrap().finished() {
+            next_state.set(RunningState::SpawnShip);
+            *respawn_timer = None;
+        }
+    } else {
+        *respawn_timer = Some(Timer::new(Duration::from_secs_f32(2.0), TimerMode::Once));
     }
 }
 
