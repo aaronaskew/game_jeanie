@@ -18,8 +18,6 @@ use crate::pung::PungPlugin;
 
 #[cfg(debug_assertions)]
 mod debug;
-#[cfg(debug_assertions)]
-use crate::debug::DebugPlugin;
 
 const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
 const GAME_CANVAS_POS: Vec2 = Vec2::new(243., 43.);
@@ -72,7 +70,7 @@ impl Plugin for GamePlugin {
 
         #[cfg(debug_assertions)]
         {
-            app.add_plugins(DebugPlugin);
+            app.add_plugins(debug::plugin);
         }
     }
 }

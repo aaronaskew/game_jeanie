@@ -1,26 +1,27 @@
-use crate::{GameState, beef_blastoids::BeefBlastoidsState, pung::PungState};
-use avian2d::prelude::PhysicsDebugPlugin;
+use crate::{
+    GameState,
+    beef_blastoids::{self, BeefBlastoidsState},
+    pung::PungState,
+};
+use avian2d::prelude::{PhysicsDebugPlugin, PhysicsGizmos};
 // use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::{dev_tools::states::log_transitions, prelude::*, window::PrimaryWindow};
 
 mod world_inspector;
 use world_inspector::DebugWorldInspectorPlugin;
 
-pub struct DebugPlugin;
-
-impl Plugin for DebugPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, window_size)
-            // .add_plugins(FrameTimeDiagnosticsPlugin::default())
-            // .add_plugins(LogDiagnosticsPlugin::default())
-            .add_systems(Update, log_transitions::<GameState>)
-            .add_systems(Update, log_transitions::<PungState>)
-            .add_systems(Update, log_transitions::<BeefBlastoidsState>)
-            // .add_systems(Update, game_canvas_gizmo)
-            .add_systems(Update, escape)
-            .add_plugins(PhysicsDebugPlugin::default())
-            .add_plugins(DebugWorldInspectorPlugin);
-    }
+pub(super) fn plugin(app: &mut App) {
+    app.add_systems(Startup, window_size)
+        // .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        // .add_plugins(LogDiagnosticsPlugin::default())
+        .add_systems(Update, log_transitions::<GameState>)
+        .add_systems(Update, log_transitions::<PungState>)
+        .add_systems(Update, log_transitions::<BeefBlastoidsState>)
+        .add_systems(Update, log_transitions::<beef_blastoids::RunningState>)
+        // .add_systems(Update, game_canvas_gizmo)
+        .add_systems(Update, (escape, toggle_physics_gizmos))
+        .add_plugins(PhysicsDebugPlugin::default())
+        .add_plugins(DebugWorldInspectorPlugin);
 }
 
 fn window_size(window: Single<&Window, With<PrimaryWindow>>) {
@@ -48,6 +49,17 @@ fn escape(
                 exit.write(AppExit::Success);
             }
         }
+    }
+}
+
+fn toggle_physics_gizmos(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut config_store: ResMut<GizmoConfigStore>,
+) {
+    let (physics_gizmo_config, _) = config_store.config_mut::<PhysicsGizmos>();
+
+    if keys.just_pressed(KeyCode::KeyP) {
+        physics_gizmo_config.enabled ^= true;
     }
 }
 

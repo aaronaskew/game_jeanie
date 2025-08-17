@@ -6,10 +6,13 @@ use bevy::{
     prelude::*,
 };
 use bevy_enhanced_input::prelude::*;
-use bevy_enoki::Particle2dEffect;
+use bevy_enoki::{
+    EnokiPlugin, ParticleEffectHandle, ParticleSpawner,
+    prelude::{OneShot, ParticleSpawnerState},
+};
 use rand::{Rng, thread_rng};
 
-use crate::{Game, GameState, Player, game_canvas::GameCanvas};
+use crate::{Game, GameState, Player, game_canvas::GameCanvas, loading::ParticleAssets};
 
 const _MAX_SCORE: u32 = 100;
 const NUM_LIVES: u32 = 3;
@@ -18,10 +21,11 @@ const PIXEL_SCALE: f32 = 25.;
 const SHIP_THRUST_MAGNITUDE: f32 = 100.;
 const SHIP_MAX_VELOCITY: f32 = 750.;
 const SHIP_ROTATION_SPEED: f32 = 0.5 * 2. * PI;
-const SHIP_INVINCIBLE_TIME: f32 = 2.0;
+const SHIP_INVINCIBLE_TIME: f32 = 5.0;
+const SHIP_BLINK_RATE: f32 = 50.0;
 
 const BLASTER_COOLDOWN: f32 = 0.1;
-const BULLET_TTL: f32 = 1.0;
+const BULLET_TTL: f32 = 0.5;
 const BULLET_RADIUS: f32 = 2.0;
 const BULLET_SPEED: f32 = 1000.;
 
@@ -35,8 +39,9 @@ const BULLET_LAYER_MASK: u32 = 0b0010;
 const BEEF_LAYER_MASK: u32 = 0b0100;
 
 pub fn plugin(app: &mut App) {
-    app.add_plugins(PhysicsPlugins::default())
+    app.add_plugins((PhysicsPlugins::default(), EnokiPlugin))
         .insert_resource(Gravity::ZERO)
+        .init_gizmo_group::<ShipGizmoGroup>()
         .insert_resource(BlasterCooldown(Timer::new(
             Duration::from_secs_f32(BLASTER_COOLDOWN),
             TimerMode::Once,
@@ -44,18 +49,34 @@ pub fn plugin(app: &mut App) {
         .insert_resource(Lives(3))
         .insert_resource(Score(0))
         .add_sub_state::<BeefBlastoidsState>()
+        .add_sub_state::<RunningState>()
         .add_systems(
             OnEnter(BeefBlastoidsState::Running),
-            (spawn_ship, spawn_beef, reset_game),
+            (spawn_beef, reset_game),
         )
-        .add_sub_state::<RunningState>()
+        .add_systems(OnEnter(RunningState::SpawnShip), spawn_ship)
+        .add_systems(
+            Update,
+            tick_invincibility.run_if(in_state(RunningState::ShipInvincible)),
+        )
         .add_systems(OnEnter(RunningState::ShipDestroyed), destroy_ship)
         .add_systems(
             Update,
             handle_ship_particles.run_if(in_state(RunningState::ShipDestroyed)),
         )
+        // .add_systems(
+        //     FixedUpdate,
+        //     (
+        //         handle_screen_wrap,
+        //         handle_collisions,
+        //         check_bullets_ttl,
+        //         tick_blaster_cooldown,
+        //     )
+        //         .chain()
+        //         .run_if(in_state(GameState::Playing(Game::BeefBlastoids))),
+        // )
         .add_systems(
-            FixedUpdate,
+            Update,
             (
                 handle_screen_wrap,
                 handle_collisions,
@@ -84,8 +105,9 @@ pub(crate) enum BeefBlastoidsState {
 #[states(scoped_entities)]
 pub(crate) enum RunningState {
     #[default]
-    Normal,
+    SpawnShip,
     ShipInvincible,
+    Normal,
     ShipDestroyed,
 }
 
@@ -124,16 +146,23 @@ struct Bullet(f32);
 #[reflect(Component)]
 struct Beef;
 
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct ShipExplosion;
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct Invincible {
+    invincibility_timer: Timer,
+    blink_rate: f32,
+}
+
 fn reset_game(mut score: ResMut<Score>, mut lives: ResMut<Lives>) {
     **score = 0;
     **lives = NUM_LIVES;
 }
 
-fn spawn_ship(
-    mut commands: Commands,
-    mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
-    canvas: Single<Entity, With<GameCanvas>>,
-) {
+fn ship_gizmo_and_verts(visible: bool) -> (GizmoAsset, [Vec2; 3]) {
     let mut ship = GizmoAsset::default();
 
     let verts = [
@@ -145,15 +174,31 @@ fn spawn_ship(
     ship.primitive_2d(
         &Triangle2d::new(verts[0], verts[1], verts[2]),
         Isometry2d::from_xy(0.0, 0.0),
-        WHITE,
+        Color::srgba(1.0, 1.0, 1.0, if visible { 1.0 } else { 0.0 }),
     );
 
+    (ship, verts)
+}
+
+fn spawn_ship(
+    mut commands: Commands,
+    mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
+    canvas: Single<Entity, With<GameCanvas>>,
+    mut next_state: ResMut<NextState<RunningState>>,
+) {
     info!("spawning ship");
+
+    let (ship, verts) = ship_gizmo_and_verts(true);
 
     commands.spawn((
         Player,
         Name::new("Ship"),
         ScreenWrap,
+        Invincible {
+            invincibility_timer: Timer::from_seconds(SHIP_INVINCIBLE_TIME, TimerMode::Once),
+            blink_rate: SHIP_BLINK_RATE,
+        },
+        Visibility::Hidden,
         actions!(Player[
             (
                 Action::<Thrust>::new(),
@@ -186,11 +231,15 @@ fn spawn_ship(
         },
         RigidBody::Kinematic,
         Collider::triangle(verts[0], verts[1], verts[2]),
+        CollisionMargin(0.1),
+        SweptCcd::default(),
         CollisionLayers::new(SHIP_LAYER_MASK, BEEF_LAYER_MASK | BULLET_LAYER_MASK),
         CollisionEventsEnabled,
         ChildOf(*canvas),
         StateScoped(BeefBlastoidsState::Running),
     ));
+
+    next_state.set(RunningState::ShipInvincible);
 }
 
 fn spawn_beef(
@@ -198,7 +247,7 @@ fn spawn_beef(
     mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
     canvas_query: Single<(Entity, &GameCanvas)>,
 ) {
-    let num_beef = 10;
+    let num_beef = 1;
 
     let (canvas_entity, canvas) = *canvas_query;
 
@@ -219,7 +268,7 @@ fn spawn_beef(
         gizmo.primitive_2d(
             &beef,
             Isometry2d::from_translation(Vec2::ZERO),
-            Color::srgba(0.0, 1.0, 0.0, 0.5),
+            Color::srgba(1.0, 1.0, 1.0, 1.0),
         );
 
         commands.spawn((
@@ -231,6 +280,7 @@ fn spawn_beef(
                 ..default()
             },
             RigidBody::Kinematic,
+            SweptCcd::default(),
             LinearVelocity(vec2(rng.gen_range(-10.0..10.), rng.gen_range(-10.0..10.))),
             AngularVelocity(rng.gen_range((-TAU / 10.)..(TAU / 10.))),
             Transform::from_xyz(
@@ -253,6 +303,7 @@ fn spawn_beef(
                     ..Default::default()
                 },
             ),
+            CollisionMargin(0.1),
             DebugRender::default().with_collider_color(Color::from(RED)),
             CollisionLayers::new(BEEF_LAYER_MASK, SHIP_LAYER_MASK | BULLET_LAYER_MASK),
             ChildOf(canvas_entity),
@@ -283,7 +334,9 @@ fn shoot_blaster(
             Mesh2d(meshes.add(Circle::new(BULLET_RADIUS))),
             MeshMaterial2d(materials.add(ColorMaterial::from_color(WHITE))),
             RigidBody::Kinematic,
+            SweptCcd::default(),
             Collider::circle(BULLET_RADIUS),
+            CollisionMargin(0.1),
             LinearVelocity(BULLET_SPEED * (ship_rotation * Vec2::Y)),
             Position(**ship_position),
             CollisionLayers::new(BULLET_LAYER_MASK, BEEF_LAYER_MASK),
@@ -373,13 +426,14 @@ fn generate_beef(radius: f32) -> BoxedPolygon {
 }
 
 fn handle_collisions(
-    mut commands: Commands,
     mut collision_event_reader: EventReader<CollisionStarted>,
     bullets_query: Query<&Bullet>,
-    player_query: Single<(Entity, &Player)>,
+    player_query: Single<(Entity, &Player, Option<&Invincible>)>,
     beef_query: Query<(Entity, &Beef)>,
+    mut next_state: ResMut<NextState<RunningState>>,
 ) {
     let player_entity = player_query.0;
+    let player_invincible = player_query.2.is_some();
 
     for collision in collision_event_reader.read() {
         info!("{collision:?}");
@@ -390,21 +444,11 @@ fn handle_collisions(
         if this_collider_entity == player_entity && beef_query.contains(other_collider_entity) {
             info!("Ship hit a beef!");
 
-            // Destroy ship
-            commands.queue(|world: &mut World| {
-                if let Some(mut lives) = world.get_resource_mut::<Lives>() {
-                    // destroy ship
-
-                    if **lives == 1 {
-                        //game over
-                    } else {
-                        **lives -= 1;
-                    }
-                }
-            });
-        }
-
-        if bullets_query.contains(this_collider_entity)
+            if !player_invincible {
+                // Destroy ship
+                next_state.set(RunningState::ShipDestroyed);
+            }
+        } else if bullets_query.contains(this_collider_entity)
             && beef_query.contains(other_collider_entity)
         {
             info!("Bullet hit a beef!");
@@ -413,11 +457,72 @@ fn handle_collisions(
 }
 
 fn destroy_ship(
-    commands: Commands,
-    particle_assets: Res<Assets<Particle2dEffect>>,
-    lives: ResMut<Lives>,
-    next_state: ResMut<NextState<RunningState>>,
+    mut commands: Commands,
+    particle_assets: Res<ParticleAssets>,
+    mut lives: ResMut<Lives>,
+    mut next_state_bb: ResMut<NextState<BeefBlastoidsState>>,
+    mut next_state_running: ResMut<NextState<RunningState>>,
+    ship: Single<(Entity, &Transform), With<Player>>,
+    canvas: Single<Entity, With<GameCanvas>>,
 ) {
+    let (ship_entity, ship_transform) = ship.into_inner();
+
+    // spawn explosion particles
+    commands.spawn((
+        ShipExplosion,
+        ParticleSpawner::default(),
+        ParticleEffectHandle(particle_assets.beef_blastoids_explosion.clone()),
+        OneShot::Deactivate,
+        Transform::from_translation(ship_transform.translation),
+        ChildOf(*canvas),
+        Name::new("Ship Explosion"),
+        StateScoped(RunningState::ShipDestroyed),
+    ));
+
+    if **lives == 1 {
+        next_state_bb.set(BeefBlastoidsState::_GameOver);
+    } else {
+        **lives -= 1;
+        // next_state_running.set(RunningState::SpawnShip);
+    }
+
+    commands.entity(ship_entity).despawn();
 }
 
-fn handle_ship_particles(next_state: ResMut<NextState<RunningState>>) {}
+fn handle_ship_particles(
+    mut next_state: ResMut<NextState<RunningState>>,
+    explosion_state: Single<&ParticleSpawnerState, With<ShipExplosion>>,
+) {
+    if !explosion_state.active {
+        next_state.set(RunningState::SpawnShip);
+    }
+}
+
+fn tick_invincibility(
+    mut commands: Commands,
+    ship: Single<(Entity, &mut Invincible, &mut Gizmo), With<Player>>,
+    time: Res<Time>,
+    mut next_state: ResMut<NextState<RunningState>>,
+    mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
+) {
+    let (entity, mut invincible, mut gizmo_component) = ship.into_inner();
+
+    invincible.invincibility_timer.tick(time.delta());
+
+    let blink_visibility = (time.elapsed_secs() * SHIP_BLINK_RATE).sin() > 0.0;
+    // if let Some(gizmo_asset) = gizmo_assets.get_mut(&handle) {
+    let (ship_gizmo_asset, _) =
+        ship_gizmo_and_verts(if invincible.invincibility_timer.finished() {
+            commands.entity(entity).remove::<Invincible>();
+            next_state.set(RunningState::Normal);
+
+            true
+        } else {
+            blink_visibility
+        });
+
+    gizmo_component.handle = gizmo_assets.add(ship_gizmo_asset);
+}
+
+#[derive(Default, Reflect, GizmoConfigGroup)]
+struct ShipGizmoGroup;

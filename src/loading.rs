@@ -15,7 +15,8 @@ impl Plugin for LoadingPlugin {
             LoadingState::new(GameState::Loading)
                 .continue_to_state(GameState::Menu)
                 // .load_collection::<AudioAssets>()
-                .load_collection::<TextureAssets>(),
+                .load_collection::<TextureAssets>()
+                .load_collection::<ParticleAssets>(),
         );
     }
 }
