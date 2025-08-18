@@ -13,7 +13,7 @@ mod ui;
 
 use crate::{Game, GameState, Player, game_canvas::GameCanvas, loading::ParticleAssets};
 
-const _MAX_SCORE: u32 = 100;
+const MAX_SCORE: u32 = 1000;
 const NUM_LIVES: u32 = 3;
 const PIXEL_SCALE: f32 = 25.;
 
@@ -69,17 +69,6 @@ pub fn plugin(app: &mut App) {
             Update,
             destroy_beef.run_if(in_state(BeefBlastoidsState::Running)),
         )
-        // .add_systems(
-        //     FixedUpdate,
-        //     (
-        //         handle_screen_wrap,
-        //         handle_collisions,
-        //         check_bullets_ttl,
-        //         tick_blaster_cooldown,
-        //     )
-        //         .chain()
-        //         .run_if(in_state(GameState::Playing(Game::BeefBlastoids))),
-        // )
         .add_systems(
             Update,
             (
@@ -87,6 +76,7 @@ pub fn plugin(app: &mut App) {
                 handle_collisions,
                 check_bullets_ttl,
                 tick_blaster_cooldown,
+                game_over_check,
             )
                 .chain()
                 .run_if(in_state(GameState::Playing(Game::BeefBlastoids))),
@@ -102,7 +92,9 @@ pub fn plugin(app: &mut App) {
 pub(crate) enum BeefBlastoidsState {
     #[default]
     Running,
-    GameOver,
+    GameOver {
+        won: bool,
+    },
 }
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
@@ -169,6 +161,9 @@ struct Invincible {
     invincibility_timer: Timer,
     blink_rate: f32,
 }
+
+#[derive(Default, Reflect, GizmoConfigGroup)]
+struct ShipGizmoGroup;
 
 #[derive(Bundle)]
 struct BeefBundle {
@@ -500,28 +495,18 @@ fn handle_collisions(
     let player_invincible = player_query.2.is_some();
     let player_colliding_entities = player_query.3;
 
-    if !player_colliding_entities.is_empty() {
-        // info!("player colliding with {player_colliding_entities:?}");
-
-        if player_colliding_entities
+    if !player_colliding_entities.is_empty()
+        && player_colliding_entities
             .iter()
             .any(|entity| beef_query.contains(*entity))
-        {
-            // info!("Ship hit a beef!");
-
-            if !player_invincible {
-                // Destroy ship
-                next_state.set(RunningState::ShipDestroyed);
-            }
-        }
+        && !player_invincible
+    {
+        // Destroy ship
+        next_state.set(RunningState::ShipDestroyed);
     }
 
     for (bullet_entity, bullet_colliding_entities) in bullets_query {
         if !bullet_colliding_entities.is_empty() {
-            info!("a bullet is colliding with {bullet_colliding_entities:?}");
-
-            info!("beef_query len: {}", beef_query.iter().len());
-
             for entity in bullet_colliding_entities.iter() {
                 if beef_query.contains(*entity) {
                     commands.entity(*entity).insert(DestroyBeef);
@@ -559,7 +544,7 @@ fn destroy_beef(
         && let Some(last_beef) = destroy_beef_query.iter().next()
         && *last_beef.4 == BeefSize::Small
     {
-        next_state.set(BeefBlastoidsState::GameOver);
+        next_state.set(BeefBlastoidsState::GameOver { won: true });
     }
 
     for (entity, transform, linear_velocity, angular_velocity, beef_size) in destroy_beef_query {
@@ -638,7 +623,6 @@ fn destroy_beef(
 fn destroy_ship(
     mut commands: Commands,
     mut lives: ResMut<Lives>,
-    mut next_state_bb: ResMut<NextState<BeefBlastoidsState>>,
     ship: Single<(Entity, &Transform), With<Player>>,
     particle_assets: Res<ParticleAssets>,
     canvas: Single<Entity, With<GameCanvas>>,
@@ -656,11 +640,7 @@ fn destroy_ship(
         StateScoped(RunningState::ShipDestroyed),
     ));
 
-    if **lives == 1 {
-        next_state_bb.set(BeefBlastoidsState::GameOver);
-    } else {
-        **lives -= 1;
-    }
+    **lives -= 1;
 
     commands.entity(ship_entity).despawn();
 }
@@ -708,5 +688,16 @@ fn tick_invincibility(
     gizmo_component.handle = gizmo_assets.add(ship_gizmo_asset);
 }
 
-#[derive(Default, Reflect, GizmoConfigGroup)]
-struct ShipGizmoGroup;
+fn game_over_check(
+    score: Res<Score>,
+    lives: Res<Lives>,
+    mut next_state: ResMut<NextState<BeefBlastoidsState>>,
+) {
+    if **score >= MAX_SCORE {
+        next_state.set(BeefBlastoidsState::GameOver { won: true });
+    }
+
+    if **lives == 0 {
+        next_state.set(BeefBlastoidsState::GameOver { won: false });
+    }
+}
