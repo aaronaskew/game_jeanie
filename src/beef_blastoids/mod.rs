@@ -1,4 +1,4 @@
-use std::{f32::consts::TAU, ops::Deref, time::Duration};
+use std::{f32::consts::TAU, time::Duration};
 
 use avian2d::{math::PI, prelude::*};
 use bevy::{
@@ -6,11 +6,10 @@ use bevy::{
     prelude::*,
 };
 use bevy_enhanced_input::prelude::*;
-use bevy_enoki::{
-    EnokiPlugin, ParticleEffectHandle, ParticleSpawner,
-    prelude::{OneShot, ParticleSpawnerState},
-};
+use bevy_enoki::{EnokiPlugin, ParticleEffectHandle, ParticleSpawner, prelude::OneShot};
 use rand::{Rng, thread_rng};
+
+mod ui;
 
 use crate::{Game, GameState, Player, game_canvas::GameCanvas, loading::ParticleAssets};
 
@@ -33,13 +32,15 @@ const BEEF_NUM_VERTS: u8 = 10;
 const BEEF_RADIUS: f32 = 50.;
 // percent of radius
 const BEEF_RADIUS_VARIANCE: f32 = 0.25;
+const BEEF_SCORE_VALUE: u32 = 100;
 
 const SHIP_LAYER_MASK: u32 = 0b0001;
 const BULLET_LAYER_MASK: u32 = 0b0010;
 const BEEF_LAYER_MASK: u32 = 0b0100;
 
 pub fn plugin(app: &mut App) {
-    app.add_plugins((PhysicsPlugins::default(), EnokiPlugin))
+    app.add_plugins(ui::plugin)
+        .add_plugins((PhysicsPlugins::default(), EnokiPlugin))
         .insert_resource(Gravity::ZERO)
         .init_gizmo_group::<ShipGizmoGroup>()
         .insert_resource(BlasterCooldown(Timer::new(
@@ -63,6 +64,10 @@ pub fn plugin(app: &mut App) {
         .add_systems(
             Update,
             respawn_timer.run_if(in_state(RunningState::ShipDestroyed)),
+        )
+        .add_systems(
+            Update,
+            destroy_beef.run_if(in_state(BeefBlastoidsState::Running)),
         )
         // .add_systems(
         //     FixedUpdate,
@@ -97,7 +102,7 @@ pub fn plugin(app: &mut App) {
 pub(crate) enum BeefBlastoidsState {
     #[default]
     Running,
-    _GameOver,
+    GameOver,
 }
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
@@ -146,15 +151,43 @@ struct Bullet(f32);
 #[reflect(Component)]
 struct Beef;
 
+#[derive(Component, Reflect, Debug, PartialEq, Eq)]
+#[reflect(Component)]
+enum BeefSize {
+    Large,
+    Medium,
+    Small,
+}
+
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
-struct ShipExplosion;
+struct DestroyBeef;
 
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 struct Invincible {
     invincibility_timer: Timer,
     blink_rate: f32,
+}
+
+#[derive(Bundle)]
+struct BeefBundle {
+    beef: Beef,
+    beef_size: BeefSize,
+    name: Name,
+    screen_wrap: ScreenWrap,
+    gizmo: Gizmo,
+    rb: RigidBody,
+    sweptccd: SweptCcd,
+    l_vel: LinearVelocity,
+    a_vel: AngularVelocity,
+    transform: Transform,
+    collider: Collider,
+    collision_margin: CollisionMargin,
+    debug_render: DebugRender,
+    collision_layers: CollisionLayers,
+    child_of: ChildOf,
+    state_scoped: StateScoped<BeefBlastoidsState>,
 }
 
 fn reset_game(mut score: ResMut<Score>, mut lives: ResMut<Lives>) {
@@ -242,72 +275,119 @@ fn spawn_ship(
     next_state.set(RunningState::ShipInvincible);
 }
 
+fn generate_beef_polygon(radius: f32) -> BoxedPolygon {
+    let mut rng = thread_rng();
+
+    BoxedPolygon::new((0..BEEF_NUM_VERTS).map(|i| {
+        let theta = (i as f32) / (BEEF_NUM_VERTS as f32) * TAU;
+
+        let radius = radius * (1. + rng.gen_range(-BEEF_RADIUS_VARIANCE..BEEF_RADIUS_VARIANCE));
+
+        let x = f32::cos(theta) * radius;
+        let y = f32::sin(theta) * radius;
+
+        Vec2::new(x, y)
+    }))
+}
+
+fn generate_beef_bundle(
+    beef_size: BeefSize,
+    canvas_entity: Entity,
+    gizmo_assets: &mut ResMut<Assets<GizmoAsset>>,
+    translation: Vec3,
+    linear_velocity: Vec2,
+    angular_velocity: f32,
+) -> BeefBundle {
+    let beef = generate_beef_polygon(match beef_size {
+        BeefSize::Large => BEEF_RADIUS,
+        BeefSize::Medium => BEEF_RADIUS * 0.5,
+        BeefSize::Small => BEEF_RADIUS * 0.25,
+    });
+
+    let mut collider_indices = vec![];
+
+    for i in 0..(beef.vertices.len() - 2) {
+        collider_indices.push([i as u32, i as u32 + 1]);
+    }
+    collider_indices.push([beef.vertices.len() as u32 - 1, 0]);
+
+    let mut gizmo = GizmoAsset::default();
+
+    gizmo.primitive_2d(
+        &beef,
+        Isometry2d::from_translation(Vec2::ZERO),
+        Color::srgba(1.0, 1.0, 1.0, 1.0),
+    );
+
+    BeefBundle {
+        beef: Beef,
+        beef_size,
+        name: Name::new("Beef"),
+        screen_wrap: ScreenWrap,
+        gizmo: Gizmo {
+            handle: gizmo_assets.add(gizmo),
+            ..default()
+        },
+        rb: RigidBody::Kinematic,
+        sweptccd: SweptCcd::default(),
+        l_vel: LinearVelocity(linear_velocity),
+        a_vel: AngularVelocity(angular_velocity),
+        transform: Transform::from_translation(translation),
+        collider: Collider::convex_decomposition_with_config(
+            beef.vertices.to_vec(),
+            collider_indices,
+            &VhacdParameters {
+                concavity: 1.0,
+                alpha: 0.05,
+                beta: 0.05,
+                resolution: 256,
+                plane_downsampling: 4,
+                convex_hull_downsampling: 4,
+                convex_hull_approximation: true,
+                max_convex_hulls: 1024,
+                ..Default::default()
+            },
+        ),
+        collision_margin: CollisionMargin(0.1),
+        debug_render: DebugRender::default().with_collider_color(Color::from(RED)),
+        collision_layers: CollisionLayers::new(
+            BEEF_LAYER_MASK,
+            SHIP_LAYER_MASK | BULLET_LAYER_MASK,
+        ),
+        child_of: ChildOf(canvas_entity),
+        state_scoped: StateScoped(BeefBlastoidsState::Running),
+    }
+}
+
 fn spawn_beef(
     mut commands: Commands,
     mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
     canvas_query: Single<(Entity, &GameCanvas)>,
 ) {
-    let num_beef = 1;
+    let num_beef = 10;
 
     let (canvas_entity, canvas) = *canvas_query;
 
     let mut rng = thread_rng();
 
     for _ in 0..num_beef {
-        let beef = generate_beef(BEEF_RADIUS);
-
-        let mut collider_indices = vec![];
-
-        for i in 0..(beef.vertices.len() - 2) {
-            collider_indices.push([i as u32, i as u32 + 1]);
-        }
-        collider_indices.push([beef.vertices.len() as u32 - 1, 0]);
-
-        let mut gizmo = GizmoAsset::default();
-
-        gizmo.primitive_2d(
-            &beef,
-            Isometry2d::from_translation(Vec2::ZERO),
-            Color::srgba(1.0, 1.0, 1.0, 1.0),
+        let translation = Vec3::new(
+            rng.gen_range((-canvas.width() / 2.)..(canvas.width() / 2.)),
+            rng.gen_range((-canvas.height() / 2.)..(canvas.height() / 2.)),
+            0.,
         );
 
-        commands.spawn((
-            Beef,
-            Name::new("Beef"),
-            ScreenWrap,
-            Gizmo {
-                handle: gizmo_assets.add(gizmo),
-                ..default()
-            },
-            RigidBody::Kinematic,
-            SweptCcd::default(),
-            LinearVelocity(vec2(rng.gen_range(-10.0..10.), rng.gen_range(-10.0..10.))),
-            AngularVelocity(rng.gen_range((-TAU / 10.)..(TAU / 10.))),
-            Transform::from_xyz(
-                rng.gen_range((-canvas.width() / 2.)..(canvas.width() / 2.)),
-                rng.gen_range((-canvas.height() / 2.)..(canvas.height() / 2.)),
-                0.,
-            ),
-            Collider::convex_decomposition_with_config(
-                beef.vertices.to_vec(),
-                collider_indices,
-                &VhacdParameters {
-                    concavity: 1.0,
-                    alpha: 0.05,
-                    beta: 0.05,
-                    resolution: 256,
-                    plane_downsampling: 4,
-                    convex_hull_downsampling: 4,
-                    convex_hull_approximation: true,
-                    max_convex_hulls: 1024,
-                    ..Default::default()
-                },
-            ),
-            CollisionMargin(0.1),
-            DebugRender::default().with_collider_color(Color::from(RED)),
-            CollisionLayers::new(BEEF_LAYER_MASK, SHIP_LAYER_MASK | BULLET_LAYER_MASK),
-            ChildOf(canvas_entity),
-            StateScoped(BeefBlastoidsState::Running),
+        let linear_velocity = vec2(rng.gen_range(-10.0..10.), rng.gen_range(-10.0..10.));
+
+        let angular_velocity = rng.gen_range((-TAU / 10.)..(TAU / 10.));
+
+        commands.spawn(generate_beef_bundle(
+            BeefSize::Large,
+            canvas_entity,
+            &mut gizmo_assets,
+            translation,
+            linear_velocity,
+            angular_velocity,
         ));
     }
 }
@@ -410,38 +490,24 @@ fn check_bullets_ttl(mut commands: Commands, bullets: Query<(Entity, &Bullet)>, 
     }
 }
 
-fn generate_beef(radius: f32) -> BoxedPolygon {
-    let mut rng = thread_rng();
-
-    BoxedPolygon::new((0..BEEF_NUM_VERTS).map(|i| {
-        let theta = (i as f32) / (BEEF_NUM_VERTS as f32) * TAU;
-
-        let radius = radius * (1. + rng.gen_range(-BEEF_RADIUS_VARIANCE..BEEF_RADIUS_VARIANCE));
-
-        let x = f32::cos(theta) * radius;
-        let y = f32::sin(theta) * radius;
-
-        Vec2::new(x, y)
-    }))
-}
-
 fn handle_collisions(
-    bullets_query: Query<&CollidingEntities, With<Bullet>>,
+    bullets_query: Query<(Entity, &CollidingEntities), With<Bullet>>,
     player_query: Single<(Entity, &Player, Option<&Invincible>, &CollidingEntities)>,
     beef_query: Query<(Entity, &Beef)>,
     mut next_state: ResMut<NextState<RunningState>>,
+    mut commands: Commands,
 ) {
     let player_invincible = player_query.2.is_some();
     let player_colliding_entities = player_query.3;
 
     if !player_colliding_entities.is_empty() {
-        info!("player colliding with {player_colliding_entities:?}");
+        // info!("player colliding with {player_colliding_entities:?}");
 
         if player_colliding_entities
             .iter()
             .any(|entity| beef_query.contains(*entity))
         {
-            info!("Ship hit a beef!");
+            // info!("Ship hit a beef!");
 
             if !player_invincible {
                 // Destroy ship
@@ -450,33 +516,137 @@ fn handle_collisions(
         }
     }
 
-    for bullet_colliding_entities in bullets_query {
+    for (bullet_entity, bullet_colliding_entities) in bullets_query {
         if !bullet_colliding_entities.is_empty() {
             info!("a bullet is colliding with {bullet_colliding_entities:?}");
 
+            info!("beef_query len: {}", beef_query.iter().len());
+
             for entity in bullet_colliding_entities.iter() {
                 if beef_query.contains(*entity) {
-                    // destroy beef
-                    info!("Bullet hit a beef!");
+                    commands.entity(*entity).insert(DestroyBeef);
                 }
             }
+
+            commands.entity(bullet_entity).despawn();
         }
+    }
+}
+
+fn destroy_beef(
+    destroy_beef_query: Query<
+        (
+            Entity,
+            &Transform,
+            &LinearVelocity,
+            &AngularVelocity,
+            &BeefSize,
+        ),
+        With<DestroyBeef>,
+    >,
+    all_beef_query: Query<&Beef>,
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<BeefBlastoidsState>>,
+    mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
+    particle_assets: Res<ParticleAssets>,
+    canvas_query: Single<(Entity, &GameCanvas)>,
+    mut score: ResMut<Score>,
+) {
+    let (canvas_entity, canvas) = *canvas_query;
+
+    // Check if this was the last beef
+    if all_beef_query.iter().len() == 1
+        && let Some(last_beef) = destroy_beef_query.iter().next()
+        && *last_beef.4 == BeefSize::Small
+    {
+        next_state.set(BeefBlastoidsState::GameOver);
+    }
+
+    for (entity, transform, linear_velocity, angular_velocity, beef_size) in destroy_beef_query {
+        let radius = if *beef_size == BeefSize::Large {
+            BEEF_RADIUS * 0.5
+        } else {
+            BEEF_RADIUS * 0.25
+        };
+
+        let perpendicular_1 = Vec2::new(-linear_velocity.y, linear_velocity.x)
+            .normalize()
+            .extend(0.);
+        let perpendicular_2 = Vec2::new(linear_velocity.y, -linear_velocity.x)
+            .normalize()
+            .extend(0.);
+
+        let canvas_min = Vec2::new(-canvas.width() / 2.0, -canvas.height() / 2.0).extend(0.);
+        let canvas_max = Vec2::new(canvas.width() / 2.0, canvas.height() / 2.0).extend(0.);
+
+        let translation_1 =
+            (transform.translation + (perpendicular_1 * radius)).clamp(canvas_min, canvas_max);
+        let translation_2 =
+            (transform.translation + (perpendicular_2 * radius)).clamp(canvas_min, canvas_max);
+
+        let lin_vel1 = linear_velocity.0 + 5.0 * linear_velocity.0 * perpendicular_1.truncate();
+        let lin_vel2 = linear_velocity.0 + 5.0 * linear_velocity.0 * perpendicular_2.truncate();
+
+        // TODO: Magic number
+        let ang_vel1 = angular_velocity.0 * 1.2;
+        let ang_vel2 = -ang_vel1;
+
+        if matches!(beef_size, BeefSize::Large | BeefSize::Medium) {
+            commands.spawn(generate_beef_bundle(
+                match beef_size {
+                    BeefSize::Large => BeefSize::Medium,
+                    BeefSize::Medium => BeefSize::Small,
+                    BeefSize::Small => panic!(),
+                },
+                canvas_entity,
+                &mut gizmo_assets,
+                translation_1,
+                lin_vel1,
+                ang_vel1,
+            ));
+
+            commands.spawn(generate_beef_bundle(
+                match beef_size {
+                    BeefSize::Large => BeefSize::Medium,
+                    BeefSize::Medium => BeefSize::Small,
+                    BeefSize::Small => panic!(),
+                },
+                canvas_entity,
+                &mut gizmo_assets,
+                translation_2,
+                lin_vel2,
+                ang_vel2,
+            ));
+        }
+
+        **score += BEEF_SCORE_VALUE;
+
+        commands.spawn((
+            ParticleSpawner::default(),
+            ParticleEffectHandle(particle_assets.beef_blastoids_explosion.clone()),
+            OneShot::Despawn,
+            Transform::from_translation(transform.translation),
+            ChildOf(canvas_entity),
+            Name::new("Ship Explosion"),
+            StateScoped(RunningState::ShipDestroyed),
+        ));
+
+        commands.entity(entity).despawn();
     }
 }
 
 fn destroy_ship(
     mut commands: Commands,
-    particle_assets: Res<ParticleAssets>,
     mut lives: ResMut<Lives>,
     mut next_state_bb: ResMut<NextState<BeefBlastoidsState>>,
     ship: Single<(Entity, &Transform), With<Player>>,
+    particle_assets: Res<ParticleAssets>,
     canvas: Single<Entity, With<GameCanvas>>,
 ) {
     let (ship_entity, ship_transform) = ship.into_inner();
 
     // spawn explosion particles
     commands.spawn((
-        ShipExplosion,
         ParticleSpawner::default(),
         ParticleEffectHandle(particle_assets.beef_blastoids_explosion.clone()),
         OneShot::Despawn,
@@ -487,7 +657,7 @@ fn destroy_ship(
     ));
 
     if **lives == 1 {
-        next_state_bb.set(BeefBlastoidsState::_GameOver);
+        next_state_bb.set(BeefBlastoidsState::GameOver);
     } else {
         **lives -= 1;
     }
