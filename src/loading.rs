@@ -16,7 +16,8 @@ impl Plugin for LoadingPlugin {
                 .continue_to_state(GameState::Menu)
                 // .load_collection::<AudioAssets>()
                 .load_collection::<TextureAssets>()
-                .load_collection::<ParticleAssets>(),
+                .load_collection::<ParticleAssets>()
+                .load_collection::<FontAssets>(),
         );
     }
 }
@@ -38,6 +39,16 @@ pub struct TextureAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct ParticleAssets {
-    #[asset(path = "particles/beef_blastoids_explosion.ron")]
-    pub beef_blastoids_explosion: Handle<Particle2dEffect>,
+    #[asset(path = "particles/beef_blastoids_ship_explosion.ron")]
+    pub beef_blastoids_ship_explosion: Handle<Particle2dEffect>,
+    #[asset(path = "particles/beef_blastoids_beef_explosion.ron")]
+    pub beef_blastoids_beef_explosion: Handle<Particle2dEffect>,
+}
+
+// RasterForgeRegular-JpBgm.ttf
+
+#[derive(AssetCollection, Resource)]
+pub struct FontAssets {
+    #[asset(path = "fonts/RasterForgeRegular-JpBgm.ttf")]
+    pub raster_forge: Handle<Font>,
 }

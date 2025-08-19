@@ -1,10 +1,9 @@
-
-
 use bevy::prelude::*;
 
 use crate::{
     Game, GameState, RootNode,
     beef_blastoids::{BeefBlastoidsState, Lives, Score},
+    loading::FontAssets,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -28,6 +27,7 @@ fn spawn_scoreboard(
     root_node: Single<Entity, With<RootNode>>,
     score: Res<Score>,
     lives: Res<Lives>,
+    font_assets: Res<FontAssets>,
 ) {
     commands.spawn((
         Name::new("Scoreboard"),
@@ -42,15 +42,41 @@ fn spawn_scoreboard(
             (
                 Node { ..default() },
                 children![
-                    Text::new("Score: "),
-                    (PlayerScore, Text::new(format!("{}", score.0)),),
+                    (
+                        Text::new("Score: "),
+                        TextFont {
+                            font: font_assets.raster_forge.clone(),
+                            ..Default::default()
+                        },
+                    ),
+                    (
+                        PlayerScore,
+                        Text::new(format!("{}", score.0)),
+                        TextFont {
+                            font: font_assets.raster_forge.clone(),
+                            ..Default::default()
+                        },
+                    ),
                 ]
             ),
             (
                 Node { ..default() },
                 children![
-                    Text::new("Lives: "),
-                    (PlayerLives, Text::new(format!("{}", lives.0)),)
+                    (
+                        Text::new("Lives: "),
+                        TextFont {
+                            font: font_assets.raster_forge.clone(),
+                            ..Default::default()
+                        },
+                    ),
+                    (
+                        PlayerLives,
+                        Text::new(format!("{}", lives.0)),
+                        TextFont {
+                            font: font_assets.raster_forge.clone(),
+                            ..Default::default()
+                        },
+                    )
                 ]
             )
         ],

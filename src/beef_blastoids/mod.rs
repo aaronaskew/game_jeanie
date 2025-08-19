@@ -608,7 +608,7 @@ fn destroy_beef(
 
         commands.spawn((
             ParticleSpawner::default(),
-            ParticleEffectHandle(particle_assets.beef_blastoids_explosion.clone()),
+            ParticleEffectHandle(particle_assets.beef_blastoids_beef_explosion.clone()),
             OneShot::Despawn,
             Transform::from_translation(transform.translation),
             ChildOf(canvas_entity),
@@ -632,7 +632,7 @@ fn destroy_ship(
     // spawn explosion particles
     commands.spawn((
         ParticleSpawner::default(),
-        ParticleEffectHandle(particle_assets.beef_blastoids_explosion.clone()),
+        ParticleEffectHandle(particle_assets.beef_blastoids_ship_explosion.clone()),
         OneShot::Despawn,
         Transform::from_translation(ship_transform.translation),
         ChildOf(*canvas),

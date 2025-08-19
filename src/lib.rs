@@ -3,12 +3,13 @@
 use bevy::prelude::*;
 
 mod actions;
-pub mod beef_blastoids;
+mod beef_blastoids;
 mod game_canvas;
+mod game_jeanie;
 mod loading;
 mod menu;
-pub mod pung;
-pub mod race_place;
+mod pung;
+mod race_place;
 
 use crate::actions::ActionsPlugin;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
@@ -45,10 +46,12 @@ pub(crate) enum GameState {
     /// During the loading State the LoadingPlugin will load our assets
     #[default]
     Loading,
-    /// During this State the actual game logic is executed
-    Playing(Game),
     /// Here the menu is drawn and waiting for player interaction
     Menu,
+    /// During this State the actual game logic is executed
+    Playing(Game),
+    /// During this State choose the cheat codes for the chosen game
+    GameJeanie(Game),
 }
 
 pub struct GamePlugin;
