@@ -23,6 +23,28 @@ const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
 const GAME_CANVAS_POS: Vec2 = Vec2::new(243., 43.);
 const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(563., 77.);
 
+pub fn plugin(app: &mut App) {
+    app.init_state::<GameState>()
+        .add_computed_state::<TvScreenActive>()
+        .enable_state_scoped_entities::<TvScreenActive>()
+        .add_plugins(LoadingPlugin)
+        .add_plugins(choose_game::plugin)
+        .add_plugins(ActionsPlugin)
+        .add_plugins(PungPlugin)
+        .add_plugins(beef_blastoids::plugin)
+        .add_systems(Startup, setup_camera);
+
+    app.add_systems(
+        OnEnter(TvScreenActive),
+        (setup_game_canvas, setup_root_node, setup_playing_panel).chain(),
+    );
+
+    #[cfg(debug_assertions)]
+    {
+        app.add_plugins(debug::plugin);
+    }
+}
+
 #[derive(Component)]
 pub struct Player;
 
@@ -50,13 +72,13 @@ pub(crate) enum GameState {
     /// During this State the actual game logic is executed
     Playing(Game),
     /// During this State choose the cheat codes for the chosen game
-    GameJeanie(Game),
+    _GameJeanie(Game),
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-struct PlayingState;
+struct TvScreenActive;
 
-impl ComputedStates for PlayingState {
+impl ComputedStates for TvScreenActive {
     /// We set the source state to be the state, or a tuple of states,
     /// we want to depend on. You can also wrap each state in an Option,
     /// if you want the computed state to execute even if the state doesn't
@@ -68,36 +90,10 @@ impl ComputedStates for PlayingState {
     fn compute(sources: GameState) -> Option<Self> {
         match sources {
             // When we are in game, we want to return the InGame state
-            GameState::Playing(_) => Some(PlayingState),
+            GameState::Playing(_) | GameState::_GameJeanie(_) => Some(TvScreenActive),
             // Otherwise, we don't want the `State<InGame>` resource to exist,
             // so we return None.
             _ => None,
-        }
-    }
-}
-
-pub struct GamePlugin;
-
-impl Plugin for GamePlugin {
-    fn build(&self, app: &mut App) {
-        app.init_state::<GameState>()
-            .add_computed_state::<PlayingState>()
-            .enable_state_scoped_entities::<PlayingState>()
-            .add_plugins(LoadingPlugin)
-            .add_plugins(choose_game::plugin)
-            .add_plugins(ActionsPlugin)
-            .add_plugins(PungPlugin)
-            .add_plugins(beef_blastoids::plugin)
-            .add_systems(
-                Startup,
-                (setup_camera, setup_game_canvas, setup_root_node).chain(),
-            );
-
-        app.add_systems(OnEnter(PlayingState), setup_playing_panel);
-
-        #[cfg(debug_assertions)]
-        {
-            app.add_plugins(debug::plugin);
         }
     }
 }
@@ -114,6 +110,7 @@ fn setup_game_canvas(mut commands: Commands) {
     let transform = Transform::from_translation(GAME_CANVAS_POS.extend(0.));
 
     commands.spawn((
+        StateScoped(TvScreenActive),
         GameCanvasBundle {
             game_canvas: GameCanvas(GAME_CANVAS_SIZE),
             transform,
@@ -129,6 +126,7 @@ fn setup_root_node(mut commands: Commands, canvas: Single<(&GameCanvas,)>) {
     dbg!(screen_position_top_left);
 
     commands.spawn((
+        StateScoped(TvScreenActive),
         RootNode,
         Name::new("RootNode"),
         Node {
@@ -145,6 +143,7 @@ fn setup_root_node(mut commands: Commands, canvas: Single<(&GameCanvas,)>) {
 
 fn setup_playing_panel(mut commands: Commands, texture_assets: Res<TextureAssets>) {
     commands.spawn((
+        StateScoped(TvScreenActive),
         Name::new("Playing Background"),
         Sprite {
             image: texture_assets.panel4.clone(),
@@ -153,6 +152,5 @@ fn setup_playing_panel(mut commands: Commands, texture_assets: Res<TextureAssets
             ..Default::default()
         },
         Transform::from_xyz(0., 0., 10.),
-        StateScoped(PlayingState),
     ));
 }

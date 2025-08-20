@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{RootNode, beef_blastoids::BeefBlastoidsState, loading::FontAssets};
+// use crate::{RootNode, beef_blastoids::BeefBlastoidsState, loading::FontAssets};
 
-pub(super) fn plugin(app: &mut App) {
+pub(super) fn plugin(_app: &mut App) {
     // app.add_systems(
     //     OnEnter(BeefBlastoidsState::GameOver { won: true }),
     //     display_win,
