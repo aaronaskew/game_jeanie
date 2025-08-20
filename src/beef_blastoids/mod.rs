@@ -59,10 +59,13 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(BeefBlastoidsState::Running), reset_game)
         .add_systems(
             OnEnter(TvScreenActive),
-            next_level
-                .after(TvScreenSet)
-                .run_if(in_state(RunningState::NextLevel)),
+            (|mut next_state: ResMut<NextState<RunningState>>| {
+                next_state.set(RunningState::NextLevel)
+            })
+            .after(TvScreenSet)
+            .run_if(in_state(RunningState::CanvasInit)),
         )
+        .add_systems(OnEnter(RunningState::NextLevel), next_level)
         .add_systems(OnEnter(RunningState::SpawnBeef), spawn_beef)
         .add_systems(OnEnter(RunningState::SpawnShip), spawn_ship)
         .add_systems(
@@ -109,6 +112,7 @@ pub(crate) enum BeefBlastoidsState {
 #[states(scoped_entities)]
 pub(crate) enum RunningState {
     #[default]
+    CanvasInit,
     NextLevel,
     SpawnBeef,
     SpawnShip,

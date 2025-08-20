@@ -1,6 +1,7 @@
 #![allow(clippy::type_complexity)]
 
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
 
 mod actions;
 mod beef_blastoids;
@@ -36,7 +37,11 @@ pub fn plugin(app: &mut App) {
 
     app.add_systems(
         OnEnter(TvScreenActive),
-        (setup_game_canvas, setup_root_node, setup_playing_panel)
+        (
+            setup_game_canvas,
+            setup_root_node,
+            setup_playing_art_overlay,
+        )
             .chain()
             .in_set(TvScreenSet),
     );
@@ -100,8 +105,29 @@ impl ComputedStates for TvScreenActive {
     }
 }
 
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct ArtOverlayCamera;
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct MainCamera;
+
 fn setup_camera(mut commands: Commands) {
-    commands.spawn((Camera2d, Msaa::Off));
+    commands.spawn((Name::new("Main Camera"), MainCamera, Camera2d, Msaa::Off));
+
+    commands.spawn((
+        Name::new("Art Overlay Camera"),
+        ArtOverlayCamera,
+        Camera2d,
+        Camera {
+            order: 1,
+            clear_color: ClearColorConfig::None,
+            ..Default::default()
+        },
+        RenderLayers::from_layers(&[1]),
+        Msaa::Off,
+    ));
 }
 
 #[derive(Component, Reflect, Debug)]
@@ -116,12 +142,12 @@ fn setup_game_canvas(mut commands: Commands) {
 
     commands.spawn((
         StateScoped(TvScreenActive),
+        Name::new("GameCanvas"),
         GameCanvasBundle {
             game_canvas: GameCanvas(GAME_CANVAS_SIZE),
             transform,
             visibility: InheritedVisibility::default(),
         },
-        Name::new("GameCanvas"),
     ));
 }
 
@@ -146,7 +172,7 @@ fn setup_root_node(mut commands: Commands, canvas: Single<(&GameCanvas,)>) {
     ));
 }
 
-fn setup_playing_panel(mut commands: Commands, texture_assets: Res<TextureAssets>) {
+fn setup_playing_art_overlay(mut commands: Commands, texture_assets: Res<TextureAssets>) {
     commands.spawn((
         StateScoped(TvScreenActive),
         Name::new("Playing Background"),
@@ -157,5 +183,6 @@ fn setup_playing_panel(mut commands: Commands, texture_assets: Res<TextureAssets
             ..Default::default()
         },
         Transform::from_xyz(0., 0., 10.),
+        RenderLayers::from_layers(&[1]),
     ));
 }
