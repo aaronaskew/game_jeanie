@@ -28,6 +28,7 @@ pub fn plugin(app: &mut App) {
     app.init_state::<GameState>()
         .add_computed_state::<TvScreenActive>()
         .enable_state_scoped_entities::<TvScreenActive>()
+        .init_resource::<GamesWon>()
         .add_plugins(LoadingPlugin)
         .add_plugins(choose_game::plugin)
         .add_plugins(ActionsPlugin)
@@ -50,6 +51,14 @@ pub fn plugin(app: &mut App) {
     {
         app.add_plugins(debug::plugin);
     }
+}
+
+#[derive(Resource, Reflect, Debug, Default)]
+#[reflect(Resource)]
+struct GamesWon {
+    pung: bool,
+    beef_blastoids: bool,
+    race_place: bool,
 }
 
 #[derive(Component)]

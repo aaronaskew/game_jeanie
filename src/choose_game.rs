@@ -1,14 +1,30 @@
-use crate::{Game, GameState, loading::TextureAssets};
+use crate::{Game, GameState, GamesWon, loading::TextureAssets};
 use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(MeshPickingPlugin).add_systems(
         OnEnter(GameState::ChooseGame),
-        (setup_choose_game_panel, setup_menu),
+        (setup_choose_game_panel, setup_menu).chain(),
     );
 }
 
-fn setup_choose_game_panel(mut commands: Commands, texture_assets: Res<TextureAssets>) {
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct PungGlow;
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct BeefBlastoidsGlow;
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct RacePlaceGlow;
+
+fn setup_choose_game_panel(
+    mut commands: Commands,
+    texture_assets: Res<TextureAssets>,
+    games_won: Res<GamesWon>,
+) {
     commands.spawn((
         Name::new("Choose Game Background"),
         Sprite {
@@ -17,7 +33,107 @@ fn setup_choose_game_panel(mut commands: Commands, texture_assets: Res<TextureAs
             image_mode: SpriteImageMode::Auto,
             ..Default::default()
         },
+        Transform::from_xyz(0., 0., -10.0),
+        StateScoped(GameState::ChooseGame),
+    ));
+
+    const GLOW_COLOR: Color = Color::srgba(1.0, 1.0, 1.0, 0.68);
+
+    commands.spawn((
+        Name::new("Pung Glow"),
+        PungGlow,
+        Sprite {
+            image: texture_assets.panel2_pung_glow.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
+            color: GLOW_COLOR,
+            ..Default::default()
+        },
+        Visibility::Hidden,
         Transform::from_xyz(0., 0., -1.0),
+        StateScoped(GameState::ChooseGame),
+    ));
+
+    commands.spawn((
+        Name::new("Beef Blastoids Glow"),
+        BeefBlastoidsGlow,
+        Sprite {
+            image: texture_assets.panel2_blastoid_glow.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
+            color: GLOW_COLOR,
+
+            ..Default::default()
+        },
+        Visibility::Hidden,
+        Transform::from_xyz(0., 0., -1.0),
+        StateScoped(GameState::ChooseGame),
+    ));
+
+    commands.spawn((
+        Name::new("Race Place Glow"),
+        RacePlaceGlow,
+        Sprite {
+            image: texture_assets.panel2_raceplace_glow.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
+            color: GLOW_COLOR,
+
+            ..Default::default()
+        },
+        Visibility::Hidden,
+        Transform::from_xyz(0., 0., -1.0),
+        StateScoped(GameState::ChooseGame),
+    ));
+
+    commands.spawn((
+        Name::new("Pung Seal"),
+        Sprite {
+            image: texture_assets.panel2_pung_seal.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
+            ..Default::default()
+        },
+        if games_won.pung {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        },
+        Transform::from_xyz(0., 0., -5.0),
+        StateScoped(GameState::ChooseGame),
+    ));
+
+    commands.spawn((
+        Name::new("Beef Blastoids Seal"),
+        Sprite {
+            image: texture_assets.panel2_blastoid_seal.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
+            ..Default::default()
+        },
+        if games_won.beef_blastoids {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        },
+        Transform::from_xyz(0., 0., -5.0),
+        StateScoped(GameState::ChooseGame),
+    ));
+
+    commands.spawn((
+        Name::new("Race Place Seal"),
+        Sprite {
+            image: texture_assets.panel2_raceplace_seal.clone(),
+            custom_size: Some(Vec2::new(1280., 720.)),
+            image_mode: SpriteImageMode::Auto,
+            ..Default::default()
+        },
+        if games_won.race_place {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        },
+        Transform::from_xyz(0., 0., -5.0),
         StateScoped(GameState::ChooseGame),
     ));
 }
@@ -47,25 +163,15 @@ fn setup_menu(
             },
         )
         .observe(
-            |trigger: Trigger<Pointer<Over>>,
-             mesh_materials: Query<&MeshMaterial2d<ColorMaterial>>,
-             mut materials: ResMut<Assets<ColorMaterial>>| {
-                if let Ok(mesh_material) = mesh_materials.get(trigger.target())
-                    && let Some(material) = materials.get_mut(mesh_material.id())
-                {
-                    material.color.set_alpha(0.3);
-                }
+            |_trigger: Trigger<Pointer<Over>>,
+             mut visibility: Single<&mut Visibility, With<PungGlow>>| {
+                **visibility = Visibility::Visible;
             },
         )
         .observe(
-            |trigger: Trigger<Pointer<Out>>,
-             mesh_materials: Query<&MeshMaterial2d<ColorMaterial>>,
-             mut materials: ResMut<Assets<ColorMaterial>>| {
-                if let Ok(mesh_material) = mesh_materials.get(trigger.target())
-                    && let Some(material) = materials.get_mut(mesh_material.id())
-                {
-                    material.color.set_alpha(0.0);
-                }
+            |_trigger: Trigger<Pointer<Out>>,
+             mut visibility: Single<&mut Visibility, With<PungGlow>>| {
+                **visibility = Visibility::Hidden;
             },
         );
 
@@ -89,25 +195,15 @@ fn setup_menu(
             },
         )
         .observe(
-            |trigger: Trigger<Pointer<Over>>,
-             mesh_materials: Query<&MeshMaterial2d<ColorMaterial>>,
-             mut materials: ResMut<Assets<ColorMaterial>>| {
-                if let Ok(mesh_material) = mesh_materials.get(trigger.target())
-                    && let Some(material) = materials.get_mut(mesh_material.id())
-                {
-                    material.color.set_alpha(0.3);
-                }
+            |_trigger: Trigger<Pointer<Over>>,
+             mut visibility: Single<&mut Visibility, With<BeefBlastoidsGlow>>| {
+                **visibility = Visibility::Visible;
             },
         )
         .observe(
-            |trigger: Trigger<Pointer<Out>>,
-             mesh_materials: Query<&MeshMaterial2d<ColorMaterial>>,
-             mut materials: ResMut<Assets<ColorMaterial>>| {
-                if let Ok(mesh_material) = mesh_materials.get(trigger.target())
-                    && let Some(material) = materials.get_mut(mesh_material.id())
-                {
-                    material.color.set_alpha(0.0);
-                }
+            |_trigger: Trigger<Pointer<Out>>,
+             mut visibility: Single<&mut Visibility, With<BeefBlastoidsGlow>>| {
+                **visibility = Visibility::Hidden;
             },
         );
 
@@ -131,25 +227,15 @@ fn setup_menu(
             },
         )
         .observe(
-            |trigger: Trigger<Pointer<Over>>,
-             mesh_materials: Query<&MeshMaterial2d<ColorMaterial>>,
-             mut materials: ResMut<Assets<ColorMaterial>>| {
-                if let Ok(mesh_material) = mesh_materials.get(trigger.target())
-                    && let Some(material) = materials.get_mut(mesh_material.id())
-                {
-                    material.color.set_alpha(0.3);
-                }
+            |_trigger: Trigger<Pointer<Over>>,
+             mut visibility: Single<&mut Visibility, With<RacePlaceGlow>>| {
+                **visibility = Visibility::Visible;
             },
         )
         .observe(
-            |trigger: Trigger<Pointer<Out>>,
-             mesh_materials: Query<&MeshMaterial2d<ColorMaterial>>,
-             mut materials: ResMut<Assets<ColorMaterial>>| {
-                if let Ok(mesh_material) = mesh_materials.get(trigger.target())
-                    && let Some(material) = materials.get_mut(mesh_material.id())
-                {
-                    material.color.set_alpha(0.0);
-                }
+            |_trigger: Trigger<Pointer<Out>>,
+             mut visibility: Single<&mut Visibility, With<RacePlaceGlow>>| {
+                **visibility = Visibility::Hidden;
             },
         );
 }
