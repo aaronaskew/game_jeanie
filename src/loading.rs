@@ -33,6 +33,11 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
+    #[asset(path = "panel1_frameA.png")]
+    pub panel1_frameA: Handle<Image>,
+    #[asset(path = "panel1_frameB.png")]
+    pub panel1_frameB: Handle<Image>,
+
     #[asset(path = "textures/panel2.png")]
     pub panel2: Handle<Image>,
     #[asset(path = "textures/panel2_blastoid_glow.png")]

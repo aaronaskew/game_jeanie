@@ -6,6 +6,7 @@ use bevy::render::view::RenderLayers;
 mod actions;
 mod beef_blastoids;
 mod choose_game;
+mod cut_scenes;
 mod game_canvas;
 mod game_jeanie;
 mod loading;
@@ -13,6 +14,7 @@ mod pung;
 mod race_place;
 
 use crate::actions::ActionsPlugin;
+use crate::cut_scenes::CutScene;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::{LoadingPlugin, TextureAssets};
 use crate::pung::PungPlugin;
@@ -34,6 +36,7 @@ pub fn plugin(app: &mut App) {
         .add_plugins(ActionsPlugin)
         .add_plugins(PungPlugin)
         .add_plugins(beef_blastoids::plugin)
+        .add_plugins(cut_scenes::plugin)
         .add_systems(Startup, setup_camera);
 
     app.add_systems(
@@ -89,6 +92,8 @@ pub(crate) enum GameState {
     Playing(Game),
     /// During this State choose the cheat codes for the chosen game
     _GameJeanie(Game),
+    /// During this state, a cut scene is played
+    CutScene(CutScene),
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
