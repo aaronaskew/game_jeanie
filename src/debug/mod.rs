@@ -1,5 +1,5 @@
 use crate::{
-    GameState, PlayingState,
+    GameState,
     beef_blastoids::{self, BeefBlastoidsState},
     pung::PungState,
 };
@@ -23,7 +23,6 @@ pub(super) fn plugin(app: &mut App) {
         // .add_plugins(FrameTimeDiagnosticsPlugin::default())
         // .add_plugins(LogDiagnosticsPlugin::default())
         .add_systems(Update, log_transitions::<GameState>)
-        .add_systems(Update, log_transitions::<PlayingState>)
         .add_systems(Update, log_transitions::<PungState>)
         .add_systems(Update, log_transitions::<BeefBlastoidsState>)
         .add_systems(Update, log_transitions::<beef_blastoids::RunningState>)
