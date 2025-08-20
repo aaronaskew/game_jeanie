@@ -436,7 +436,6 @@ fn handle_screen_wrap(
     wrapping_transforms: Query<&mut Transform, (With<ScreenWrap>, Without<GameCanvas>)>,
     canvas: Single<&GameCanvas>,
 ) {
-    // TODO put this into a resource during startup
 
     for mut transform in wrapping_transforms {
         let t = &mut transform.translation;
