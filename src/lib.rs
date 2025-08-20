@@ -4,17 +4,16 @@ use bevy::prelude::*;
 
 mod actions;
 mod beef_blastoids;
+mod choose_game;
 mod game_canvas;
 mod game_jeanie;
 mod loading;
-mod menu;
 mod pung;
 mod race_place;
 
 use crate::actions::ActionsPlugin;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::{LoadingPlugin, TextureAssets};
-use crate::menu::MenuPlugin;
 use crate::pung::PungPlugin;
 
 #[cfg(debug_assertions)]
@@ -46,12 +45,35 @@ pub(crate) enum GameState {
     /// During the loading State the LoadingPlugin will load our assets
     #[default]
     Loading,
-    /// Here the menu is drawn and waiting for player interaction
-    Menu,
+    /// Here the player chooses a game to play
+    ChooseGame,
     /// During this State the actual game logic is executed
     Playing(Game),
     /// During this State choose the cheat codes for the chosen game
     GameJeanie(Game),
+}
+
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+struct PlayingState;
+
+impl ComputedStates for PlayingState {
+    /// We set the source state to be the state, or a tuple of states,
+    /// we want to depend on. You can also wrap each state in an Option,
+    /// if you want the computed state to execute even if the state doesn't
+    /// currently exist in the world.
+    type SourceStates = GameState;
+
+    /// We then define the compute function, which takes in
+    /// your SourceStates
+    fn compute(sources: GameState) -> Option<Self> {
+        match sources {
+            // When we are in game, we want to return the InGame state
+            GameState::Playing(_) => Some(PlayingState),
+            // Otherwise, we don't want the `State<InGame>` resource to exist,
+            // so we return None.
+            _ => None,
+        }
+    }
 }
 
 pub struct GamePlugin;
@@ -59,8 +81,10 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
+            .add_computed_state::<PlayingState>()
+            .enable_state_scoped_entities::<PlayingState>()
             .add_plugins(LoadingPlugin)
-            .add_plugins(MenuPlugin)
+            .add_plugins(choose_game::plugin)
             .add_plugins(ActionsPlugin)
             .add_plugins(PungPlugin)
             .add_plugins(beef_blastoids::plugin)
@@ -69,7 +93,7 @@ impl Plugin for GamePlugin {
                 (setup_camera, setup_game_canvas, setup_root_node).chain(),
             );
 
-        app.add_systems(OnExit(GameState::Loading), setup_playing_background);
+        app.add_systems(OnEnter(PlayingState), setup_playing_panel);
 
         #[cfg(debug_assertions)]
         {
@@ -119,8 +143,7 @@ fn setup_root_node(mut commands: Commands, canvas: Single<(&GameCanvas,)>) {
     ));
 }
 
-// TODO: Move this to the appropriate file/state.
-fn setup_playing_background(mut commands: Commands, texture_assets: Res<TextureAssets>) {
+fn setup_playing_panel(mut commands: Commands, texture_assets: Res<TextureAssets>) {
     commands.spawn((
         Name::new("Playing Background"),
         Sprite {
@@ -130,5 +153,6 @@ fn setup_playing_background(mut commands: Commands, texture_assets: Res<TextureA
             ..Default::default()
         },
         Transform::from_xyz(0., 0., 10.),
+        StateScoped(PlayingState),
     ));
 }

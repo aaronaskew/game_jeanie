@@ -514,7 +514,7 @@ fn click_gameover_button(
         match *interaction {
             Interaction::Pressed => {
                 if return_to_menu.is_some() {
-                    next_state.set(GameState::Menu);
+                    next_state.set(GameState::ChooseGame);
                 }
             }
             Interaction::Hovered => {}

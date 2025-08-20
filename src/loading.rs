@@ -13,7 +13,7 @@ impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
         app.add_loading_state(
             LoadingState::new(GameState::Loading)
-                .continue_to_state(GameState::Menu)
+                .continue_to_state(GameState::ChooseGame)
                 // .load_collection::<AudioAssets>()
                 .load_collection::<TextureAssets>()
                 .load_collection::<ParticleAssets>()
@@ -33,6 +33,12 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
+    //  #[asset(path = "textures/panel1.png")]
+    // pub panel1: Handle<Image>,
+    #[asset(path = "textures/panel2.png")]
+    pub panel2: Handle<Image>,
+    // #[asset(path = "textures/panel3.png")]
+    // pub panel3: Handle<Image>,
     #[asset(path = "textures/panel4.png")]
     pub panel4: Handle<Image>,
 }

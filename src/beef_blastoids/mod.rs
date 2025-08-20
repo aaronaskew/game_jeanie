@@ -13,7 +13,7 @@ mod ui;
 
 use crate::{Game, GameState, Player, game_canvas::GameCanvas, loading::ParticleAssets};
 
-const MAX_SCORE: u32 = 1000;
+const MAX_SCORE: u32 = 10000;
 const NUM_LIVES: u32 = 3;
 const PIXEL_SCALE: f32 = 25.;
 
@@ -28,6 +28,7 @@ const BULLET_TTL: f32 = 0.5;
 const BULLET_RADIUS: f32 = 2.0;
 const BULLET_SPEED: f32 = 1000.;
 
+const INITIAL_NUM_BEEF: u32 = 0;
 const BEEF_NUM_VERTS: u8 = 10;
 const BEEF_RADIUS: f32 = 50.;
 // percent of radius
@@ -49,12 +50,12 @@ pub fn plugin(app: &mut App) {
         )))
         .insert_resource(Lives(3))
         .insert_resource(Score(0))
+        .insert_resource(NumBeef(INITIAL_NUM_BEEF))
         .add_sub_state::<BeefBlastoidsState>()
         .add_sub_state::<RunningState>()
-        .add_systems(
-            OnEnter(BeefBlastoidsState::Running),
-            (spawn_beef, reset_game),
-        )
+        .add_systems(OnEnter(BeefBlastoidsState::Running), reset_game)
+        .add_systems(OnEnter(RunningState::NextLevel), next_level)
+        .add_systems(OnEnter(RunningState::SpawnBeef), spawn_beef)
         .add_systems(OnEnter(RunningState::SpawnShip), spawn_ship)
         .add_systems(
             Update,
@@ -92,9 +93,7 @@ pub fn plugin(app: &mut App) {
 pub(crate) enum BeefBlastoidsState {
     #[default]
     Running,
-    GameOver {
-        won: bool,
-    },
+    GameOver,
 }
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
@@ -102,10 +101,12 @@ pub(crate) enum BeefBlastoidsState {
 #[states(scoped_entities)]
 pub(crate) enum RunningState {
     #[default]
+    NextLevel,
+    SpawnBeef,
     SpawnShip,
     ShipInvincible,
-    Normal,
     ShipDestroyed,
+    Normal,
 }
 
 #[derive(Resource, Reflect, Debug, Default, Deref, DerefMut)]
@@ -115,6 +116,10 @@ struct Lives(u32);
 #[derive(Resource, Reflect, Debug, Default, Deref, DerefMut)]
 #[reflect(Resource)]
 struct Score(u32);
+
+#[derive(Resource, Reflect, Debug, Default, Deref, DerefMut)]
+#[reflect(Resource)]
+struct NumBeef(u32);
 
 #[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
@@ -185,9 +190,10 @@ struct BeefBundle {
     state_scoped: StateScoped<BeefBlastoidsState>,
 }
 
-fn reset_game(mut score: ResMut<Score>, mut lives: ResMut<Lives>) {
+fn reset_game(mut score: ResMut<Score>, mut lives: ResMut<Lives>, mut num_beef: ResMut<NumBeef>) {
     **score = 0;
     **lives = NUM_LIVES;
+    **num_beef = INITIAL_NUM_BEEF;
 }
 
 fn ship_gizmo_and_verts(visible: bool) -> (GizmoAsset, [Vec2; 3]) {
@@ -358,14 +364,14 @@ fn spawn_beef(
     mut commands: Commands,
     mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
     canvas_query: Single<(Entity, &GameCanvas)>,
+    num_beef: Res<NumBeef>,
+    mut next_state: ResMut<NextState<RunningState>>,
 ) {
-    let num_beef = 10;
-
     let (canvas_entity, canvas) = *canvas_query;
 
     let mut rng = thread_rng();
 
-    for _ in 0..num_beef {
+    for _ in 0..**num_beef {
         let translation = Vec3::new(
             rng.gen_range((-canvas.width() / 2.)..(canvas.width() / 2.)),
             rng.gen_range((-canvas.height() / 2.)..(canvas.height() / 2.)),
@@ -385,6 +391,8 @@ fn spawn_beef(
             angular_velocity,
         ));
     }
+
+    next_state.set(RunningState::SpawnShip);
 }
 
 fn shoot_blaster(
@@ -440,6 +448,21 @@ fn handle_screen_wrap(
         if t.y < -canvas.height() / 2. || t.y > canvas.height() / 2. {
             t.y *= -1.;
         }
+    }
+}
+
+fn next_level(
+    mut num_beef: ResMut<NumBeef>,
+    mut next_state: ResMut<NextState<RunningState>>,
+    mut commands: Commands,
+    ship: Option<Single<Entity, With<Player>>>,
+) {
+    **num_beef += 2;
+
+    next_state.set(RunningState::SpawnBeef);
+
+    if let Some(ship) = ship {
+        commands.entity(*ship).despawn();
     }
 }
 
@@ -531,7 +554,7 @@ fn destroy_beef(
     >,
     all_beef_query: Query<&Beef>,
     mut commands: Commands,
-    mut next_state: ResMut<NextState<BeefBlastoidsState>>,
+    mut next_state: ResMut<NextState<RunningState>>,
     mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
     particle_assets: Res<ParticleAssets>,
     canvas_query: Single<(Entity, &GameCanvas)>,
@@ -544,7 +567,7 @@ fn destroy_beef(
         && let Some(last_beef) = destroy_beef_query.iter().next()
         && *last_beef.4 == BeefSize::Small
     {
-        next_state.set(BeefBlastoidsState::GameOver { won: true });
+        next_state.set(RunningState::NextLevel);
     }
 
     for (entity, transform, linear_velocity, angular_velocity, beef_size) in destroy_beef_query {
@@ -694,10 +717,10 @@ fn game_over_check(
     mut next_state: ResMut<NextState<BeefBlastoidsState>>,
 ) {
     if **score >= MAX_SCORE {
-        next_state.set(BeefBlastoidsState::GameOver { won: true });
+        next_state.set(BeefBlastoidsState::GameOver);
     }
 
     if **lives == 0 {
-        next_state.set(BeefBlastoidsState::GameOver { won: false });
+        next_state.set(BeefBlastoidsState::GameOver);
     }
 }
