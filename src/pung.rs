@@ -3,7 +3,10 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{Game, GameResult, GameState, Player, RootNode, game_canvas::GameCanvas};
+use crate::{
+    Game, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSet,
+    game_canvas::GameCanvas,
+};
 
 const BALL_SPEED: f32 = 4.;
 const BALL_SIZE: f32 = 5.;
@@ -12,6 +15,50 @@ const PADDLE_WIDTH: f32 = 10.;
 const PADDLE_HEIGHT: f32 = 50.;
 const GUTTER_HEIGHT: f32 = 96.;
 const MAX_SCORE: u32 = 1;
+
+pub struct PungPlugin;
+
+impl Plugin for PungPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_sub_state::<PungState>()
+            .init_resource::<PungScore>()
+            .add_state_scoped_event::<PungScored>(PungState::Running)
+            .add_systems(
+                OnEnter(TvScreenActive),
+                (
+                    reset_score,
+                    spawn_ball,
+                    spawn_paddles,
+                    spawn_gutters,
+                    spawn_scoreboard,
+                )
+                    .after(TvScreenSet)
+                    .run_if(in_state(PungState::Running)),
+            )
+            .add_systems(
+                Update,
+                (
+                    move_ball,
+                    handle_player_input,
+                    detect_scoring,
+                    move_ai,
+                    reset_ball.after(detect_scoring),
+                    update_score.after(detect_scoring),
+                    update_scoreboard.after(update_score),
+                    move_paddles.after(handle_player_input),
+                    project_positions.after(move_ball),
+                    handle_collisions.after(move_ball),
+                    check_for_game_over.after(update_scoreboard),
+                )
+                    .run_if(in_state(PungState::Running)),
+            )
+            .add_systems(OnEnter(PungState::GameOver), game_over)
+            .add_systems(
+                Update,
+                click_gameover_button.run_if(in_state(PungState::GameOver)),
+            );
+    }
+}
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
 #[source(GameState = GameState::Playing(Game::Pung))]
@@ -81,48 +128,6 @@ enum Collision {
     Right,
     Top,
     Bottom,
-}
-
-pub struct PungPlugin;
-
-impl Plugin for PungPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_sub_state::<PungState>()
-            .init_resource::<PungScore>()
-            .add_state_scoped_event::<PungScored>(PungState::Running)
-            .add_systems(
-                OnEnter(PungState::Running),
-                (
-                    reset_score,
-                    spawn_ball,
-                    spawn_paddles,
-                    spawn_gutters,
-                    spawn_scoreboard,
-                ),
-            )
-            .add_systems(
-                Update,
-                (
-                    move_ball,
-                    handle_player_input,
-                    detect_scoring,
-                    move_ai,
-                    reset_ball.after(detect_scoring),
-                    update_score.after(detect_scoring),
-                    update_scoreboard.after(update_score),
-                    move_paddles.after(handle_player_input),
-                    project_positions.after(move_ball),
-                    handle_collisions.after(move_ball),
-                    check_for_game_over.after(update_scoreboard),
-                )
-                    .run_if(in_state(PungState::Running)),
-            )
-            .add_systems(OnEnter(PungState::GameOver), game_over)
-            .add_systems(
-                Update,
-                click_gameover_button.run_if(in_state(PungState::GameOver)),
-            );
-    }
 }
 
 fn reset_score(mut score: ResMut<PungScore>) {
@@ -434,29 +439,35 @@ fn spawn_ball(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    canvas_entity: Single<Entity, With<GameCanvas>>,
+    canvas_entity: Option<Single<Entity, With<GameCanvas>>>,
 ) {
     println!("Spawning ball...");
 
-    let shape = Circle::new(BALL_SIZE);
-    let color = Color::srgb(1., 0., 0.);
+    if let Some(canvas_entity) = canvas_entity {
+        info!("canvas found");
 
-    // `Assets::add` will load these into memory and return a `Handle` (an ID)
-    // to these assets. When all references to this `Handle` are cleaned up
-    // the asset is cleaned up.
-    let mesh = meshes.add(shape);
-    let material = materials.add(color);
+        let shape = Circle::new(BALL_SIZE);
+        let color = Color::srgb(1., 0., 0.);
 
-    // Here we are using `spawn` instead of `spawn_empty` followed by an
-    // `insert`. They mean the same thing, letting us spawn many components on a
-    // new entity at once.
-    commands.spawn((
-        Ball,
-        Mesh2d(mesh),
-        MeshMaterial2d(material),
-        StateScoped(GameState::Playing(Game::Pung)),
-        ChildOf(*canvas_entity),
-    ));
+        // `Assets::add` will load these into memory and return a `Handle` (an ID)
+        // to these assets. When all references to this `Handle` are cleaned up
+        // the asset is cleaned up.
+        let mesh = meshes.add(shape);
+        let material = materials.add(color);
+
+        // Here we are using `spawn` instead of `spawn_empty` followed by an
+        // `insert`. They mean the same thing, letting us spawn many components on a
+        // new entity at once.
+        commands.spawn((
+            Ball,
+            Mesh2d(mesh),
+            MeshMaterial2d(material),
+            StateScoped(GameState::Playing(Game::Pung)),
+            ChildOf(*canvas_entity),
+        ));
+    } else {
+        info!("canvas not found");
+    }
 }
 
 fn check_for_game_over(mut score: ResMut<PungScore>, mut next_state: ResMut<NextState<PungState>>) {

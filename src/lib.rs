@@ -36,7 +36,9 @@ pub fn plugin(app: &mut App) {
 
     app.add_systems(
         OnEnter(TvScreenActive),
-        (setup_game_canvas, setup_root_node, setup_playing_panel).chain(),
+        (setup_game_canvas, setup_root_node, setup_playing_panel)
+            .chain()
+            .in_set(TvScreenSet),
     );
 
     #[cfg(debug_assertions)]
@@ -105,6 +107,9 @@ fn setup_camera(mut commands: Commands) {
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 struct RootNode;
+
+#[derive(SystemSet, Copy, Clone, Eq, PartialEq, Hash, Debug)]
+struct TvScreenSet;
 
 fn setup_game_canvas(mut commands: Commands) {
     let transform = Transform::from_translation(GAME_CANVAS_POS.extend(0.));

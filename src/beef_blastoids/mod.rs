@@ -11,7 +11,10 @@ use rand::{Rng, thread_rng};
 
 mod ui;
 
-use crate::{Game, GameState, Player, game_canvas::GameCanvas, loading::ParticleAssets};
+use crate::{
+    Game, GameState, Player, TvScreenActive, TvScreenSet, game_canvas::GameCanvas,
+    loading::ParticleAssets,
+};
 
 const MAX_SCORE: u32 = 10000;
 const NUM_LIVES: u32 = 3;
@@ -54,7 +57,12 @@ pub fn plugin(app: &mut App) {
         .add_sub_state::<BeefBlastoidsState>()
         .add_sub_state::<RunningState>()
         .add_systems(OnEnter(BeefBlastoidsState::Running), reset_game)
-        .add_systems(OnEnter(RunningState::NextLevel), next_level)
+        .add_systems(
+            OnEnter(TvScreenActive),
+            next_level
+                .after(TvScreenSet)
+                .run_if(in_state(RunningState::NextLevel)),
+        )
         .add_systems(OnEnter(RunningState::SpawnBeef), spawn_beef)
         .add_systems(OnEnter(RunningState::SpawnShip), spawn_ship)
         .add_systems(
@@ -436,7 +444,6 @@ fn handle_screen_wrap(
     wrapping_transforms: Query<&mut Transform, (With<ScreenWrap>, Without<GameCanvas>)>,
     canvas: Single<&GameCanvas>,
 ) {
-
     for mut transform in wrapping_transforms {
         let t = &mut transform.translation;
 

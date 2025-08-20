@@ -1,5 +1,5 @@
 use crate::{
-    GameState,
+    GameState, TvScreenActive,
     beef_blastoids::{self, BeefBlastoidsState},
     pung::PungState,
 };
@@ -23,11 +23,12 @@ pub(super) fn plugin(app: &mut App) {
         // .add_plugins(FrameTimeDiagnosticsPlugin::default())
         // .add_plugins(LogDiagnosticsPlugin::default())
         .add_systems(Update, log_transitions::<GameState>)
+        .add_systems(Update, log_transitions::<TvScreenActive>)
         .add_systems(Update, log_transitions::<PungState>)
         .add_systems(Update, log_transitions::<BeefBlastoidsState>)
         .add_systems(Update, log_transitions::<beef_blastoids::RunningState>)
         // .add_systems(Update, game_canvas_gizmo)
-        .add_systems(Update, (escape, toggle_physics_gizmos))
+        .add_systems(Update, escape)
         .add_plugins(PhysicsDebugPlugin::default())
         .add_plugins(DebugWorldInspectorPlugin)
         .add_plugins(DebugPickingPlugin)
@@ -41,6 +42,15 @@ pub(super) fn plugin(app: &mut App) {
                 };
             })
             .distributive_run_if(input_just_pressed(KeyCode::KeyP)),
+        )
+        .add_systems(
+            Update,
+            (|mut config_store: ResMut<GizmoConfigStore>| {
+                let (physics_gizmo_config, _) = config_store.config_mut::<PhysicsGizmos>();
+
+                physics_gizmo_config.enabled ^= true;
+            })
+            .distributive_run_if(input_just_pressed(KeyCode::KeyG)),
         );
 }
 
@@ -69,17 +79,6 @@ fn escape(
                 exit.write(AppExit::Success);
             }
         }
-    }
-}
-
-fn toggle_physics_gizmos(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut config_store: ResMut<GizmoConfigStore>,
-) {
-    let (physics_gizmo_config, _) = config_store.config_mut::<PhysicsGizmos>();
-
-    if keys.just_pressed(KeyCode::KeyP) {
-        physics_gizmo_config.enabled ^= true;
     }
 }
 
