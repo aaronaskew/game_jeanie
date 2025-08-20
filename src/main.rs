@@ -10,8 +10,6 @@ use bevy::{asset::AssetMetaCheck, prelude::*};
 // use std::io::Cursor;
 // use winit::window::Icon;
 
-use game_jeanie::GamePlugin;
-
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::linear_rgb(0., 0., 0.)))
@@ -31,7 +29,7 @@ fn main() {
                     ..default()
                 }),
         )
-        .add_plugins(GamePlugin)
+        .add_plugins(game_jeanie::plugin)
         // .add_systems(Startup, set_window_icon)
         .run();
 }

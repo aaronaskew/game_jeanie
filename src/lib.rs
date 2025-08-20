@@ -23,6 +23,28 @@ const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
 const GAME_CANVAS_POS: Vec2 = Vec2::new(243., 43.);
 const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(563., 77.);
 
+pub fn plugin(app: &mut App) {
+    app.init_state::<GameState>()
+        .add_computed_state::<PlayingState>()
+        .enable_state_scoped_entities::<PlayingState>()
+        .add_plugins(LoadingPlugin)
+        .add_plugins(choose_game::plugin)
+        .add_plugins(ActionsPlugin)
+        .add_plugins(PungPlugin)
+        .add_plugins(beef_blastoids::plugin)
+        .add_systems(
+            Startup,
+            (setup_camera, setup_game_canvas, setup_root_node).chain(),
+        );
+
+    app.add_systems(OnEnter(PlayingState), setup_playing_panel);
+
+    #[cfg(debug_assertions)]
+    {
+        app.add_plugins(debug::plugin);
+    }
+}
+
 #[derive(Component)]
 pub struct Player;
 
@@ -50,7 +72,7 @@ pub(crate) enum GameState {
     /// During this State the actual game logic is executed
     Playing(Game),
     /// During this State choose the cheat codes for the chosen game
-    GameJeanie(Game),
+    _GameJeanie(Game),
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
@@ -72,32 +94,6 @@ impl ComputedStates for PlayingState {
             // Otherwise, we don't want the `State<InGame>` resource to exist,
             // so we return None.
             _ => None,
-        }
-    }
-}
-
-pub struct GamePlugin;
-
-impl Plugin for GamePlugin {
-    fn build(&self, app: &mut App) {
-        app.init_state::<GameState>()
-            .add_computed_state::<PlayingState>()
-            .enable_state_scoped_entities::<PlayingState>()
-            .add_plugins(LoadingPlugin)
-            .add_plugins(choose_game::plugin)
-            .add_plugins(ActionsPlugin)
-            .add_plugins(PungPlugin)
-            .add_plugins(beef_blastoids::plugin)
-            .add_systems(
-                Startup,
-                (setup_camera, setup_game_canvas, setup_root_node).chain(),
-            );
-
-        app.add_systems(OnEnter(PlayingState), setup_playing_panel);
-
-        #[cfg(debug_assertions)]
-        {
-            app.add_plugins(debug::plugin);
         }
     }
 }
