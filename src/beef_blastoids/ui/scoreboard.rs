@@ -2,12 +2,12 @@ use bevy::prelude::*;
 
 use crate::{
     Game, GameState, RootNode,
-    beef_blastoids::{BeefBlastoidsState, Lives, Score},
+    beef_blastoids::{Lives, RunningState, Score},
     loading::FontAssets,
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(BeefBlastoidsState::Running), spawn_scoreboard)
+    app.add_systems(OnExit(RunningState::CanvasInit), spawn_scoreboard)
         .add_systems(
             Update,
             update_scoreboard.run_if(in_state(GameState::Playing(Game::BeefBlastoids))),
