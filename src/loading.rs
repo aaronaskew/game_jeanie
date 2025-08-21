@@ -1,4 +1,4 @@
-use crate::GameState;
+use crate::{GameState, cut_scenes::CutScene};
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_enoki::Particle2dEffect;
@@ -13,7 +13,7 @@ impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
         app.add_loading_state(
             LoadingState::new(GameState::Loading)
-                .continue_to_state(GameState::ChooseGame)
+                .continue_to_state(GameState::CutScene(CutScene::Intro))
                 // .load_collection::<AudioAssets>()
                 .load_collection::<TextureAssets>()
                 .load_collection::<ParticleAssets>()
@@ -34,9 +34,9 @@ impl Plugin for LoadingPlugin {
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
     #[asset(path = "textures/panel1_frameA.png")]
-    pub panel1_frameA: Handle<Image>,
+    pub panel1_frame_a: Handle<Image>,
     #[asset(path = "textures/panel1_frameB.png")]
-    pub panel1_frameB: Handle<Image>,
+    pub panel1_frame_b: Handle<Image>,
 
     #[asset(path = "textures/panel2.png")]
     pub panel2: Handle<Image>,
