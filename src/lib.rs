@@ -47,7 +47,7 @@ pub fn plugin(app: &mut App) {
             setup_playing_art_overlay,
         )
             .chain()
-            .in_set(TvScreenSet),
+            .in_set(TvScreenSystems),
     );
 
     #[cfg(debug_assertions)]
@@ -149,7 +149,7 @@ fn setup_camera(mut commands: Commands) {
 struct RootNode;
 
 #[derive(SystemSet, Copy, Clone, Eq, PartialEq, Hash, Debug)]
-struct TvScreenSet;
+struct TvScreenSystems;
 
 fn setup_game_canvas(mut commands: Commands) {
     let transform = Transform::from_translation(GAME_CANVAS_POS.extend(0.));
