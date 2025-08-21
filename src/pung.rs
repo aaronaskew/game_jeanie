@@ -4,7 +4,7 @@ use bevy::{
 };
 
 use crate::{
-    Game, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSet,
+    Game, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSystems,
     game_canvas::GameCanvas,
 };
 
@@ -32,7 +32,7 @@ impl Plugin for PungPlugin {
                     spawn_gutters,
                     spawn_scoreboard,
                 )
-                    .after(TvScreenSet)
+                    .after(TvScreenSystems)
                     .run_if(in_state(PungState::Running)),
             )
             .add_systems(

@@ -17,7 +17,6 @@ impl GameCanvas {
     }
 }
 
-
 #[derive(Bundle, Debug)]
 pub struct GameCanvasBundle {
     pub game_canvas: GameCanvas,

@@ -12,7 +12,7 @@ use rand::{Rng, thread_rng};
 mod ui;
 
 use crate::{
-    Game, GameState, Player, TvScreenActive, TvScreenSet, game_canvas::GameCanvas,
+    Game, GameState, Player, TvScreenActive, TvScreenSystems, game_canvas::GameCanvas,
     loading::ParticleAssets,
 };
 
@@ -62,7 +62,7 @@ pub fn plugin(app: &mut App) {
             (|mut next_state: ResMut<NextState<RunningState>>| {
                 next_state.set(RunningState::NextLevel)
             })
-            .after(TvScreenSet)
+            .after(TvScreenSystems)
             .run_if(in_state(RunningState::CanvasInit)),
         )
         .add_systems(OnEnter(RunningState::NextLevel), next_level)
