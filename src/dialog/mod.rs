@@ -21,7 +21,7 @@ pub(super) fn plugin(app: &mut App) {
         ExampleYarnSpinnerDialogueViewPlugin::new(),
     ))
     .add_systems(
-        OnEnter(GameState::CutScene(CutScene::Intro)),
+        OnEnter(GameState::CutScene(CutScene::StartA)),
         // Spawn the dialogue runner once the Yarn project has finished compiling
         spawn_dialogue_runner_intro.run_if(resource_added::<YarnProject>),
     )
@@ -34,43 +34,7 @@ pub(super) fn plugin(app: &mut App) {
                 next_state.set(GameState::ChooseGame);
             }
         })
-        .run_if(in_state(GameState::CutScene(CutScene::Intro))),
-    )
-    .add_systems(
-        OnEnter(GameState::CutScene(CutScene::Middle)),
-        // Spawn the dialogue runner once the Yarn project has finished compiling
-        spawn_dialogue_runner_middle.run_if(resource_added::<YarnProject>),
-    )
-    .add_systems(
-        Update,
-        (
-            |mut reader: EventReader<DialogueCompleteEvent>,
-             mut next_state: ResMut<NextState<GameState>>| {
-                for evt in reader.read() {
-                    info!("DialogueCompleteEvent: {evt:?}");
-                    next_state.set(GameState::ChooseGame);
-                }
-            },
-        )
-            .run_if(in_state(GameState::CutScene(CutScene::Middle))),
-    )
-    .add_systems(
-        OnEnter(GameState::CutScene(CutScene::Closing)),
-        // Spawn the dialogue runner once the Yarn project has finished compiling
-        spawn_dialogue_runner_closing.run_if(resource_added::<YarnProject>),
-    )
-    .add_systems(
-        Update,
-        (
-            |mut reader: EventReader<DialogueCompleteEvent>,
-             mut next_state: ResMut<NextState<GameState>>| {
-                for evt in reader.read() {
-                    info!("DialogueCompleteEvent: {evt:?}");
-                    next_state.set(GameState::CutScene(CutScene::TheEnd));
-                }
-            },
-        )
-            .run_if(in_state(GameState::CutScene(CutScene::Closing))),
+        .run_if(in_state(GameState::CutScene(CutScene::StartA))),
     );
 }
 
@@ -80,34 +44,6 @@ fn spawn_dialogue_runner_intro(mut commands: Commands, project: Res<YarnProject>
 
     // Immediately start showing the dialogue to the player
     dialogue_runner.start_node("Intro");
-
-    commands.spawn((
-        Name::new("Dialogue Runner"),
-        StateScoped(CutScenePlaying),
-        dialogue_runner,
-    ));
-}
-
-fn spawn_dialogue_runner_middle(mut commands: Commands, project: Res<YarnProject>) {
-    // Create a dialogue runner from the project.
-    let mut dialogue_runner = project.create_dialogue_runner(&mut commands);
-
-    // Immediately start showing the dialogue to the player
-    dialogue_runner.start_node("Middle");
-
-    commands.spawn((
-        Name::new("Dialogue Runner"),
-        StateScoped(CutScenePlaying),
-        dialogue_runner,
-    ));
-}
-
-fn spawn_dialogue_runner_closing(mut commands: Commands, project: Res<YarnProject>) {
-    // Create a dialogue runner from the project.
-    let mut dialogue_runner = project.create_dialogue_runner(&mut commands);
-
-    // Immediately start showing the dialogue to the player
-    dialogue_runner.start_node("Closing");
 
     commands.spawn((
         Name::new("Dialogue Runner"),

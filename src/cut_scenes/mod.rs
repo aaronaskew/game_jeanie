@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use rand::{Rng, thread_rng};
+use std::ops::Range;
 
 use crate::{GameState, loading::TextureAssets};
 
@@ -7,43 +8,117 @@ pub(super) fn plugin(app: &mut App) {
     app.init_resource::<CurrentCutScene>()
         .add_computed_state::<CutScenePlaying>()
         .enable_state_scoped_entities::<CutScenePlaying>()
-        .add_systems(OnEnter(GameState::CutScene(CutScene::Intro)), setup_intro)
-        .add_systems(OnEnter(GameState::CutScene(CutScene::Middle)), setup_middle)
-        .add_systems(
-            OnEnter(GameState::CutScene(CutScene::Closing)),
-            setup_closing,
-        )
+        .add_systems(OnEnter(CutScenePlaying), setup_cut_scene)
         .add_systems(Update, play_cutscene.run_if(in_state(CutScenePlaying)))
-        // TODO: replace button with dialog system
-        // .add_systems(Update, handle_button.run_if(in_state(CutScenePlaying)))
         .add_systems(OnExit(CutScenePlaying), clear_current_cutscene);
 }
 
-fn setup_intro(mut current_cut_scene: ResMut<CurrentCutScene>, texture_assets: Res<TextureAssets>) {
-    let queue = vec![
-        CutSceneFrame {
-            image: texture_assets.panel1_frame_a.clone(),
-            timer_duration_min: 0.1,
-            timer_duration_max: 1.0,
+fn setup_cut_scene(
+    mut current_cut_scene: ResMut<CurrentCutScene>,
+    texture_assets: Res<TextureAssets>,
+    cut_scene_state: Res<State<GameState>>,
+) -> Result {
+    let descriptor = match &**cut_scene_state {
+        GameState::CutScene(cut_scene) => match cut_scene {
+            CutScene::StartA => CutSceneDescriptor::new(
+                vec![
+                    CutSceneFrame::new(texture_assets.start_a_01.clone(), Some(0.1..1.0)),
+                    CutSceneFrame::new(texture_assets.start_a_02.clone(), Some(0.1..1.0)),
+                ],
+                true,
+            ),
+            CutScene::MiddleA => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.middle_a_01.clone(), None)],
+                false,
+            ),
+            CutScene::MiddleB => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.middle_b_01.clone(), None)],
+                false,
+            ),
+            CutScene::MiddleC => CutSceneDescriptor::new(
+                vec![
+                    CutSceneFrame::new(texture_assets.middle_c_01.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.middle_c_02.clone(), Some(1.0..1.0)),
+                ],
+                false,
+            ),
+            CutScene::MiddleD => CutSceneDescriptor::new(
+                vec![
+                    CutSceneFrame::new(texture_assets.middle_d_01.clone(), Some(0.1..0.3)),
+                    CutSceneFrame::new(texture_assets.middle_d_02.clone(), Some(0.1..0.3)),
+                    CutSceneFrame::new(texture_assets.middle_d_03.clone(), Some(0.1..0.3)),
+                ],
+                true,
+            ),
+            CutScene::MiddleE => CutSceneDescriptor::new(
+                vec![
+                    CutSceneFrame::new(texture_assets.middle_e_01.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.middle_e_02.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.middle_e_03.clone(), Some(0.5..0.5)),
+                    CutSceneFrame::new(texture_assets.middle_e_04.clone(), Some(0.5..0.5)),
+                ],
+                false,
+            ),
+            CutScene::MiddleF => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.middle_f_01.clone(), None)],
+                false,
+            ),
+            CutScene::MiddleG => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.middle_g_01.clone(), None)],
+                false,
+            ),
+            CutScene::MiddleH => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.middle_h_01.clone(), None)],
+                false,
+            ),
+            CutScene::MiddleI => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.middle_g_01.clone(), None)],
+                false,
+            ),
+            CutScene::EndA => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.end_a_01.clone(), None)],
+                false,
+            ),
+            CutScene::EndB => CutSceneDescriptor::new(
+                vec![
+                    CutSceneFrame::new(texture_assets.end_b_01.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.end_b_02.clone(), Some(2.0..2.0)),
+                ],
+                false,
+            ),
+            CutScene::EndC => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.end_b_02.clone(), None)],
+                false,
+            ),
+            CutScene::EndD => CutSceneDescriptor::new(
+                vec![
+                    CutSceneFrame::new(texture_assets.end_b_02.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.end_d_02.clone(), Some(1.5..1.5)),
+                    CutSceneFrame::new(texture_assets.end_d_03.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.end_d_04.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.end_d_05.clone(), Some(1.0..1.0)),
+                    CutSceneFrame::new(texture_assets.end_d_06.clone(), Some(1.0..1.0)),
+                ],
+                false,
+            ),
+            CutScene::EndE => CutSceneDescriptor::new(
+                vec![CutSceneFrame::new(texture_assets.end_e_01.clone(), None)],
+                false,
+            ),
         },
-        CutSceneFrame {
-            image: texture_assets.panel1_frame_b.clone(),
-            timer_duration_min: 0.1,
-            timer_duration_max: 1.0,
-        },
-    ];
+        _ => {
+            return Err("Should only be seeing GameState::CutScene(_) states here.".into());
+        }
+    };
 
     *current_cut_scene = CurrentCutScene {
-        descriptor: Some(CutSceneDescriptor {
-            queue,
-            should_loop: true,
-        }),
+        descriptor: Some(descriptor),
         timer: None,
         started: false,
     };
+
+    Ok(())
 }
-fn setup_middle() {}
-fn setup_closing() {}
 
 fn play_cutscene(
     mut commands: Commands,
@@ -69,8 +144,7 @@ fn play_cutscene(
 
         let CutSceneFrame {
             image,
-            timer_duration_min,
-            timer_duration_max,
+            duration_range,
         } = queue.get(*cut_scene_idx).ok_or("Can't index queue")?;
 
         commands.spawn((
@@ -84,10 +158,16 @@ fn play_cutscene(
             },
         ));
 
-        current_cut_scene.timer = Some(Timer::from_seconds(
-            rng.gen_range(*timer_duration_min..*timer_duration_max),
-            TimerMode::Once,
-        ));
+        if let Some(duration_range) = duration_range {
+            current_cut_scene.timer = Some(Timer::from_seconds(
+                if duration_range.is_empty() {
+                    duration_range.start
+                } else {
+                    rng.gen_range(duration_range.clone())
+                },
+                TimerMode::Once,
+            ));
+        }
 
         current_cut_scene.started = true;
     } else {
@@ -103,8 +183,7 @@ fn play_cutscene(
 
                 let CutSceneFrame {
                     image,
-                    timer_duration_min,
-                    timer_duration_max,
+                    duration_range,
                 } = queue.get(*cut_scene_idx).ok_or("Can't index queue")?;
 
                 commands
@@ -126,10 +205,16 @@ fn play_cutscene(
                     },
                 ));
 
-                *timer = Timer::from_seconds(
-                    rng.gen_range(*timer_duration_min..*timer_duration_max),
-                    TimerMode::Once,
-                );
+                if let Some(duration_range) = duration_range {
+                    *timer = Timer::from_seconds(
+                        if duration_range.is_empty() {
+                            duration_range.start
+                        } else {
+                            rng.gen_range(duration_range.clone())
+                        },
+                        TimerMode::Once,
+                    );
+                }
             }
         }
     }
@@ -149,14 +234,28 @@ struct CurrentCutSceneImage;
 #[derive(Debug, Default, Reflect)]
 struct CutSceneFrame {
     image: Handle<Image>,
-    timer_duration_min: f32,
-    timer_duration_max: f32,
+    duration_range: Option<Range<f32>>,
+}
+
+impl CutSceneFrame {
+    fn new(image: Handle<Image>, duration_range: Option<Range<f32>>) -> Self {
+        Self {
+            image,
+            duration_range,
+        }
+    }
 }
 
 #[derive(Debug, Default, Reflect)]
 struct CutSceneDescriptor {
     queue: Vec<CutSceneFrame>,
     should_loop: bool,
+}
+
+impl CutSceneDescriptor {
+    fn new(queue: Vec<CutSceneFrame>, should_loop: bool) -> Self {
+        Self { queue, should_loop }
+    }
 }
 
 #[derive(Resource, Reflect, Debug, Default)]
@@ -169,10 +268,21 @@ struct CurrentCutScene {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum CutScene {
-    Intro,
-    Middle,
-    Closing,
-    TheEnd,
+    StartA,
+    MiddleA,
+    MiddleB,
+    MiddleC,
+    MiddleD,
+    MiddleE,
+    MiddleF,
+    MiddleG,
+    MiddleH,
+    MiddleI,
+    EndA,
+    EndB,
+    EndC,
+    EndD,
+    EndE,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
