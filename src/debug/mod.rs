@@ -1,6 +1,7 @@
 use crate::{
     GameState, TvScreenActive,
     beef_blastoids::{self, BeefBlastoidsState},
+    cut_scenes::CutScenePlaying,
     pung::PungState,
 };
 use avian2d::prelude::{PhysicsDebugPlugin, PhysicsGizmos};
@@ -27,6 +28,7 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(Update, log_transitions::<PungState>)
         .add_systems(Update, log_transitions::<BeefBlastoidsState>)
         .add_systems(Update, log_transitions::<beef_blastoids::RunningState>)
+        .add_systems(Update, log_transitions::<CutScenePlaying>)
         // .add_systems(Update, game_canvas_gizmo)
         .add_systems(Update, escape)
         .add_plugins(PhysicsDebugPlugin::default())

@@ -1,11 +1,16 @@
-use crate::{Game, GameState, GamesWon, loading::TextureAssets};
 use bevy::prelude::*;
 
+use crate::{Game, GameState, GamesWon, loading::TextureAssets};
+
+const GLOW_COLOR: Color = Color::srgba(1.0, 1.0, 1.0, 0.68);
+
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins(MeshPickingPlugin).add_systems(
-        OnEnter(GameState::ChooseGame),
-        (setup_choose_game_panel, setup_menu).chain(),
-    );
+    app.add_plugins(MeshPickingPlugin)
+        .add_sub_state::<ChooseGameState>()
+        .add_systems(
+            OnEnter(GameState::ChooseGame),
+            (setup_choose_game_panel, setup_menu).chain(),
+        );
 }
 
 #[derive(Component, Reflect, Debug)]
@@ -19,6 +24,15 @@ struct BeefBlastoidsGlow;
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 struct RacePlaceGlow;
+
+#[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
+#[source(GameState = GameState::ChooseGame)]
+#[states(scoped_entities)]
+pub(crate) enum ChooseGameState {
+    #[default]
+    FirstChoice,
+    LosePreGameJeanie,
+}
 
 fn setup_choose_game_panel(
     mut commands: Commands,
@@ -36,8 +50,6 @@ fn setup_choose_game_panel(
         Transform::from_xyz(0., 0., -10.0),
         StateScoped(GameState::ChooseGame),
     ));
-
-    const GLOW_COLOR: Color = Color::srgba(1.0, 1.0, 1.0, 0.68);
 
     commands.spawn((
         Name::new("Pung Glow"),
