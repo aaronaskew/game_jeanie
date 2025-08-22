@@ -7,6 +7,7 @@ mod actions;
 mod beef_blastoids;
 mod choose_game;
 mod cut_scenes;
+mod dialog;
 mod game_canvas;
 mod game_jeanie;
 mod loading;
@@ -28,6 +29,7 @@ const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(563., 77.);
 
 pub fn plugin(app: &mut App) {
     app.init_state::<GameState>()
+        .init_state::<GameJeanieState>()
         .add_computed_state::<TvScreenActive>()
         .enable_state_scoped_entities::<TvScreenActive>()
         .init_resource::<GamesWon>()
@@ -37,6 +39,7 @@ pub fn plugin(app: &mut App) {
         .add_plugins(PungPlugin)
         .add_plugins(beef_blastoids::plugin)
         .add_plugins(cut_scenes::plugin)
+        .add_plugins(dialog::plugin)
         .add_systems(Startup, setup_camera);
 
     app.add_systems(
@@ -96,6 +99,13 @@ pub(crate) enum GameState {
     CutScene(CutScene),
 }
 
+#[derive(States, Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
+enum GameJeanieState {
+    #[default]
+    Inactive,
+    Active,
+}
+
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 struct TvScreenActive;
 
@@ -128,7 +138,13 @@ struct ArtOverlayCamera;
 struct MainCamera;
 
 fn setup_camera(mut commands: Commands) {
-    commands.spawn((Name::new("Main Camera"), MainCamera, Camera2d, Msaa::Off));
+    commands.spawn((
+        Name::new("Main Camera"),
+        MainCamera,
+        Camera2d,
+        RenderLayers::from_layers(&[0]),
+        Msaa::Off,
+    ));
 
     commands.spawn((
         Name::new("Art Overlay Camera"),

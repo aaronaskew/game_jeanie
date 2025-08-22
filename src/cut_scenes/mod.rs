@@ -15,15 +15,11 @@ pub(super) fn plugin(app: &mut App) {
         )
         .add_systems(Update, play_cutscene.run_if(in_state(CutScenePlaying)))
         // TODO: replace button with dialog system
-        .add_systems(Update, handle_button.run_if(in_state(CutScenePlaying)))
+        // .add_systems(Update, handle_button.run_if(in_state(CutScenePlaying)))
         .add_systems(OnExit(CutScenePlaying), clear_current_cutscene);
 }
 
-fn setup_intro(
-    mut current_cut_scene: ResMut<CurrentCutScene>,
-    texture_assets: Res<TextureAssets>,
-    mut commands: Commands,
-) {
+fn setup_intro(mut current_cut_scene: ResMut<CurrentCutScene>, texture_assets: Res<TextureAssets>) {
     let queue = vec![
         CutSceneFrame {
             image: texture_assets.panel1_frame_a.clone(),
@@ -45,39 +41,6 @@ fn setup_intro(
         timer: None,
         started: false,
     };
-
-    // TODO: replace this with a dialog system
-    commands.spawn((
-        StateScoped(CutScenePlaying),
-        Node {
-            flex_direction: FlexDirection::Column,
-            justify_content: JustifyContent::FlexEnd,
-            align_items: AlignItems::Center,
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            ..Default::default()
-        },
-        children![(
-            Button,
-            Node {
-                // horizontally center child text
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            BackgroundColor(Color::BLACK),
-            children![(
-                Text::new("Continue"),
-                TextFont {
-                    font_size: 20.0,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-                TextShadow::default(),
-            )],
-        )],
-    ));
 }
 fn setup_middle() {}
 fn setup_closing() {}
@@ -179,18 +142,6 @@ fn clear_current_cutscene(mut current_cut_scene: ResMut<CurrentCutScene>) {
     current_cut_scene.timer = None;
 }
 
-// TODO: replace with dialog system
-fn handle_button(
-    mut interaction_query: Query<&Interaction, Changed<Interaction>>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    for interaction in &mut interaction_query {
-        if *interaction == Interaction::Pressed {
-            next_state.set(GameState::ChooseGame);
-        }
-    }
-}
-
 #[derive(Component, Reflect, Debug)]
 #[reflect(Component)]
 struct CurrentCutSceneImage;
@@ -221,10 +172,11 @@ pub enum CutScene {
     Intro,
     Middle,
     Closing,
+    TheEnd,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-struct CutScenePlaying;
+pub(crate) struct CutScenePlaying;
 
 impl ComputedStates for CutScenePlaying {
     type SourceStates = GameState;
