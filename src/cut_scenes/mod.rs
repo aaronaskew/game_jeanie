@@ -13,7 +13,7 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(OnExit(CutScenePlaying), clear_current_cutscene);
 }
 
-fn setup_cut_scene(
+pub fn setup_cut_scene(
     mut current_cut_scene: ResMut<CurrentCutScene>,
     texture_assets: Res<TextureAssets>,
     cut_scene_state: Res<State<GameState>>,
@@ -26,14 +26,20 @@ fn setup_cut_scene(
                     CutSceneFrame::new(texture_assets.start_a_02.clone(), Some(0.1..1.0)),
                 ],
                 true,
+                Some("StartA".to_string()),
+                GameState::ChooseGame,
             ),
             CutScene::MiddleA => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.middle_a_01.clone(), None)],
                 false,
+                Some("MiddleA".to_string()),
+                GameState::CutScene(CutScene::MiddleB),
             ),
             CutScene::MiddleB => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.middle_b_01.clone(), None)],
                 false,
+                None,
+                GameState::CutScene(CutScene::MiddleC),
             ),
             CutScene::MiddleC => CutSceneDescriptor::new(
                 vec![
@@ -41,6 +47,8 @@ fn setup_cut_scene(
                     CutSceneFrame::new(texture_assets.middle_c_02.clone(), Some(1.0..1.0)),
                 ],
                 false,
+                None,
+                GameState::CutScene(CutScene::MiddleD),
             ),
             CutScene::MiddleD => CutSceneDescriptor::new(
                 vec![
@@ -49,6 +57,8 @@ fn setup_cut_scene(
                     CutSceneFrame::new(texture_assets.middle_d_03.clone(), Some(0.1..0.3)),
                 ],
                 true,
+                Some("MiddleD".to_string()),
+                GameState::CutScene(CutScene::MiddleE),
             ),
             CutScene::MiddleE => CutSceneDescriptor::new(
                 vec![
@@ -58,26 +68,38 @@ fn setup_cut_scene(
                     CutSceneFrame::new(texture_assets.middle_e_04.clone(), Some(0.5..0.5)),
                 ],
                 false,
+                None,
+                GameState::CutScene(CutScene::MiddleF),
             ),
             CutScene::MiddleF => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.middle_f_01.clone(), None)],
                 false,
+                Some("MiddleF".to_string()),
+                GameState::CutScene(CutScene::MiddleG),
             ),
             CutScene::MiddleG => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.middle_g_01.clone(), None)],
                 false,
+                Some("MiddleG".to_string()),
+                GameState::CutScene(CutScene::MiddleH),
             ),
             CutScene::MiddleH => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.middle_h_01.clone(), None)],
                 false,
+                None,
+                GameState::CutScene(CutScene::MiddleI),
             ),
             CutScene::MiddleI => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.middle_g_01.clone(), None)],
                 false,
+                Some("MiddleI".to_string()),
+                GameState::ChooseGame,
             ),
             CutScene::EndA => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.end_a_01.clone(), None)],
                 false,
+                Some("EndA".to_string()),
+                GameState::CutScene(CutScene::EndB),
             ),
             CutScene::EndB => CutSceneDescriptor::new(
                 vec![
@@ -85,10 +107,14 @@ fn setup_cut_scene(
                     CutSceneFrame::new(texture_assets.end_b_02.clone(), Some(2.0..2.0)),
                 ],
                 false,
+                None,
+                GameState::CutScene(CutScene::EndC),
             ),
             CutScene::EndC => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.end_b_02.clone(), None)],
                 false,
+                Some("EndC".to_string()),
+                GameState::CutScene(CutScene::EndD),
             ),
             CutScene::EndD => CutSceneDescriptor::new(
                 vec![
@@ -100,10 +126,14 @@ fn setup_cut_scene(
                     CutSceneFrame::new(texture_assets.end_d_06.clone(), Some(1.0..1.0)),
                 ],
                 false,
+                None,
+                GameState::CutScene(CutScene::EndE),
             ),
             CutScene::EndE => CutSceneDescriptor::new(
                 vec![CutSceneFrame::new(texture_assets.end_e_01.clone(), None)],
                 false,
+                Some("EndE".to_string()),
+                GameState::TheEnd,
             ),
         },
         _ => {
@@ -247,26 +277,40 @@ impl CutSceneFrame {
 }
 
 #[derive(Debug, Default, Reflect)]
-struct CutSceneDescriptor {
+pub struct CutSceneDescriptor {
     queue: Vec<CutSceneFrame>,
     should_loop: bool,
+    pub dialog_start_node: Option<String>,
+    pub next_game_state: GameState,
 }
 
 impl CutSceneDescriptor {
-    fn new(queue: Vec<CutSceneFrame>, should_loop: bool) -> Self {
-        Self { queue, should_loop }
+    fn new(
+        queue: Vec<CutSceneFrame>,
+        should_loop: bool,
+        dialog_start_node: Option<String>,
+        next_game_state: GameState,
+    ) -> Self {
+        assert!(!should_loop || dialog_start_node.is_some());
+
+        Self {
+            queue,
+            should_loop,
+            dialog_start_node,
+            next_game_state,
+        }
     }
 }
 
 #[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
-struct CurrentCutScene {
-    descriptor: Option<CutSceneDescriptor>,
+pub struct CurrentCutScene {
+    pub descriptor: Option<CutSceneDescriptor>,
     timer: Option<Timer>,
     started: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Reflect)]
 pub enum CutScene {
     StartA,
     MiddleA,

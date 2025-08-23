@@ -70,7 +70,7 @@ struct GamesWon {
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Reflect)]
 enum Game {
     Pung,
     BeefBlastoids,
@@ -83,7 +83,7 @@ enum GameResult {
     Lose,
 }
 
-#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash, Reflect)]
 #[states(scoped_entities)]
 pub(crate) enum GameState {
     /// During the loading State the LoadingPlugin will load our assets
@@ -97,6 +97,8 @@ pub(crate) enum GameState {
     _GameJeanie(Game),
     /// During this state, a cut scene is played
     CutScene(CutScene),
+    /// The game ends
+    TheEnd,
 }
 
 #[derive(States, Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
