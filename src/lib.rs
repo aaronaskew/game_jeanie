@@ -32,7 +32,7 @@ pub fn plugin(app: &mut App) {
         .init_state::<GameJeanieState>()
         .add_computed_state::<TvScreenActive>()
         .enable_state_scoped_entities::<TvScreenActive>()
-        .init_resource::<GamesWon>()
+        .init_resource::<GameOutcomes>()
         .add_plugins(LoadingPlugin)
         .add_plugins(choose_game::plugin)
         .add_plugins(ActionsPlugin)
@@ -61,10 +61,22 @@ pub fn plugin(app: &mut App) {
 
 #[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
-struct GamesWon {
-    pung: bool,
-    beef_blastoids: bool,
-    race_place: bool,
+struct GameOutcomes {
+    pung: GameOutcome,
+    beef_blastoids: GameOutcome,
+    race_place: GameOutcome,
+}
+
+impl GameOutcomes {
+    fn lost_at_least_one(&self) -> bool {
+        self.pung.losses > 0 || self.beef_blastoids.losses > 0 || self.race_place.losses > 0
+    }
+}
+
+#[derive(Debug, Reflect, Default)]
+struct GameOutcome {
+    wins: u32,
+    losses: u32,
 }
 
 #[derive(Component)]
