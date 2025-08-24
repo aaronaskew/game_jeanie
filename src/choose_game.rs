@@ -1,4 +1,4 @@
-use bevy::{color::palettes::css::BLACK, prelude::*};
+use bevy::prelude::*;
 
 use crate::{Game, GameOutcomes, GameState, cut_scenes::CutScene, loading::TextureAssets};
 

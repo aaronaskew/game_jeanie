@@ -16,11 +16,14 @@ use bevy::{
     window::PrimaryWindow,
 };
 
+mod debug_cut_scenes;
 mod world_inspector;
+
 use world_inspector::DebugWorldInspectorPlugin;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Startup, window_size)
+    app.add_plugins(debug_cut_scenes::plugin)
+        .add_systems(Startup, window_size)
         // .add_plugins(FrameTimeDiagnosticsPlugin::default())
         // .add_plugins(LogDiagnosticsPlugin::default())
         .add_systems(Update, log_transitions::<GameState>)
