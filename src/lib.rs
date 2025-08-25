@@ -20,7 +20,6 @@ use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::{LoadingPlugin, TextureAssets};
 use crate::pung::PungPlugin;
 
-#[cfg(debug_assertions)]
 mod debug;
 
 const GAME_CANVAS_SIZE: Vec2 = Vec2::new(640., 480.);
@@ -53,10 +52,7 @@ pub fn plugin(app: &mut App) {
             .in_set(TvScreenSystems),
     );
 
-    #[cfg(debug_assertions)]
-    {
-        app.add_plugins(debug::plugin);
-    }
+    app.add_plugins(debug::plugin);
 }
 
 #[derive(Resource, Reflect, Debug, Default)]

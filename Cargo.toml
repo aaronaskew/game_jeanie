@@ -8,7 +8,7 @@ version = "0.1.1"
 edition = "2024"
 
 [dependencies]
-bevy = { version = "0.16", features = ["wayland"] }
+bevy = { version = "0.16", features = ["wayland", "bevy_dev_tools"] }
 rand = { version = "0.8" }
 # Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [
