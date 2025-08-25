@@ -70,7 +70,7 @@ fn define_cut_scenes(
         CutScene::MiddleC,
         CutSceneDescriptor::new(
             vec![
-                CutSceneFrame::new(texture_assets.middle_c_01.clone(), Some(1.0..1.0)),
+                CutSceneFrame::new(texture_assets.middle_c_01.clone(), Some(2.0..2.0)),
                 CutSceneFrame::new(texture_assets.middle_c_02.clone(), Some(1.0..1.0)),
             ],
             false,
@@ -95,10 +95,11 @@ fn define_cut_scenes(
         CutScene::MiddleE,
         CutSceneDescriptor::new(
             vec![
-                CutSceneFrame::new(texture_assets.middle_e_01.clone(), Some(1.0..1.0)),
-                CutSceneFrame::new(texture_assets.middle_e_02.clone(), Some(1.0..1.0)),
-                CutSceneFrame::new(texture_assets.middle_e_03.clone(), Some(0.5..0.5)),
-                CutSceneFrame::new(texture_assets.middle_e_04.clone(), Some(0.5..0.5)),
+                CutSceneFrame::new(texture_assets.middle_e_01.clone(), Some(2.0..2.0)),
+                CutSceneFrame::new(texture_assets.middle_e_02.clone(), Some(2.0..2.0)),
+                CutSceneFrame::new(texture_assets.middle_e_03.clone(), Some(0.3..0.3)),
+                CutSceneFrame::new(texture_assets.middle_e_04.clone(), Some(0.3..0.3)),
+                CutSceneFrame::new(texture_assets.middle_f_01.clone(), Some(0.5..0.5)),
             ],
             false,
             None,
