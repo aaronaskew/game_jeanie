@@ -7,7 +7,7 @@ mod actions;
 mod beef_blastoids;
 mod choose_game;
 mod cut_scenes;
-mod dialog;
+mod dialogue;
 mod game_canvas;
 mod game_jeanie;
 mod loading;
@@ -32,14 +32,14 @@ pub fn plugin(app: &mut App) {
         .init_state::<GameJeanieState>()
         .add_computed_state::<TvScreenActive>()
         .enable_state_scoped_entities::<TvScreenActive>()
-        .init_resource::<GamesWon>()
+        .init_resource::<GameOutcomes>()
         .add_plugins(LoadingPlugin)
         .add_plugins(choose_game::plugin)
         .add_plugins(ActionsPlugin)
         .add_plugins(PungPlugin)
         .add_plugins(beef_blastoids::plugin)
         .add_plugins(cut_scenes::plugin)
-        .add_plugins(dialog::plugin)
+        .add_plugins(dialogue::plugin)
         .add_systems(Startup, setup_camera);
 
     app.add_systems(
@@ -61,16 +61,28 @@ pub fn plugin(app: &mut App) {
 
 #[derive(Resource, Reflect, Debug, Default)]
 #[reflect(Resource)]
-struct GamesWon {
-    pung: bool,
-    beef_blastoids: bool,
-    race_place: bool,
+struct GameOutcomes {
+    pung: GameOutcome,
+    beef_blastoids: GameOutcome,
+    race_place: GameOutcome,
+}
+
+impl GameOutcomes {
+    fn lost_at_least_one(&self) -> bool {
+        self.pung.losses > 0 || self.beef_blastoids.losses > 0 || self.race_place.losses > 0
+    }
+}
+
+#[derive(Debug, Reflect, Default)]
+struct GameOutcome {
+    wins: u32,
+    losses: u32,
 }
 
 #[derive(Component)]
 pub struct Player;
 
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Reflect)]
 enum Game {
     Pung,
     BeefBlastoids,
@@ -83,7 +95,7 @@ enum GameResult {
     Lose,
 }
 
-#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash, Reflect)]
 #[states(scoped_entities)]
 pub(crate) enum GameState {
     /// During the loading State the LoadingPlugin will load our assets
@@ -97,13 +109,15 @@ pub(crate) enum GameState {
     _GameJeanie(Game),
     /// During this state, a cut scene is played
     CutScene(CutScene),
+    /// The game ends
+    TheEnd,
 }
 
 #[derive(States, Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
 enum GameJeanieState {
     #[default]
     Inactive,
-    Active,
+    _Active,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]

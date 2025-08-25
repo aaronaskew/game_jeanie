@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{Game, GameState, GamesWon, loading::TextureAssets};
+use crate::{Game, GameOutcomes, GameState, cut_scenes::CutScene, loading::TextureAssets};
 
 const GLOW_COLOR: Color = Color::srgba(1.0, 1.0, 1.0, 0.68);
 
@@ -9,7 +9,20 @@ pub(super) fn plugin(app: &mut App) {
         .add_sub_state::<ChooseGameState>()
         .add_systems(
             OnEnter(GameState::ChooseGame),
-            (setup_choose_game_panel, setup_menu).chain(),
+            (
+                setup_choose_game_textures,
+                setup_clickable_meshes,
+                handle_game_outcomes,
+            )
+                .chain(),
+        )
+        .add_systems(
+            OnEnter(ChooseGameState::ChooseOrContinue),
+            setup_choose_or_continue_ui,
+        )
+        .add_systems(
+            Update,
+            handle_buttons.run_if(in_state(ChooseGameState::ChooseOrContinue)),
         );
 }
 
@@ -30,14 +43,91 @@ struct RacePlaceGlow;
 #[states(scoped_entities)]
 pub(crate) enum ChooseGameState {
     #[default]
-    FirstChoice,
-    LosePreGameJeanie,
+    /// Choose a game to play
+    ChooseGame,
+    /// Ask whether to choose a game or continue to story
+    ChooseOrContinue,
 }
 
-fn setup_choose_game_panel(
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct ChooseAnotherGame;
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct ContinueOn;
+
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+struct ChooseOrContinueUI;
+
+fn setup_choose_or_continue_ui(mut commands: Commands) {
+    commands.spawn((
+        ChooseOrContinueUI,
+        StateScoped(GameState::ChooseGame),
+        Node {
+            display: Display::Flex,
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..Default::default()
+        },
+        BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.5)),
+        children![(
+            Node {
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            children![
+                (
+                    ChooseAnotherGame,
+                    Button,
+                    Text::new("Choose another game to play.")
+                ),
+                (ContinueOn, Button, Text::new("Continue"))
+            ]
+        )],
+    ));
+}
+
+fn handle_buttons(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<GameState>>,
+    interaction_query: Query<
+        (
+            &Interaction,
+            Option<&ChooseAnotherGame>,
+            Option<&ContinueOn>,
+        ),
+        (Changed<Interaction>, With<Button>),
+    >,
+    ui_entity: Single<Entity, With<ChooseOrContinueUI>>,
+) {
+    for (interaction, choose_another_game, continue_on) in &interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                if choose_another_game.is_some() {
+                    commands.entity(*ui_entity).despawn();
+                }
+
+                if continue_on.is_some() {
+                    next_state.set(GameState::CutScene(CutScene::MiddleA));
+                }
+            }
+            Interaction::Hovered => {}
+            Interaction::None => {}
+        }
+    }
+}
+
+fn setup_choose_game_textures(
     mut commands: Commands,
     texture_assets: Res<TextureAssets>,
-    games_won: Res<GamesWon>,
+    game_outcomes: Res<GameOutcomes>,
 ) {
     commands.spawn((
         Name::new("Choose Game Background"),
@@ -106,7 +196,7 @@ fn setup_choose_game_panel(
             image_mode: SpriteImageMode::Auto,
             ..Default::default()
         },
-        if games_won.pung {
+        if game_outcomes.pung.wins > 0 {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -123,7 +213,7 @@ fn setup_choose_game_panel(
             image_mode: SpriteImageMode::Auto,
             ..Default::default()
         },
-        if games_won.beef_blastoids {
+        if game_outcomes.beef_blastoids.wins > 0 {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -140,7 +230,7 @@ fn setup_choose_game_panel(
             image_mode: SpriteImageMode::Auto,
             ..Default::default()
         },
-        if games_won.race_place {
+        if game_outcomes.race_place.wins > 0 {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -150,7 +240,7 @@ fn setup_choose_game_panel(
     ));
 }
 
-fn setup_menu(
+fn setup_clickable_meshes(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -250,4 +340,13 @@ fn setup_menu(
                 **visibility = Visibility::Hidden;
             },
         );
+}
+
+fn handle_game_outcomes(
+    game_outcomes: Res<GameOutcomes>,
+    mut next_state: ResMut<NextState<ChooseGameState>>,
+) {
+    if game_outcomes.lost_at_least_one() {
+        next_state.set(ChooseGameState::ChooseOrContinue);
+    }
 }

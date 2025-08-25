@@ -4,7 +4,7 @@ use bevy::{
 };
 
 use crate::{
-    Game, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSystems,
+    Game, GameOutcomes, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSystems,
     game_canvas::GameCanvas,
 };
 
@@ -493,7 +493,14 @@ fn game_over(
     mut commands: Commands,
     score: Res<PungScore>,
     root_node: Single<Entity, With<RootNode>>,
+    mut game_stats: ResMut<GameOutcomes>,
 ) {
+    match score.result {
+        Some(GameResult::Win) => game_stats.pung.wins += 1,
+        Some(GameResult::Lose) => game_stats.pung.losses += 1,
+        None => {}
+    }
+
     let message_text = Text::new(match score.result {
         Some(GameResult::Win) => "You win!",
         Some(GameResult::Lose) => "You lose!",
