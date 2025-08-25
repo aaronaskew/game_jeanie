@@ -7,7 +7,7 @@ pub(super) fn plugin(app: &mut App) {
         // Register the Yarn Spinner plugin using its default settings, which will look for Yarn files in the "dialogue" folder.
         // If this app should support Wasm or Android, we cannot load files without specifying them, so use the following instead.
         // YarnSpinnerPlugin::with_yarn_source(YarnFileSource::file("dialogue/hello_world.yarn")),
-        YarnSpinnerPlugin::with_yarn_sources([YarnFileSource::file("dialog/cut_scenes.yarn")]),
+        YarnSpinnerPlugin::with_yarn_sources([YarnFileSource::file("dialogue/cut_scenes.yarn")]),
         // Initialize the bundled example UI
         ExampleYarnSpinnerDialogueViewPlugin::new(),
     ))

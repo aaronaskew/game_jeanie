@@ -11,24 +11,11 @@ use crate::{
 pub mod cut_scene_definitions;
 
 pub(super) fn plugin(app: &mut App) {
-    //     .add_systems(OnEnter(CutScenePlaying), setup_current_cut_scene)
-    //     .add_systems(
-    //         Update,
-    //         (start_dialog, play_cutscene, handle_end_of_dialog)
-    //             .chain()
-    //             .run_if(in_state(CutScenePlaying)),
-    //     )
-    //     .add_systems(OnExit(CutScenePlaying), clear_current_cutscene)
-    //     .add_systems(
-    //         OnTransition {
-    //             exited: CutScenePlaying,
-    //             entered: CutScenePlaying,
-    //         },
-    //         (clear_current_cutscene, setup_current_cut_scene).chain(),
-    //     );
-
     app.add_plugins(cut_scene_definitions::plugin)
         .init_resource::<CurrentCutScene>()
+        .register_type::<CurrentCutScene>()
+        .init_resource::<DialogueActive>()
+        .register_type::<DialogueActive>()
         .add_computed_state::<CutScenePlaying>()
         .add_systems(OnEnter(CutScenePlaying), trigger_new_cut_scene)
         .add_systems(
@@ -41,11 +28,11 @@ pub(super) fn plugin(app: &mut App) {
         .add_observer(setup_new_cut_scene)
         .add_systems(
             Update,
-            (handle_dialogue_complete, play_cutscene, start_dialog)
+            (handle_dialogue_complete, play_cutscene, start_dialogue)
                 .chain()
                 .run_if(in_state(CutScenePlaying)),
         )
-        .add_observer(cleanup_cut_scene);
+        .add_observer(end_and_cleanup_cut_scene);
 }
 
 #[derive(Event, Debug)]
@@ -58,13 +45,15 @@ fn trigger_new_cut_scene(mut commands: Commands) {
     commands.trigger(NewCutSceneEvent);
 }
 
-fn start_dialog(
+fn start_dialogue(
     mut dialogue_runner: Single<&mut DialogueRunner>,
     current_cut_scene: Res<CurrentCutScene>,
+    dialogue_active: Res<DialogueActive>,
 ) -> Result {
-    if !dialogue_runner.is_running()
+    if dialogue_active.0
+        && !dialogue_runner.is_running()
         && let Some(descriptor) = &current_cut_scene.descriptor
-        && let Some(start_node) = &descriptor.dialog_start_node
+        && let Some(start_node) = &descriptor.dialogue_start_node
     {
         dialogue_runner.start_node(start_node);
     }
@@ -75,16 +64,18 @@ fn start_dialog(
 fn handle_dialogue_complete(
     mut reader: EventReader<DialogueCompleteEvent>,
     mut commands: Commands,
+    mut dialogue_active: ResMut<DialogueActive>,
 ) -> Result {
     if reader.read().next().is_some() {
         reader.clear();
         commands.trigger(CutSceneFinishedEvent);
+        dialogue_active.0 = false;
     }
 
     Ok(())
 }
 
-fn cleanup_cut_scene(
+fn end_and_cleanup_cut_scene(
     _trigger: Trigger<CutSceneFinishedEvent>,
     mut next_state: ResMut<NextState<GameState>>,
     mut current_cut_scene: ResMut<CurrentCutScene>,
@@ -111,6 +102,7 @@ pub fn setup_new_cut_scene(
     mut current_cut_scene: ResMut<CurrentCutScene>,
     cut_scene_state: Res<State<GameState>>,
     cut_scene_definitions: Res<CutSceneDefinitions>,
+    mut dialogue_active: ResMut<DialogueActive>,
 ) -> Result {
     let descriptor = match &**cut_scene_state {
         GameState::CutScene(cut_scene) => cut_scene_definitions.0.get(cut_scene).ok_or(format!(
@@ -126,6 +118,8 @@ pub fn setup_new_cut_scene(
         timer: None,
         started: false,
     };
+
+    dialogue_active.0 = true;
 
     Ok(())
 }
@@ -268,7 +262,7 @@ impl CutSceneFrame {
 pub struct CutSceneDescriptor {
     queue: Vec<CutSceneFrame>,
     should_loop: bool,
-    pub dialog_start_node: Option<String>,
+    pub dialogue_start_node: Option<String>,
     pub next_game_state: GameState,
 }
 
@@ -276,15 +270,15 @@ impl CutSceneDescriptor {
     fn new(
         queue: Vec<CutSceneFrame>,
         should_loop: bool,
-        dialog_start_node: Option<String>,
+        dialogue_start_node: Option<String>,
         next_game_state: GameState,
     ) -> Self {
         assert!(
-            !should_loop || dialog_start_node.is_some(),
+            !should_loop || dialogue_start_node.is_some(),
             "cut scene should either have dialogue or should not loop"
         );
 
-        if dialog_start_node.is_none() {
+        if dialogue_start_node.is_none() {
             for frame in &queue {
                 assert!(
                     frame.duration_range.is_some(),
@@ -296,7 +290,7 @@ impl CutSceneDescriptor {
         Self {
             queue,
             should_loop,
-            dialog_start_node,
+            dialogue_start_node,
             next_game_state,
         }
     }
@@ -342,3 +336,7 @@ impl ComputedStates for CutScenePlaying {
         }
     }
 }
+
+#[derive(Resource, Reflect, Debug, Default)]
+#[reflect(Resource)]
+pub struct DialogueActive(bool);

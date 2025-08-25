@@ -7,7 +7,7 @@ mod actions;
 mod beef_blastoids;
 mod choose_game;
 mod cut_scenes;
-mod dialog;
+mod dialogue;
 mod game_canvas;
 mod game_jeanie;
 mod loading;
@@ -39,7 +39,7 @@ pub fn plugin(app: &mut App) {
         .add_plugins(PungPlugin)
         .add_plugins(beef_blastoids::plugin)
         .add_plugins(cut_scenes::plugin)
-        .add_plugins(dialog::plugin)
+        .add_plugins(dialogue::plugin)
         .add_systems(Startup, setup_camera);
 
     app.add_systems(
@@ -117,7 +117,7 @@ pub(crate) enum GameState {
 enum GameJeanieState {
     #[default]
     Inactive,
-    Active,
+    _Active,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
