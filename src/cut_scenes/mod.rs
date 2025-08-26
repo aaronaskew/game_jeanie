@@ -28,7 +28,11 @@ pub(super) fn plugin(app: &mut App) {
         .add_observer(setup_new_cut_scene)
         .add_systems(
             Update,
-            (handle_dialogue_complete, play_cutscene, start_dialogue)
+            (
+                handle_dialogue_complete,
+                play_cutscene,
+                start_dialogue.run_if(resource_changed::<DialogueActive>),
+            )
                 .chain()
                 .run_if(in_state(CutScenePlaying)),
         )
@@ -68,8 +72,8 @@ fn handle_dialogue_complete(
 ) -> Result {
     if reader.read().next().is_some() {
         reader.clear();
-        commands.trigger(CutSceneFinishedEvent);
         dialogue_active.0 = false;
+        commands.trigger(CutSceneFinishedEvent);
     }
 
     Ok(())

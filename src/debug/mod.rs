@@ -1,5 +1,7 @@
 use crate::{
-    GameState, TvScreenActive,
+    // GameOutcome, GameOutcomes,
+    GameState,
+    TvScreenActive,
     beef_blastoids::{self, BeefBlastoidsState},
     cut_scenes::CutScenePlaying,
     pung::PungState,
@@ -32,6 +34,8 @@ pub(super) fn plugin(app: &mut App) {
         };
         use world_inspector::DebugWorldInspectorPlugin;
 
+        // use crate::GameOutcomes;
+
         app.add_systems(Update, escape)
             .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(DebugWorldInspectorPlugin)
@@ -55,9 +59,22 @@ pub(super) fn plugin(app: &mut App) {
                     physics_gizmo_config.enabled ^= true;
                 })
                 .distributive_run_if(input_just_pressed(KeyCode::KeyG)),
-            );
+            )
+            // .add_systems(
+            //     Update,
+            //     debug_game_outcomes.run_if(resource_added::<GameOutcomes>),
+            // )
+            ;
     }
 }
+
+// fn debug_game_outcomes(mut outcomes: ResMut<GameOutcomes>) {
+//     *outcomes = GameOutcomes {
+//         pung: GameOutcome { wins: 1, losses: 0 },
+//         beef_blastoids: GameOutcome { wins: 1, losses: 0 },
+//         race_place: GameOutcome { wins: 1, losses: 0 },
+//     };
+// }
 
 fn window_size(window: Single<&Window, With<PrimaryWindow>>) {
     // let window = window

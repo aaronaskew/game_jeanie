@@ -344,9 +344,12 @@ fn setup_clickable_meshes(
 
 fn handle_game_outcomes(
     game_outcomes: Res<GameOutcomes>,
-    mut next_state: ResMut<NextState<ChooseGameState>>,
+    mut next_choose_game_state: ResMut<NextState<ChooseGameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
-    if game_outcomes.lost_at_least_one() {
-        next_state.set(ChooseGameState::ChooseOrContinue);
+    if game_outcomes.won_all_games() {
+        next_game_state.set(GameState::CutScene(CutScene::EndA));
+    } else if game_outcomes.lost_at_least_one() {
+        next_choose_game_state.set(ChooseGameState::ChooseOrContinue);
     }
 }

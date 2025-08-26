@@ -180,7 +180,7 @@ fn setup_pung_globals(
 
     #[cfg(debug_assertions)]
     {
-        // *pung_globals.deref_mut() = get_pung_globals(&CheatCode::EUOHAKBF);
+        //  *pung_globals.deref_mut() = get_pung_globals(&CheatCode::EUOHAKBF);
         // *pung_globals.deref_mut() = get_pung_globals(&CheatCode::MXWLYTFM);
     }
 

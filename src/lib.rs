@@ -66,6 +66,10 @@ impl GameOutcomes {
     fn lost_at_least_one(&self) -> bool {
         self.pung.losses > 0 || self.beef_blastoids.losses > 0 || self.race_place.losses > 0
     }
+
+    fn won_all_games(&self) -> bool {
+        self.pung.wins > 0 && self.beef_blastoids.wins > 0 && self.race_place.wins > 0
+    }
 }
 
 #[derive(Debug, Reflect, Default)]
