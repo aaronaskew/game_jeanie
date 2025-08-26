@@ -12,7 +12,7 @@ use rand::{Rng, thread_rng};
 mod ui;
 
 use crate::{
-    Game, GameState, Player, TvScreenActive, TvScreenSystems,
+    Game, GameOutcomes, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSystems,
     game_canvas::GameCanvas,
     game_jeanie::{ActiveCheatCode, CheatCode, GameJeanieState},
     loading::ParticleAssets,
@@ -80,7 +80,12 @@ pub fn plugin(app: &mut App) {
         )
         .add_observer(apply_rotation)
         .add_observer(apply_thrust)
-        .add_observer(shoot_blaster);
+        .add_observer(shoot_blaster)
+        .add_systems(OnEnter(BeefBlastoidsState::GameOver), game_over)
+        .add_systems(
+            Update,
+            check_game_over_timer.run_if(in_state(BeefBlastoidsState::GameOver)),
+        );
 }
 
 fn initialize_resources(mut commands: Commands, beef_blastoids_globals: Res<BeefBlastoidsGlobals>) {
@@ -918,5 +923,55 @@ fn game_over_check(
 
     if **lives == 0 {
         next_state.set(BeefBlastoidsState::GameOver);
+    }
+}
+
+#[derive(Resource, Reflect, Debug, Default)]
+#[reflect(Resource)]
+struct GameOverTimer(Timer);
+
+fn game_over(
+    mut commands: Commands,
+    lives: Res<Lives>,
+    root_node: Single<Entity, With<RootNode>>,
+    mut outcomes: ResMut<GameOutcomes>,
+) {
+    let won = lives.0 > 0;
+
+    if won {
+        outcomes.beef_blastoids.wins += 1;
+    } else {
+        outcomes.beef_blastoids.losses += 1;
+    }
+    
+    let message_text = Text::new(if won { "You win!" } else { "You lose!" });
+
+    commands.spawn((
+        StateScoped(BeefBlastoidsState::GameOver),
+        ChildOf(*root_node),
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        children![message_text],
+    ));
+
+    commands.insert_resource(GameOverTimer(Timer::from_seconds(3.0, TimerMode::Once)));
+}
+
+fn check_game_over_timer(
+    mut timer: ResMut<GameOverTimer>,
+    time: Res<Time>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut commands: Commands,
+) {
+    timer.0.tick(time.delta());
+
+    if timer.0.finished() {
+        next_state.set(GameState::ChooseGame);
+        commands.remove_resource::<GameOverTimer>();
     }
 }

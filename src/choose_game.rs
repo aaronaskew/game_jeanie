@@ -80,6 +80,7 @@ fn setup_choose_or_continue_ui(mut commands: Commands) {
                 flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                row_gap: Val::Px(50.0),
                 ..Default::default()
             },
             children![
@@ -88,7 +89,7 @@ fn setup_choose_or_continue_ui(mut commands: Commands) {
                     Button,
                     Text::new("Choose another game to play.")
                 ),
-                (ContinueOn, Button, Text::new("Continue"))
+                (ContinueOn, Button, Text::new("\"These are way too hard!\""))
             ]
         )],
     ));

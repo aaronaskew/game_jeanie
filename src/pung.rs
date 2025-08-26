@@ -49,7 +49,8 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(OnEnter(PungState::GameOver), game_over)
         .add_systems(
             Update,
-            click_gameover_button.run_if(in_state(PungState::GameOver)),
+            // click_gameover_button
+            check_game_over_timer.run_if(in_state(PungState::GameOver)),
         );
 }
 
@@ -645,18 +646,19 @@ fn check_for_game_over(
     }
 }
 
-#[derive(Component)]
-struct ReturnToMenu;
+#[derive(Resource, Reflect, Debug, Default)]
+#[reflect(Resource)]
+struct GameOverTimer(Timer);
 
 fn game_over(
     mut commands: Commands,
     score: Res<PungScore>,
     root_node: Single<Entity, With<RootNode>>,
-    mut game_stats: ResMut<GameOutcomes>,
+    mut outcomes: ResMut<GameOutcomes>,
 ) {
     match score.result {
-        Some(GameResult::Win) => game_stats.pung.wins += 1,
-        Some(GameResult::Lose) => game_stats.pung.losses += 1,
+        Some(GameResult::Win) => outcomes.pung.wins += 1,
+        Some(GameResult::Lose) => outcomes.pung.losses += 1,
         None => {}
     }
 
@@ -676,26 +678,22 @@ fn game_over(
             justify_content: JustifyContent::Center,
             ..default()
         },
-        children![(Button, message_text, ReturnToMenu)],
+        children![message_text],
     ));
+
+    commands.insert_resource(GameOverTimer(Timer::from_seconds(3.0, TimerMode::Once)));
 }
 
-fn click_gameover_button(
+fn check_game_over_timer(
+    mut timer: ResMut<GameOverTimer>,
+    time: Res<Time>,
     mut next_state: ResMut<NextState<GameState>>,
-    interaction_query: Query<
-        (&Interaction, Option<&ReturnToMenu>),
-        (Changed<Interaction>, With<Button>),
-    >,
+    mut commands: Commands,
 ) {
-    for (interaction, return_to_menu) in &interaction_query {
-        match *interaction {
-            Interaction::Pressed => {
-                if return_to_menu.is_some() {
-                    next_state.set(GameState::ChooseGame);
-                }
-            }
-            Interaction::Hovered => {}
-            Interaction::None => {}
-        }
+    timer.0.tick(time.delta());
+
+    if timer.0.finished() {
+        next_state.set(GameState::ChooseGame);
+        commands.remove_resource::<GameOverTimer>();
     }
 }

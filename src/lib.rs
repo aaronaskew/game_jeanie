@@ -30,6 +30,7 @@ pub fn plugin(app: &mut App) {
         .add_computed_state::<TvScreenActive>()
         .enable_state_scoped_entities::<TvScreenActive>()
         .init_resource::<GameOutcomes>()
+        .register_type::<GameOutcomes>()
         .add_plugins(game_jeanie::plugin)
         .add_plugins(LoadingPlugin)
         .add_plugins(choose_game::plugin)
