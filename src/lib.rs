@@ -9,7 +9,7 @@ mod choose_game;
 mod cut_scenes;
 mod dialogue;
 mod game_canvas;
-mod game_jeanie;
+pub(crate) mod game_jeanie;
 mod loading;
 mod pung;
 mod race_place;
@@ -18,7 +18,6 @@ use crate::actions::ActionsPlugin;
 use crate::cut_scenes::CutScene;
 use crate::game_canvas::{GameCanvas, GameCanvasBundle};
 use crate::loading::{LoadingPlugin, TextureAssets};
-use crate::pung::PungPlugin;
 
 mod debug;
 
@@ -28,14 +27,14 @@ const ROOT_NODE_UI_TOP_LEFT: Vec2 = Vec2::new(563., 77.);
 
 pub fn plugin(app: &mut App) {
     app.init_state::<GameState>()
-        .init_state::<GameJeanieState>()
         .add_computed_state::<TvScreenActive>()
         .enable_state_scoped_entities::<TvScreenActive>()
         .init_resource::<GameOutcomes>()
+        .add_plugins(game_jeanie::plugin)
         .add_plugins(LoadingPlugin)
         .add_plugins(choose_game::plugin)
         .add_plugins(ActionsPlugin)
-        .add_plugins(PungPlugin)
+        .add_plugins(pung::plugin)
         .add_plugins(beef_blastoids::plugin)
         .add_plugins(cut_scenes::plugin)
         .add_plugins(dialogue::plugin)
@@ -107,13 +106,6 @@ pub(crate) enum GameState {
     CutScene(CutScene),
     /// The game ends
     TheEnd,
-}
-
-#[derive(States, Copy, Clone, Eq, PartialEq, Hash, Debug, Default)]
-enum GameJeanieState {
-    #[default]
-    Inactive,
-    _Active,
 }
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
