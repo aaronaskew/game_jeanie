@@ -37,6 +37,7 @@ pub fn plugin(app: &mut App) {
         .add_plugins(ActionsPlugin)
         .add_plugins(pung::plugin)
         .add_plugins(beef_blastoids::plugin)
+        .add_plugins(race_place::plugin)
         .add_plugins(cut_scenes::plugin)
         .add_plugins(dialogue::plugin)
         .add_systems(Startup, setup_camera);
