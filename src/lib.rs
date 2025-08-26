@@ -217,7 +217,7 @@ fn setup_playing_art_overlay(mut commands: Commands, texture_assets: Res<Texture
         StateScoped(TvScreenActive),
         Name::new("Playing Background"),
         Sprite {
-            image: texture_assets.panel4.clone(),
+            image: texture_assets.gameplay.clone(),
             custom_size: Some(Vec2::new(1280., 720.)),
             image_mode: SpriteImageMode::Auto,
             ..Default::default()

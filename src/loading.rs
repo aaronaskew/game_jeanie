@@ -104,8 +104,10 @@ pub struct TextureAssets {
     pub panel2_raceplace_seal: Handle<Image>,
 
     // Gameplay Overlay
-    #[asset(path = "textures/panel4.png")]
-    pub panel4: Handle<Image>,
+    #[asset(path = "textures/gameplay.png")]
+    pub gameplay: Handle<Image>,
+    #[asset(path = "textures/gameplay_w_jeanie.png")]
+    pub gameplay_w_jeanie: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]
