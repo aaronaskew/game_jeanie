@@ -22,6 +22,8 @@ fn setup_cheat_codes(mut commands: Commands) -> Result {
 
     cheat_codes.insert(Game::Pung, CheatCode::MXWLYTFM);
     cheat_codes.insert(Game::Pung, CheatCode::EUOHAKBF);
+    cheat_codes.insert(Game::BeefBlastoids, CheatCode::XXPHIHCS);
+    cheat_codes.insert(Game::BeefBlastoids, CheatCode::PCLFZZOG);
 
     commands.insert_resource(CheatCodes(cheat_codes));
 
@@ -44,8 +46,8 @@ struct CheatCodes(HashMap<Game, CheatCode>);
 pub enum CheatCode {
     MXWLYTFM,
     EUOHAKBF,
-    // XXPHIHCS,
-    // PCLFZZOG,
+    XXPHIHCS,
+    PCLFZZOG,
     // ZCOXATGX,
     // LBWDMDNY,
     // MFLUTNWO,

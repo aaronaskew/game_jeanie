@@ -37,7 +37,7 @@ pub(super) fn plugin(app: &mut App) {
         // use crate::GameOutcomes;
 
         app.add_systems(Update, escape)
-            .add_plugins(PhysicsDebugPlugin::default())
+            // .add_plugins(PhysicsDebugPlugin::default())
             .add_plugins(DebugWorldInspectorPlugin)
             .add_plugins(DebugPickingPlugin)
             .insert_resource(DebugPickingMode::Normal)
