@@ -39,6 +39,7 @@ pub struct ActiveCheatCode {
 #[reflect(Resource)]
 struct CheatCodes(HashMap<Game, CheatCode>);
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Reflect)]
 pub enum CheatCode {
     MXWLYTFM,
