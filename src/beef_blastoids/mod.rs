@@ -1,4 +1,4 @@
-use std::{f32::consts::TAU, time::Duration};
+use std::{f32::consts::TAU, ops::DerefMut, time::Duration};
 
 use avian2d::{math::PI, prelude::*};
 use bevy::{
@@ -12,32 +12,13 @@ use rand::{Rng, thread_rng};
 mod ui;
 
 use crate::{
-    Game, GameState, Player, TvScreenActive, TvScreenSystems, game_canvas::GameCanvas,
+    Game, GameOutcomes, GameResult, GameState, Player, RootNode, TvScreenActive, TvScreenSystems,
+    game_canvas::GameCanvas,
+    game_jeanie::{ActiveCheatCode, CheatCode, GameJeanieState},
     loading::ParticleAssets,
 };
 
-const MAX_SCORE: u32 = 10000;
-const NUM_LIVES: u32 = 3;
 const PIXEL_SCALE: f32 = 25.;
-
-const SHIP_THRUST_MAGNITUDE: f32 = 100.;
-const SHIP_MAX_VELOCITY: f32 = 750.;
-const SHIP_ROTATION_SPEED: f32 = 0.5 * 2. * PI;
-const SHIP_INVINCIBLE_TIME: f32 = 5.0;
-const SHIP_BLINK_RATE: f32 = 50.0;
-
-const BLASTER_COOLDOWN: f32 = 0.1;
-const BULLET_TTL: f32 = 0.5;
-const BULLET_RADIUS: f32 = 2.0;
-const BULLET_SPEED: f32 = 1000.;
-
-const INITIAL_NUM_BEEF: u32 = 0;
-const BEEF_NUM_VERTS: u8 = 10;
-const BEEF_RADIUS: f32 = 50.;
-// percent of radius
-const BEEF_RADIUS_VARIANCE: f32 = 0.25;
-const BEEF_SCORE_VALUE: u32 = 100;
-
 const SHIP_LAYER_MASK: u32 = 0b0001;
 const BULLET_LAYER_MASK: u32 = 0b0010;
 const BEEF_LAYER_MASK: u32 = 0b0100;
@@ -46,19 +27,23 @@ pub fn plugin(app: &mut App) {
     app.add_plugins(ui::plugin)
         .add_plugins((PhysicsPlugins::default(), EnokiPlugin))
         .insert_resource(Gravity::ZERO)
+        .add_computed_state::<BeefBlastoidsSetupGameState>()
         .init_gizmo_group::<ShipGizmoGroup>()
-        .insert_resource(BlasterCooldown(Timer::new(
-            Duration::from_secs_f32(BLASTER_COOLDOWN),
-            TimerMode::Once,
-        )))
+        .init_resource::<BeefBlastoidsGlobals>()
         .insert_resource(Lives(3))
         .insert_resource(Score(0))
-        .insert_resource(NumBeef(INITIAL_NUM_BEEF))
         .add_sub_state::<BeefBlastoidsState>()
         .add_sub_state::<RunningState>()
-        .add_systems(OnEnter(BeefBlastoidsState::Running), reset_game)
         .add_systems(
-            OnEnter(TvScreenActive),
+            OnEnter(BeefBlastoidsState::SetupGlobals),
+            setup_beef_blastoids_globals,
+        )
+        .add_systems(
+            OnEnter(BeefBlastoidsSetupGameState),
+            (initialize_resources, reset_game).chain(),
+        )
+        .add_systems(
+            OnEnter(BeefBlastoidsSetupGameState),
             (|mut next_state: ResMut<NextState<RunningState>>| {
                 next_state.set(RunningState::NextLevel)
             })
@@ -91,11 +76,174 @@ pub fn plugin(app: &mut App) {
                 game_over_check,
             )
                 .chain()
-                .run_if(in_state(GameState::Playing(Game::BeefBlastoids))),
+                .run_if(in_state(BeefBlastoidsState::Running)),
         )
         .add_observer(apply_rotation)
         .add_observer(apply_thrust)
-        .add_observer(shoot_blaster);
+        .add_observer(shoot_blaster)
+        .add_systems(OnEnter(BeefBlastoidsState::GameOver), game_over)
+        .add_systems(
+            Update,
+            check_game_over_timer.run_if(in_state(BeefBlastoidsState::GameOver)),
+        );
+}
+
+fn initialize_resources(mut commands: Commands, beef_blastoids_globals: Res<BeefBlastoidsGlobals>) {
+    commands.insert_resource(BlasterCooldown(Timer::new(
+        Duration::from_secs_f32(beef_blastoids_globals.BLASTER_COOLDOWN),
+        TimerMode::Once,
+    )));
+
+    commands.insert_resource(NumBeef(beef_blastoids_globals.INITIAL_NUM_BEEF));
+}
+
+#[derive(Debug, Hash, Eq, Clone, PartialEq)]
+struct BeefBlastoidsSetupGameState;
+
+impl ComputedStates for BeefBlastoidsSetupGameState {
+    type SourceStates = (BeefBlastoidsState, Option<TvScreenActive>);
+
+    fn compute((beef_blastoids_state, tv_screen_active_state): Self::SourceStates) -> Option<Self> {
+        match (beef_blastoids_state, tv_screen_active_state) {
+            (BeefBlastoidsState::Running, Some(_)) => Some(Self),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Resource, Reflect, Debug, Default, Clone)]
+#[reflect(Resource)]
+#[allow(non_snake_case)]
+pub struct BeefBlastoidsGlobals {
+    pub DESCRIPTION: String,
+    pub MAX_SCORE: u32,
+    pub NUM_LIVES: u32,
+    pub SHIP_THRUST_MAGNITUDE: f32,
+    pub SHIP_MAX_VELOCITY: f32,
+    pub SHIP_ROTATION_SPEED: f32,
+    pub SHIP_INVINCIBLE_TIME: f32,
+    pub SHIP_BLINK_RATE: f32,
+    pub BLASTER_COOLDOWN: f32,
+    pub BULLET_TTL: f32,
+    pub BULLETS_DESPAWN: bool,
+    pub BULLET_RADIUS: f32,
+    pub BULLET_SPEED: f32,
+    pub INITIAL_NUM_BEEF: u32,
+    pub INITIAL_BEEF_SPEED: f32,
+    pub BEEF_NUM_VERTS: u8,
+    pub BEEF_RADIUS: f32,
+    pub BEEF_RADIUS_VARIANCE: f32,
+    pub BEEF_SCORE_VALUE: u32,
+}
+
+fn setup_beef_blastoids_globals(
+    active_cheat_code: Res<ActiveCheatCode>,
+    mut beef_blastoids_globals: ResMut<BeefBlastoidsGlobals>,
+    mut next_state: ResMut<NextState<BeefBlastoidsState>>,
+    game_jeanie_state: Res<State<GameJeanieState>>,
+) -> Result {
+    match **game_jeanie_state {
+        GameJeanieState::Inactive => {
+            *beef_blastoids_globals.deref_mut() = get_beef_blastoids_globals(&CheatCode::DEFAULT);
+        }
+        GameJeanieState::Active => {
+            let game = active_cheat_code
+                .game
+                .as_ref()
+                .ok_or("No game set in active cheat code")?;
+
+            if *game != Game::BeefBlastoids {
+                return Err(format!("active cheat code game set to {:?}", *game).into());
+            }
+
+            *beef_blastoids_globals.deref_mut() =
+                if let Some(cheat_code) = active_cheat_code.cheat_code.as_ref() {
+                    get_beef_blastoids_globals(cheat_code)
+                } else {
+                    get_beef_blastoids_globals(&CheatCode::DEFAULT)
+                };
+        }
+    }
+
+    #[cfg(debug_assertions)]
+    {
+        // *beef_blastoids_globals.deref_mut() = get_beef_blastoids_globals(&CheatCode::XXPHIHCS);
+        // *beef_blastoids_globals.deref_mut() = get_beef_blastoids_globals(&CheatCode::PCLFZZOG);
+    }
+
+    info!("BeefBlastoidsGlobals: {:#?}", beef_blastoids_globals);
+
+    next_state.set(BeefBlastoidsState::Running);
+
+    Ok(())
+}
+
+fn get_beef_blastoids_globals(cheat_code: &CheatCode) -> BeefBlastoidsGlobals {
+    match cheat_code {
+        CheatCode::XXPHIHCS => BeefBlastoidsGlobals {
+            DESCRIPTION: "High Ship Thrust, high beef speed".into(),
+            MAX_SCORE: 10000,
+            NUM_LIVES: 3,
+            SHIP_THRUST_MAGNITUDE: 1000.,
+            SHIP_MAX_VELOCITY: 7500.,
+            SHIP_ROTATION_SPEED: 0.5 * 2. * PI,
+            SHIP_INVINCIBLE_TIME: 5.0,
+            SHIP_BLINK_RATE: 50.0,
+            BLASTER_COOLDOWN: 0.1,
+            BULLET_TTL: 0.5,
+            BULLETS_DESPAWN: true,
+            BULLET_RADIUS: 2.0,
+            BULLET_SPEED: 1000.,
+            INITIAL_NUM_BEEF: 0,
+            INITIAL_BEEF_SPEED: 500.0,
+            BEEF_NUM_VERTS: 10,
+            BEEF_RADIUS: 50.,
+            BEEF_RADIUS_VARIANCE: 0.25,
+            BEEF_SCORE_VALUE: 100,
+        },
+        CheatCode::PCLFZZOG => BeefBlastoidsGlobals {
+            DESCRIPTION: "Giant bullets".into(),
+            MAX_SCORE: 10000,
+            NUM_LIVES: 3,
+            SHIP_THRUST_MAGNITUDE: 100.,
+            SHIP_MAX_VELOCITY: 750.,
+            SHIP_ROTATION_SPEED: 0.5 * 2. * PI,
+            SHIP_INVINCIBLE_TIME: 5.0,
+            SHIP_BLINK_RATE: 50.0,
+            BLASTER_COOLDOWN: 0.1,
+            BULLET_TTL: 0.5,
+            BULLETS_DESPAWN: true,
+            BULLET_RADIUS: 20.0,
+            BULLET_SPEED: 1000.,
+            INITIAL_NUM_BEEF: 0,
+            INITIAL_BEEF_SPEED: 10.0,
+            BEEF_NUM_VERTS: 10,
+            BEEF_RADIUS: 50.,
+            BEEF_RADIUS_VARIANCE: 0.25,
+            BEEF_SCORE_VALUE: 100,
+        },
+        _ => BeefBlastoidsGlobals {
+            DESCRIPTION: "Default".into(),
+            MAX_SCORE: 10000,
+            NUM_LIVES: 3,
+            SHIP_THRUST_MAGNITUDE: 100.,
+            SHIP_MAX_VELOCITY: 750.,
+            SHIP_ROTATION_SPEED: 0.5 * 2. * PI,
+            SHIP_INVINCIBLE_TIME: 5.0,
+            SHIP_BLINK_RATE: 50.0,
+            BLASTER_COOLDOWN: 0.1,
+            BULLET_TTL: 0.5,
+            BULLETS_DESPAWN: true,
+            BULLET_RADIUS: 2.0,
+            BULLET_SPEED: 1000.,
+            INITIAL_BEEF_SPEED: 100.0,
+            INITIAL_NUM_BEEF: 50,
+            BEEF_NUM_VERTS: 10,
+            BEEF_RADIUS: 50.,
+            BEEF_RADIUS_VARIANCE: 0.25,
+            BEEF_SCORE_VALUE: 100,
+        },
+    }
 }
 
 #[derive(SubStates, Default, Clone, Eq, PartialEq, Debug, Hash)]
@@ -103,6 +251,7 @@ pub fn plugin(app: &mut App) {
 #[states(scoped_entities)]
 pub(crate) enum BeefBlastoidsState {
     #[default]
+    SetupGlobals,
     Running,
     GameOver,
 }
@@ -202,10 +351,15 @@ struct BeefBundle {
     state_scoped: StateScoped<BeefBlastoidsState>,
 }
 
-fn reset_game(mut score: ResMut<Score>, mut lives: ResMut<Lives>, mut num_beef: ResMut<NumBeef>) {
+fn reset_game(
+    mut score: ResMut<Score>,
+    mut lives: ResMut<Lives>,
+    mut num_beef: ResMut<NumBeef>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
+) {
     **score = 0;
-    **lives = NUM_LIVES;
-    **num_beef = INITIAL_NUM_BEEF;
+    **lives = beef_blastoids_globals.NUM_LIVES;
+    **num_beef = beef_blastoids_globals.INITIAL_NUM_BEEF;
 }
 
 fn ship_gizmo_and_verts(visible: bool) -> (GizmoAsset, [Vec2; 3]) {
@@ -231,6 +385,7 @@ fn spawn_ship(
     mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
     canvas: Single<Entity, With<GameCanvas>>,
     mut next_state: ResMut<NextState<RunningState>>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     info!("spawning ship");
 
@@ -241,8 +396,11 @@ fn spawn_ship(
         Name::new("Ship"),
         ScreenWrap,
         Invincible {
-            invincibility_timer: Timer::from_seconds(SHIP_INVINCIBLE_TIME, TimerMode::Once),
-            blink_rate: SHIP_BLINK_RATE,
+            invincibility_timer: Timer::from_seconds(
+                beef_blastoids_globals.SHIP_INVINCIBLE_TIME,
+                TimerMode::Once,
+            ),
+            blink_rate: beef_blastoids_globals.SHIP_BLINK_RATE,
         },
         Visibility::Hidden,
         actions!(Player[
@@ -288,13 +446,21 @@ fn spawn_ship(
     next_state.set(RunningState::ShipInvincible);
 }
 
-fn generate_beef_polygon(radius: f32) -> BoxedPolygon {
+fn generate_beef_polygon(
+    radius: f32,
+    beef_blastoids_globals: &Res<BeefBlastoidsGlobals>,
+) -> BoxedPolygon {
     let mut rng = thread_rng();
 
-    BoxedPolygon::new((0..BEEF_NUM_VERTS).map(|i| {
-        let theta = (i as f32) / (BEEF_NUM_VERTS as f32) * TAU;
+    BoxedPolygon::new((0..beef_blastoids_globals.BEEF_NUM_VERTS).map(|i| {
+        let theta = (i as f32) / (beef_blastoids_globals.BEEF_NUM_VERTS as f32) * TAU;
 
-        let radius = radius * (1. + rng.gen_range(-BEEF_RADIUS_VARIANCE..BEEF_RADIUS_VARIANCE));
+        let radius = radius
+            * (1.
+                + rng.gen_range(
+                    -beef_blastoids_globals.BEEF_RADIUS_VARIANCE
+                        ..beef_blastoids_globals.BEEF_RADIUS_VARIANCE,
+                ));
 
         let x = f32::cos(theta) * radius;
         let y = f32::sin(theta) * radius;
@@ -310,12 +476,16 @@ fn generate_beef_bundle(
     translation: Vec3,
     linear_velocity: Vec2,
     angular_velocity: f32,
+    beef_blastoids_globals: &Res<BeefBlastoidsGlobals>,
 ) -> BeefBundle {
-    let beef = generate_beef_polygon(match beef_size {
-        BeefSize::Large => BEEF_RADIUS,
-        BeefSize::Medium => BEEF_RADIUS * 0.5,
-        BeefSize::Small => BEEF_RADIUS * 0.25,
-    });
+    let beef = generate_beef_polygon(
+        match beef_size {
+            BeefSize::Large => beef_blastoids_globals.BEEF_RADIUS,
+            BeefSize::Medium => beef_blastoids_globals.BEEF_RADIUS * 0.5,
+            BeefSize::Small => beef_blastoids_globals.BEEF_RADIUS * 0.25,
+        },
+        beef_blastoids_globals,
+    );
 
     let mut collider_indices = vec![];
 
@@ -378,6 +548,7 @@ fn spawn_beef(
     canvas_query: Single<(Entity, &GameCanvas)>,
     num_beef: Res<NumBeef>,
     mut next_state: ResMut<NextState<RunningState>>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     let (canvas_entity, canvas) = *canvas_query;
 
@@ -390,7 +561,8 @@ fn spawn_beef(
             0.,
         );
 
-        let linear_velocity = vec2(rng.gen_range(-10.0..10.), rng.gen_range(-10.0..10.));
+        let linear_velocity = vec2(rng.gen_range(-1.0..1.), rng.gen_range(-1.0..1.))
+            * beef_blastoids_globals.INITIAL_BEEF_SPEED;
 
         let angular_velocity = rng.gen_range((-TAU / 10.)..(TAU / 10.));
 
@@ -401,6 +573,7 @@ fn spawn_beef(
             translation,
             linear_velocity,
             angular_velocity,
+            &beef_blastoids_globals,
         ));
     }
 
@@ -416,6 +589,7 @@ fn shoot_blaster(
     canvas: Single<Entity, With<GameCanvas>>,
     time: Res<Time>,
     ship: Single<(&Position, &Rotation), With<Player>>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     // info!("shoot: {}", trigger.value);
 
@@ -426,13 +600,13 @@ fn shoot_blaster(
             Bullet(time.elapsed_secs()),
             ScreenWrap,
             Name::new("Bullet"),
-            Mesh2d(meshes.add(Circle::new(BULLET_RADIUS))),
+            Mesh2d(meshes.add(Circle::new(beef_blastoids_globals.BULLET_RADIUS))),
             MeshMaterial2d(materials.add(ColorMaterial::from_color(WHITE))),
             RigidBody::Kinematic,
             SweptCcd::default(),
-            Collider::circle(BULLET_RADIUS),
+            Collider::circle(beef_blastoids_globals.BULLET_RADIUS),
             CollisionMargin(0.1),
-            LinearVelocity(BULLET_SPEED * (ship_rotation * Vec2::Y)),
+            LinearVelocity(beef_blastoids_globals.BULLET_SPEED * (ship_rotation * Vec2::Y)),
             Position(**ship_position),
             CollisionLayers::new(BULLET_LAYER_MASK, BEEF_LAYER_MASK),
             CollidingEntities::default(),
@@ -480,17 +654,19 @@ fn apply_thrust(
     _trigger: Trigger<Fired<Thrust>>,
     time: Res<Time>,
     query: Single<(&mut LinearVelocity, &Rotation), With<Player>>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     // info!("thrust: {}", trigger.value);
 
     let (mut velocity, rotation) = query.into_inner();
     let local_up = rotation * Vec2::Y;
-    let delta_velocity = local_up * SHIP_THRUST_MAGNITUDE * time.delta_secs();
+    let delta_velocity =
+        local_up * beef_blastoids_globals.SHIP_THRUST_MAGNITUDE * time.delta_secs();
 
     velocity.0 += delta_velocity;
     velocity.0 = velocity.clamp(
-        Vec2::splat(-SHIP_MAX_VELOCITY),
-        Vec2::splat(SHIP_MAX_VELOCITY),
+        Vec2::splat(-beef_blastoids_globals.SHIP_MAX_VELOCITY),
+        Vec2::splat(beef_blastoids_globals.SHIP_MAX_VELOCITY),
     );
 }
 
@@ -498,21 +674,28 @@ fn apply_rotation(
     trigger: Trigger<Fired<Rotate>>,
     mut rotation: Single<&mut Rotation, With<Player>>,
     time: Res<Time>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     // info!("rotation: {}", trigger.value);
 
-    **rotation = rotation.add_angle(trigger.value * SHIP_ROTATION_SPEED * time.delta_secs());
+    **rotation = rotation
+        .add_angle(trigger.value * beef_blastoids_globals.SHIP_ROTATION_SPEED * time.delta_secs());
 }
 
 fn tick_blaster_cooldown(mut cooldown: ResMut<BlasterCooldown>, time: Res<Time>) {
     cooldown.0.tick(Duration::from_secs_f32(time.delta_secs()));
 }
 
-fn check_bullets_ttl(mut commands: Commands, bullets: Query<(Entity, &Bullet)>, time: Res<Time>) {
+fn check_bullets_ttl(
+    mut commands: Commands,
+    bullets: Query<(Entity, &Bullet)>,
+    time: Res<Time>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
+) {
     let current_time = time.elapsed_secs();
 
     for (entity, bullet) in bullets {
-        if current_time - bullet.0 > BULLET_TTL {
+        if current_time - bullet.0 > beef_blastoids_globals.BULLET_TTL {
             commands.entity(entity).despawn();
         }
     }
@@ -524,6 +707,7 @@ fn handle_collisions(
     beef_query: Query<(Entity, &Beef)>,
     mut next_state: ResMut<NextState<RunningState>>,
     mut commands: Commands,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     let player_invincible = player_query.2.is_some();
     let player_colliding_entities = player_query.3;
@@ -545,8 +729,9 @@ fn handle_collisions(
                     commands.entity(*entity).insert(DestroyBeef);
                 }
             }
-
-            commands.entity(bullet_entity).despawn();
+            if beef_blastoids_globals.BULLETS_DESPAWN {
+                commands.entity(bullet_entity).despawn();
+            }
         }
     }
 }
@@ -569,6 +754,7 @@ fn destroy_beef(
     particle_assets: Res<ParticleAssets>,
     canvas_query: Single<(Entity, &GameCanvas)>,
     mut score: ResMut<Score>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     let (canvas_entity, canvas) = *canvas_query;
 
@@ -582,9 +768,9 @@ fn destroy_beef(
 
     for (entity, transform, linear_velocity, angular_velocity, beef_size) in destroy_beef_query {
         let radius = if *beef_size == BeefSize::Large {
-            BEEF_RADIUS * 0.5
+            beef_blastoids_globals.BEEF_RADIUS * 0.5
         } else {
-            BEEF_RADIUS * 0.25
+            beef_blastoids_globals.BEEF_RADIUS * 0.25
         };
 
         let perpendicular_1 = Vec2::new(-linear_velocity.y, linear_velocity.x)
@@ -621,6 +807,7 @@ fn destroy_beef(
                 translation_1,
                 lin_vel1,
                 ang_vel1,
+                &beef_blastoids_globals,
             ));
 
             commands.spawn(generate_beef_bundle(
@@ -634,10 +821,11 @@ fn destroy_beef(
                 translation_2,
                 lin_vel2,
                 ang_vel2,
+                &beef_blastoids_globals,
             ));
         }
 
-        **score += BEEF_SCORE_VALUE;
+        **score += beef_blastoids_globals.BEEF_SCORE_VALUE;
 
         commands.spawn((
             ParticleSpawner::default(),
@@ -701,12 +889,14 @@ fn tick_invincibility(
     time: Res<Time>,
     mut next_state: ResMut<NextState<RunningState>>,
     mut gizmo_assets: ResMut<Assets<GizmoAsset>>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
     let (entity, mut invincible, mut gizmo_component) = ship.into_inner();
 
     invincible.invincibility_timer.tick(time.delta());
 
-    let blink_visibility = (time.elapsed_secs() * SHIP_BLINK_RATE).sin() > 0.0;
+    let blink_visibility =
+        (time.elapsed_secs() * beef_blastoids_globals.SHIP_BLINK_RATE).sin() > 0.0;
     // if let Some(gizmo_asset) = gizmo_assets.get_mut(&handle) {
     let (ship_gizmo_asset, _) =
         ship_gizmo_and_verts(if invincible.invincibility_timer.finished() {
@@ -725,12 +915,63 @@ fn game_over_check(
     score: Res<Score>,
     lives: Res<Lives>,
     mut next_state: ResMut<NextState<BeefBlastoidsState>>,
+    beef_blastoids_globals: Res<BeefBlastoidsGlobals>,
 ) {
-    if **score >= MAX_SCORE {
+    if **score >= beef_blastoids_globals.MAX_SCORE {
         next_state.set(BeefBlastoidsState::GameOver);
     }
 
     if **lives == 0 {
         next_state.set(BeefBlastoidsState::GameOver);
+    }
+}
+
+#[derive(Resource, Reflect, Debug, Default)]
+#[reflect(Resource)]
+struct GameOverTimer(Timer);
+
+fn game_over(
+    mut commands: Commands,
+    lives: Res<Lives>,
+    root_node: Single<Entity, With<RootNode>>,
+    mut outcomes: ResMut<GameOutcomes>,
+) {
+    let won = lives.0 > 0;
+
+    if won {
+        outcomes.beef_blastoids.wins += 1;
+    } else {
+        outcomes.beef_blastoids.losses += 1;
+    }
+    
+    let message_text = Text::new(if won { "You win!" } else { "You lose!" });
+
+    commands.spawn((
+        StateScoped(BeefBlastoidsState::GameOver),
+        ChildOf(*root_node),
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        children![message_text],
+    ));
+
+    commands.insert_resource(GameOverTimer(Timer::from_seconds(3.0, TimerMode::Once)));
+}
+
+fn check_game_over_timer(
+    mut timer: ResMut<GameOverTimer>,
+    time: Res<Time>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut commands: Commands,
+) {
+    timer.0.tick(time.delta());
+
+    if timer.0.finished() {
+        next_state.set(GameState::ChooseGame);
+        commands.remove_resource::<GameOverTimer>();
     }
 }

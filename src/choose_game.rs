@@ -80,6 +80,7 @@ fn setup_choose_or_continue_ui(mut commands: Commands) {
                 flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                row_gap: Val::Px(50.0),
                 ..Default::default()
             },
             children![
@@ -88,7 +89,7 @@ fn setup_choose_or_continue_ui(mut commands: Commands) {
                     Button,
                     Text::new("Choose another game to play.")
                 ),
-                (ContinueOn, Button, Text::new("Continue"))
+                (ContinueOn, Button, Text::new("\"These are way too hard!\""))
             ]
         )],
     ));
@@ -344,9 +345,12 @@ fn setup_clickable_meshes(
 
 fn handle_game_outcomes(
     game_outcomes: Res<GameOutcomes>,
-    mut next_state: ResMut<NextState<ChooseGameState>>,
+    mut next_choose_game_state: ResMut<NextState<ChooseGameState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
-    if game_outcomes.lost_at_least_one() {
-        next_state.set(ChooseGameState::ChooseOrContinue);
+    if game_outcomes.won_all_games() {
+        next_game_state.set(GameState::CutScene(CutScene::EndA));
+    } else if game_outcomes.lost_at_least_one() {
+        next_choose_game_state.set(ChooseGameState::ChooseOrContinue);
     }
 }
