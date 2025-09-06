@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://d3ip81cm8eabn"]
+
+[ext_resource type="Script" uid="uid://lslc37td8tu" path="res://scripts/pung/ball.gd" id="1_w4uvm"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_w4uvm"]
+friction = 0.0
+bounce = 1.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r4h5t"]
+
+[node name="RigidBody2D" type="RigidBody2D"]
+physics_material_override = SubResource("PhysicsMaterial_w4uvm")
+script = ExtResource("1_w4uvm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_r4h5t")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
