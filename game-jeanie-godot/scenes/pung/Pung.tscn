@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bci34edk178al"]
 
-[ext_resource type="Script" uid="uid://2nmjy445mybh" path="res://scripts/pung.gd" id="1_jpk8j"]
+[ext_resource type="Script" uid="uid://2nmjy445mybh" path="res://scripts/pung/pung.gd" id="1_jpk8j"]
 [ext_resource type="Theme" uid="uid://xownl2y8crfl" path="res://resources/aairt_2600_theme.tres" id="1_wke20"]
 [ext_resource type="PackedScene" uid="uid://cyf6m46kcpysm" path="res://scenes/pung/gutter.tscn" id="2_k8e7a"]
 [ext_resource type="PackedScene" uid="uid://3pafxtnbvklg" path="res://scenes/pung/paddle.tscn" id="4_mhdru"]
