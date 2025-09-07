@@ -1,11 +1,6 @@
 class_name BeefBlastoids
 extends Node2D
 
-@onready var lives_label: Label = %Lives
-@onready var score_label: Label = %Score
-@onready var ui: Control = $UI
-@onready var ship: Ship = $Ship
-
 var canvas_size: Vector2
 var lives: int = 3
 var score: int = 0
@@ -30,11 +25,28 @@ var score: int = 0
 # pub BEEF_RADIUS_VARIANCE: f32,
 # pub BEEF_SCORE_VALUE: u32,
 
+var initial_num_beef: int = 50
+
+@onready var lives_label: Label = %Lives
+@onready var score_label: Label = %Score
+@onready var ui: Control = $UI
+@onready var ship: Ship = $Ship
+@onready var beef = preload("res://scenes/beef_blastoids/beef.tscn")
+
 
 func _ready():
 	canvas_size = ui.size
 	ship.canvas_size = canvas_size
 	ship.position = canvas_size / 2.0
+
+	for i in range(initial_num_beef):
+		var beef_child: Beef = beef.instantiate()
+		beef_child.canvas_size = canvas_size
+
+		beef_child.position = Vector2(randf_range(0, canvas_size.x), randf_range(0, canvas_size.y))
+
+		add_child(beef_child)
+
 
 func _process(_dt):
 	lives_label.text = str(lives)

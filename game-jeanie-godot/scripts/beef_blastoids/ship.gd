@@ -7,9 +7,6 @@ extends RigidBody2D
 # pub SHIP_INVINCIBLE_TIME: f32,
 # pub SHIP_BLINK_RATE: f32,
 
-@onready var collision_polygon: CollisionPolygon2D = $CollisionPolygon2D
-@onready var ship_polygon: Polygon2D = $Polygon2D
-
 @export var thrust_magnitude: float = 500.0
 @export var max_speed: float = 1000.0
 @export var rotation_speed: float = 10.0
@@ -19,6 +16,9 @@ extends RigidBody2D
 var thrust_amt: float = 0
 var rotation_direction: float = 0
 var canvas_size: Vector2
+
+@onready var collision_polygon: CollisionPolygon2D = $CollisionPolygon2D
+@onready var ship_polygon: Polygon2D = $Polygon2D
 
 
 func _ready():
@@ -50,7 +50,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		thrust_amt = 1.0
 	if event.is_action_released("ui_up"):
 		thrust_amt = 0.0
-
 
 	if event.is_action_pressed("ui_right"):
 		rotation_direction += 1

@@ -1,0 +1,89 @@
+class_name Beef
+extends StaticBody2D
+
+@export var num_verts: int = 10
+@export var radius: float = 100
+@export var radius_variance: float = 0.25
+@export var score_value: float = 100
+@export var init_linear_speed: float = 100
+@export var init_linear_speed_variance: float = 0.25
+@export var init_angular_velocity: float = 0.2
+@export var init_angular_velocity_variance: float = 0.25
+
+var linear_velocity: Vector2
+var angular_velocity: float
+var canvas_size: Vector2
+
+@onready var polygon: Polygon2D = $Polygon2D
+@onready var collider: CollisionPolygon2D = $CollisionPolygon2D
+@onready var wireframe_line: Line2D
+
+
+func _ready():
+	var polygon_data = generate_beef_polygon()
+	polygon.polygon = polygon_data
+	collider.polygon = polygon_data
+
+	create_wireframe()
+
+	linear_velocity = (
+		Vector2(
+			randf_range(-1 + init_linear_speed_variance, 1 - init_linear_speed_variance),
+			randf_range(-1 + init_linear_speed_variance, 1 - init_linear_speed_variance)
+		)
+		* init_linear_speed
+	)
+
+	angular_velocity = randf_range(
+		init_angular_velocity * (-1 + init_angular_velocity_variance),
+		init_angular_velocity * (1 - init_angular_velocity_variance)
+	)
+
+
+func _physics_process(dt):
+	position += linear_velocity * dt
+	rotation += angular_velocity * dt
+
+	if position.x > canvas_size.x:
+		position.x = position.x - canvas_size.x
+	elif position.x < 0:
+		position.x = canvas_size.x - position.x
+
+	if position.y > canvas_size.y:
+		position.y = position.y - canvas_size.y
+	elif position.y < 0:
+		position.y = canvas_size.y - position.y
+
+
+func generate_beef_polygon() -> PackedVector2Array:
+	var points = PackedVector2Array()
+	for i in range(num_verts):
+		var angle = 2.0 * PI * i / num_verts
+		var x = radius * (1 + randf_range(-radius_variance, radius_variance)) * cos(angle)
+		var y = radius * (1 + randf_range(-radius_variance, radius_variance)) * sin(angle)
+		points.append(Vector2(x, y))
+
+	return points
+
+
+func create_wireframe():
+	# Create a Line2D node for the wireframe
+	wireframe_line = Line2D.new()
+	add_child(wireframe_line)
+
+	# Copy polygon points to line
+	wireframe_line.clear_points()
+	for point in polygon.polygon:
+		wireframe_line.add_point(point)
+
+	# Close the polygon by adding the first point again
+	if polygon.polygon.size() > 0:
+		wireframe_line.add_point(polygon.polygon[0])
+
+	# Style the wireframe
+	wireframe_line.width = 5.0
+	wireframe_line.default_color = Color.WHITE
+	wireframe_line.joint_mode = Line2D.LINE_JOINT_SHARP
+
+	# Hide the filled polygon
+	polygon.visible = false

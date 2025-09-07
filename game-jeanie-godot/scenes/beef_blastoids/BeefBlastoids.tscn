@@ -76,3 +76,4 @@ text = "10000"
 horizontal_alignment = 2
 
 [node name="Ship" parent="." instance=ExtResource("3_yyswj")]
+position = Vector2(912, 728)

@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://mvx28f1lc4ew"]
+
+[ext_resource type="Script" uid="uid://c7pey56pcdurj" path="res://scripts/beef_blastoids/beef.gd" id="1_qaakm"]
+
+[node name="Beef" type="StaticBody2D"]
+script = ExtResource("1_qaakm")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
