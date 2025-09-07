@@ -8,8 +8,9 @@ bounce = 1.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r4h5t"]
 
-[node name="RigidBody2D" type="RigidBody2D"]
+[node name="Ball" type="RigidBody2D"]
 physics_material_override = SubResource("PhysicsMaterial_w4uvm")
+lock_rotation = true
 script = ExtResource("1_w4uvm")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
