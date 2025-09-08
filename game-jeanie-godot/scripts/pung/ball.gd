@@ -1,19 +1,18 @@
 class_name Ball
 extends RigidBody2D
 
-@onready var ball: Polygon2D = $Polygon2D
-@onready var collider: CollisionShape2D = $CollisionShape2D
-
-var pung_root: Pung
+signal player_scored
+signal ai_scored
 
 @export var radius: float = 20.0
 @export var segments: int = 32
 @export var speed: float = 1000.0
 
-signal player_scored
-signal ai_scored
+var pung_root: Pung
 
-var should_reset: bool = true
+@onready var ball: Polygon2D = $Polygon2D
+@onready var collider: CollisionShape2D = $CollisionShape2D
+
 
 func _ready():
 	pung_root = find_parent("Pung")
@@ -41,8 +40,6 @@ func reset():
 	var new_pos = Vector2(pung_root.PUNG_PLAY_AREA.end) / 2.0
 	global_transform.origin = to_global(new_pos)
 	linear_velocity = Vector2(1, -1).normalized() * speed
-
-
 
 
 func create_circle(p_radius: float, p_segments: int):
