@@ -1,10 +1,6 @@
 class_name BeefBlastoids
 extends Node2D
 
-var canvas_size: Vector2
-var lives: int = 3
-var score: int = 0
-
 # pub DESCRIPTION: String,
 # pub MAX_SCORE: u32,
 # pub NUM_LIVES: u32,
@@ -25,29 +21,64 @@ var score: int = 0
 # pub BEEF_RADIUS_VARIANCE: f32,
 # pub BEEF_SCORE_VALUE: u32,
 
-var initial_num_beef: int = 50
+var canvas_size: Vector2
+var lives: int = 3
+var score: int = 0
+var initial_num_beef: int = 2
 
 @onready var lives_label: Label = %Lives
 @onready var score_label: Label = %Score
 @onready var ui: Control = $UI
-@onready var ship: Ship = $Ship
-@onready var beef = preload("res://scenes/beef_blastoids/beef.tscn")
+@onready var ship_scene = preload("res://scenes/beef_blastoids/ship.tscn")
+@onready var beef_scene = preload("res://scenes/beef_blastoids/beef.tscn")
 
 
 func _ready():
 	canvas_size = ui.size
-	ship.canvas_size = canvas_size
-	ship.position = canvas_size / 2.0
 
-	for i in range(initial_num_beef):
-		var beef_child: Beef = beef.instantiate()
-		beef_child.canvas_size = canvas_size
+	spawn_ship()
 
-		beef_child.position = Vector2(randf_range(0, canvas_size.x), randf_range(0, canvas_size.y))
-
-		add_child(beef_child)
+	spawn_beef()
 
 
 func _process(_dt):
 	lives_label.text = str(lives)
 	score_label.text = str(score)
+
+	if lives == 0:
+		game_over()
+
+
+func _on_ship_death():
+	lives -= 1
+	if lives > 0:
+		spawn_ship()
+	print("ship done died")
+
+
+func game_over():
+	print("game_over")
+
+
+func spawn_ship():
+	var ship: Ship = ship_scene.instantiate()
+
+	ship.canvas_size = canvas_size
+	ship.position = canvas_size / 2.0
+
+	ship.make_death_process.connect(_on_ship_death)
+
+	add_child(ship)
+
+
+func spawn_beef():
+	for i in range(initial_num_beef):
+		var beef: Beef = beef_scene.instantiate()
+
+		beef.initialize(
+			Beef.Size.LARGE,
+			canvas_size,
+			Vector2(randf_range(0, canvas_size.x), randf_range(0, canvas_size.y))
+		)
+
+		add_child(beef)

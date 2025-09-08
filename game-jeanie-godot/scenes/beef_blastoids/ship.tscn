@@ -2,12 +2,17 @@
 
 [ext_resource type="Script" uid="uid://dlne233recaro" path="res://scripts/beef_blastoids/ship.gd" id="1_icn4f"]
 
-[node name="Ship" type="RigidBody2D"]
+[node name="Ship" type="Area2D"]
 script = ExtResource("1_icn4f")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
-scale = Vector2(0.5, 0.5)
-polygon = PackedVector2Array(-65.5186, 65.1976, -1.51862, -126.802, 62.4814, 65.1976, 46.4814, 65.1976, 30.4814, 49.1976, -33.5186, 49.1976, -49.5186, 65.1976)
-uv = PackedVector2Array(832, 704, 896, 512, 960, 704, 936, 680, 856, 680)
+polygon = PackedVector2Array(0, -64, -40, 48, -16, 32, 16, 32, 40, 48)
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

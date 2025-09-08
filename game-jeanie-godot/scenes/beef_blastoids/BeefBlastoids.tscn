@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://dq71wfanlrmy4"]
+[gd_scene load_steps=3 format=3 uid="uid://dq71wfanlrmy4"]
 
 [ext_resource type="Script" uid="uid://b7x275twk5sf" path="res://scripts/beef_blastoids/BeefBlastoids.gd" id="1_koaxf"]
 [ext_resource type="Theme" uid="uid://xownl2y8crfl" path="res://resources/aairt_2600_theme.tres" id="2_ic1rg"]
-[ext_resource type="PackedScene" uid="uid://bnsubn7wydp08" path="res://scenes/beef_blastoids/ship.tscn" id="3_yyswj"]
 
 [node name="BeefBlastoids" type="Node2D"]
 script = ExtResource("1_koaxf")
@@ -74,6 +73,3 @@ size_flags_stretch_ratio = 0.7
 theme_override_font_sizes/font_size = 80
 text = "10000"
 horizontal_alignment = 2
-
-[node name="Ship" parent="." instance=ExtResource("3_yyswj")]
-position = Vector2(912, 728)

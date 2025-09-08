@@ -1,22 +1,43 @@
 class_name Beef
 extends StaticBody2D
 
+enum Size { LARGE, MEDIUM, SMALL }
+
 @export var num_verts: int = 10
-@export var radius: float = 100
 @export var radius_variance: float = 0.25
 @export var score_value: float = 100
 @export var init_linear_speed: float = 100
 @export var init_linear_speed_variance: float = 0.25
-@export var init_angular_velocity: float = 0.2
+@export var init_angular_velocity: float = 1.0
 @export var init_angular_velocity_variance: float = 0.25
+@export var radius_small: float = 25.0
+@export var radius_medium: float = 75.0
+@export var radius_large: float = 150.0
 
 var linear_velocity: Vector2
 var angular_velocity: float
 var canvas_size: Vector2
+var size: Size
+var radius: float
 
 @onready var polygon: Polygon2D = $Polygon2D
 @onready var collider: CollisionPolygon2D = $CollisionPolygon2D
 @onready var wireframe_line: Line2D
+
+
+func initialize(p_size: Size, p_canvas_size: Vector2, p_position: Vector2):
+	size = p_size
+
+	match size:
+		Size.SMALL:
+			radius = radius_small
+		Size.MEDIUM:
+			radius = radius_medium
+		Size.LARGE:
+			radius = radius_large
+
+	canvas_size = p_canvas_size
+	position = p_position
 
 
 func _ready():

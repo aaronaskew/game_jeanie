@@ -1,3 +1,4 @@
 {
-    "editor.defaultFormatter": "EddieDover.gdscript-formatter-linter"
+    "editor.defaultFormatter": "EddieDover.gdscript-formatter-linter",
+    "godotFormatterAndLinter.lintSeverityLevel": "Warning"
 }
