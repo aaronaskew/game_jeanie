@@ -5,7 +5,7 @@ enum Size { LARGE, MEDIUM, SMALL }
 
 @export var num_verts: int = 10
 @export var radius_variance: float = 0.25
-@export var score_value: float = 100
+@export var score_value: int = 100
 @export var init_linear_speed: float = 100
 @export var init_linear_speed_variance: float = 0.25
 @export var init_angular_velocity: float = 1.0
@@ -40,13 +40,7 @@ func initialize(p_size: Size, p_canvas_size: Vector2, p_position: Vector2):
 	position = p_position
 
 
-func _ready():
-	var polygon_data = generate_beef_polygon()
-	polygon.polygon = polygon_data
-	collider.polygon = polygon_data
-
-	create_wireframe()
-
+func set_random_velocities():
 	linear_velocity = (
 		Vector2(
 			randf_range(-1 + init_linear_speed_variance, 1 - init_linear_speed_variance),
@@ -59,6 +53,14 @@ func _ready():
 		init_angular_velocity * (-1 + init_angular_velocity_variance),
 		init_angular_velocity * (1 - init_angular_velocity_variance)
 	)
+
+
+func _ready():
+	var polygon_data = generate_beef_polygon()
+	polygon.polygon = polygon_data
+	collider.polygon = polygon_data
+
+	create_wireframe()
 
 
 func _physics_process(dt):

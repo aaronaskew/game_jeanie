@@ -20,8 +20,8 @@ var rotation_direction: float = 0
 var canvas_size: Vector2
 var is_invincible = false
 var time_passed: float = 0
-
 var velocity: Vector2
+var blaster_bullet_scene = preload("res://scenes/beef_blastoids/blaster_bullet.tscn")
 
 @onready var collision_polygon: CollisionPolygon2D = $CollisionPolygon2D
 @onready var ship_polygon: Polygon2D = $Polygon2D
@@ -72,6 +72,12 @@ func _process(dt: float) -> void:
 	handle_input()
 
 
+func fire_blaster():
+	var blaster_bullet: BlasterBullet = blaster_bullet_scene.instantiate()
+	blaster_bullet.initialize(position, rotation)
+	add_sibling(blaster_bullet)
+
+
 func blink():
 	if sin(time_passed * blink_rate * 2 * PI) > 0:
 		ship_polygon.visible = false
@@ -81,8 +87,10 @@ func blink():
 
 func handle_input() -> void:
 	rotation_direction = Input.get_axis("ui_left", "ui_right")
-
 	thrust_amt = Input.get_action_strength("ui_up")
+
+	if Input.is_action_just_pressed("ui_accept"):
+		fire_blaster()
 
 
 func _on_timer_timeout() -> void:

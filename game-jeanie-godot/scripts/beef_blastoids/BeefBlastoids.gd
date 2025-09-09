@@ -38,7 +38,7 @@ func _ready():
 
 	spawn_ship()
 
-	spawn_beef()
+	spawn_initial_beef()
 
 
 func _process(_dt):
@@ -71,7 +71,7 @@ func spawn_ship():
 	add_child(ship)
 
 
-func spawn_beef():
+func spawn_initial_beef():
 	for i in range(initial_num_beef):
 		var beef: Beef = beef_scene.instantiate()
 
@@ -81,4 +81,51 @@ func spawn_beef():
 			Vector2(randf_range(0, canvas_size.x), randf_range(0, canvas_size.y))
 		)
 
+		beef.set_random_velocities()
+
 		add_child(beef)
+
+
+func spawn_sharded_beef(
+	size: Beef.Size, p_position: Vector2, p_linear_velocity: Vector2, p_angular_velocity: float
+):
+	var linear_velocity1 = p_linear_velocity.rotated(PI / 2)
+	var linear_velocity2 = p_linear_velocity.rotated(-PI / 2)
+
+	var beef1: Beef = beef_scene.instantiate()
+	beef1.initialize(size, canvas_size, p_position)
+	beef1.linear_velocity = linear_velocity1
+	beef1.angular_velocity = p_angular_velocity
+
+	var beef2: Beef = beef_scene.instantiate()
+	beef2.initialize(size, canvas_size, p_position)
+	beef2.linear_velocity = linear_velocity2
+	beef2.angular_velocity = -p_angular_velocity
+
+	add_child(beef1)
+	add_child(beef2)
+
+
+func _destroy_beef(node: Node2D):
+	if node is Beef:
+		var beef: Beef = node
+
+		score += beef.score_value
+
+		var old_position = beef.position
+		var old_linear_velocity = beef.linear_velocity
+		var old_angular_velocity = beef.angular_velocity
+
+		beef.queue_free()
+
+		match beef.size:
+			beef.Size.LARGE:
+				spawn_sharded_beef(
+					Beef.Size.MEDIUM, old_position, old_linear_velocity, old_angular_velocity
+				)
+			beef.Size.MEDIUM:
+				spawn_sharded_beef(
+					Beef.Size.SMALL, old_position, old_linear_velocity, old_angular_velocity
+				)
+			beef.Size.SMALL:
+				pass

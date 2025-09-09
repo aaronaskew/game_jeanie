@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://utpar0sxywec"]
+
+[ext_resource type="Script" uid="uid://bruc08xqor3uu" path="res://scripts/beef_blastoids/blaster_bullet.gd" id="1_xiuf3"]
+
+[node name="BlasterBullet" type="Area2D"]
+script = ExtResource("1_xiuf3")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
