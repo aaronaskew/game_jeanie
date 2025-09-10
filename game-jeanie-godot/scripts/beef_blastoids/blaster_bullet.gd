@@ -9,6 +9,7 @@ signal destroy(node: Node2D)
 @export var lifetime: float = 0.5
 
 var velocity: Vector2
+var canvas_size:Vector2
 
 @onready var polygon: Polygon2D = $Polygon2D
 @onready var collider: CollisionPolygon2D = $CollisionPolygon2D
@@ -23,6 +24,7 @@ func _ready():
 	timer.wait_time = lifetime
 	timer.timeout.connect(_on_timeout)
 	timer.start()
+	canvas_size = beef_blastoids.canvas_size
 
 
 func _on_timeout():
@@ -31,6 +33,16 @@ func _on_timeout():
 
 func _physics_process(dt: float) -> void:
 	global_position += velocity * dt
+
+	if position.x > canvas_size.x:
+		position.x = position.x - canvas_size.x
+	elif position.x < 0:
+		position.x = canvas_size.x - position.x
+
+	if position.y > canvas_size.y:
+		position.y = position.y - canvas_size.y
+	elif position.y < 0:
+		position.y = canvas_size.y - position.y
 
 
 func _on_body_entered(body: Node2D):
