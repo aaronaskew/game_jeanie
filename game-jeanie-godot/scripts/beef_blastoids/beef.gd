@@ -57,10 +57,10 @@ func set_random_velocities():
 
 func _ready():
 	var polygon_data = generate_beef_polygon()
-	polygon.polygon = polygon_data
-	collider.polygon = polygon_data
+	polygon.set_deferred("polygon", polygon_data)
+	collider.set_deferred("polygon", polygon_data)
 
-	create_wireframe()
+	call_deferred("create_wireframe")
 
 
 func _physics_process(dt):
