@@ -9,7 +9,7 @@ signal destroy(node: Node2D)
 @export var lifetime: float = 0.5
 
 var velocity: Vector2
-var canvas_size:Vector2
+var canvas_size: Vector2
 
 @onready var polygon: Polygon2D = $Polygon2D
 @onready var collider: CollisionPolygon2D = $CollisionPolygon2D
@@ -20,7 +20,7 @@ var canvas_size:Vector2
 func _ready():
 	create_circle(radius, segments)
 	body_entered.connect(_on_body_entered)
-	destroy.connect(beef_blastoids._destroy_beef)
+	destroy.connect(beef_blastoids._on_destroy_beef)
 	timer.wait_time = lifetime
 	timer.timeout.connect(_on_timeout)
 	timer.start()

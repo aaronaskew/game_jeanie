@@ -59,7 +59,6 @@ func _ready():
 	var polygon_data = generate_beef_polygon()
 	polygon.set_deferred("polygon", polygon_data)
 	collider.set_deferred("polygon", polygon_data)
-
 	call_deferred("create_wireframe")
 
 

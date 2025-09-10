@@ -25,12 +25,14 @@ var canvas_size: Vector2
 var lives: int = 3
 var score: int = 0
 var initial_num_beef: int = 2
+var explosion_energy: float = 1.5
 
 @onready var lives_label: Label = %Lives
 @onready var score_label: Label = %Score
 @onready var ui: Control = $UI
 @onready var ship_scene = preload("res://scenes/beef_blastoids/ship.tscn")
 @onready var beef_scene = preload("res://scenes/beef_blastoids/beef.tscn")
+@onready var beef_explosion_scene = preload("res://scenes/beef_blastoids/beef_explosion.tscn")
 
 
 func _ready():
@@ -49,11 +51,14 @@ func _process(_dt):
 		game_over()
 
 
-func _on_ship_death():
+func _on_ship_death(ship_explosion: GPUParticles2D):
+	ship_explosion.finished.connect(_on_ship_explosion_finished)
 	lives -= 1
+
+
+func _on_ship_explosion_finished():
 	if lives > 0:
 		spawn_ship()
-	print("ship done died")
 
 
 func game_over():
@@ -68,7 +73,7 @@ func spawn_ship():
 
 	ship.make_death_process.connect(_on_ship_death)
 
-	add_child(ship)
+	add_child(ship, true)
 
 
 func spawn_initial_beef():
@@ -83,32 +88,37 @@ func spawn_initial_beef():
 
 		beef.set_random_velocities()
 
-		add_child(beef)
+		add_child(beef, true)
 
 
 func spawn_sharded_beef(
 	size: Beef.Size, p_position: Vector2, p_linear_velocity: Vector2, p_angular_velocity: float
 ):
-	var linear_velocity1 = p_linear_velocity.rotated(PI / 2)
-	var linear_velocity2 = p_linear_velocity.rotated(-PI / 2)
+	var linear_velocity1 = p_linear_velocity.rotated(PI / 2) * explosion_energy
+	var linear_velocity2 = p_linear_velocity.rotated(-PI / 2) * explosion_energy
 
 	var beef1: Beef = beef_scene.instantiate()
 	beef1.initialize(size, canvas_size, p_position)
 	beef1.linear_velocity = linear_velocity1
-	beef1.angular_velocity = p_angular_velocity
+	beef1.angular_velocity = p_angular_velocity * explosion_energy
 
 	var beef2: Beef = beef_scene.instantiate()
 	beef2.initialize(size, canvas_size, p_position)
 	beef2.linear_velocity = linear_velocity2
-	beef2.angular_velocity = -p_angular_velocity
+	beef2.angular_velocity = -p_angular_velocity * explosion_energy
 
-	add_child(beef1)
-	add_child(beef2)
+	add_child(beef1, true)
+	add_child(beef2, true)
 
 
-func _destroy_beef(node: Node2D):
+func _on_destroy_beef(node: Node2D):
 	if node is Beef:
 		var beef: Beef = node
+
+		var beef_explosion: GPUParticles2D = beef_explosion_scene.instantiate()
+		beef_explosion.position = beef.position
+		add_child(beef_explosion, true)
+		beef_explosion.emitting = true
 
 		score += beef.score_value
 

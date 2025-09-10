@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://bt382k8oc6hlb"]
+
+[ext_resource type="Script" uid="uid://cfihn1xu166lb" path="res://scripts/beef_blastoids/despawn_one_shot.gd" id="1_afbhf"]
+
+[sub_resource type="Curve" id="Curve_ghyjy"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.45887), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_yyswj"]
+curve = SubResource("Curve_ghyjy")
+
+[sub_resource type="Curve" id="Curve_yyswj"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.375124), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_koaxf"]
+curve = SubResource("Curve_yyswj")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_koaxf"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 13.9
+spread = 180.0
+initial_velocity_min = 225.97
+initial_velocity_max = 661.06
+scale_min = 22.64
+scale_max = 29.85
+scale_curve = SubResource("CurveTexture_koaxf")
+alpha_curve = SubResource("CurveTexture_yyswj")
+
+[node name="ShipExplosion" type="GPUParticles2D"]
+emitting = false
+amount = 15
+lifetime = 0.4
+one_shot = true
+explosiveness = 0.81
+process_material = SubResource("ParticleProcessMaterial_koaxf")
+script = ExtResource("1_afbhf")
