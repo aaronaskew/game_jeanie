@@ -1,0 +1,160 @@
+[gd_scene load_steps=27 format=3 uid="uid://rmdu428pkobn"]
+
+[ext_resource type="Script" uid="uid://d2dj64gpb8ljc" path="res://scripts/cut_scenes.gd" id="1_51j35"]
+[ext_resource type="Texture2D" uid="uid://droud4riglk5e" path="res://assets/textures/cutscene_frames/start_A_01.png" id="1_tpj7i"]
+[ext_resource type="Texture2D" uid="uid://ce21t1seumhjd" path="res://assets/textures/cutscene_frames/start_A_02.png" id="2_51j35"]
+[ext_resource type="Texture2D" uid="uid://bg4bgkyod25qg" path="res://assets/textures/cutscene_frames/middle_A_01.png" id="3_xtvpk"]
+[ext_resource type="Texture2D" uid="uid://c6ufxyll4y37i" path="res://assets/textures/cutscene_frames/middle_B_01.png" id="4_7224s"]
+[ext_resource type="Texture2D" uid="uid://clw10g08gpb55" path="res://assets/textures/cutscene_frames/middle_C_01.png" id="5_rib6v"]
+[ext_resource type="Texture2D" uid="uid://j1ne0ngwovpn" path="res://assets/textures/cutscene_frames/middle_C_02.png" id="6_lgx2h"]
+[ext_resource type="Texture2D" uid="uid://cm0ul0lpqtu86" path="res://assets/textures/cutscene_frames/middle_D_01.png" id="7_8x0uv"]
+[ext_resource type="Texture2D" uid="uid://bsrhqocanc4jm" path="res://assets/textures/cutscene_frames/middle_D_02.png" id="8_ouuwq"]
+[ext_resource type="Texture2D" uid="uid://d12jmdu5bpdfl" path="res://assets/textures/cutscene_frames/middle_D_03.png" id="9_yibmh"]
+[ext_resource type="Texture2D" uid="uid://ci1cvun0fiiil" path="res://assets/textures/cutscene_frames/middle_E_01.png" id="10_ty1o6"]
+[ext_resource type="Texture2D" uid="uid://djcnpmfd8lrnx" path="res://assets/textures/cutscene_frames/middle_E_02.png" id="11_tmcvk"]
+[ext_resource type="Texture2D" uid="uid://g332h37rx1r4" path="res://assets/textures/cutscene_frames/middle_E_03.png" id="12_lwu68"]
+[ext_resource type="Texture2D" uid="uid://buuvainqd7dgc" path="res://assets/textures/cutscene_frames/middle_E_04.png" id="13_4xrjq"]
+[ext_resource type="Texture2D" uid="uid://breuegp8kd3bo" path="res://assets/textures/cutscene_frames/middle_F_01.png" id="14_5pydw"]
+[ext_resource type="Texture2D" uid="uid://b5ktc3xicjqv3" path="res://assets/textures/cutscene_frames/middle_G_01.png" id="15_86krs"]
+[ext_resource type="Texture2D" uid="uid://bukrglh18fkaj" path="res://assets/textures/cutscene_frames/middle_H_01.png" id="16_xruwn"]
+[ext_resource type="Texture2D" uid="uid://cu76ofyxddmyc" path="res://assets/textures/cutscene_frames/end_A_01.png" id="17_s4dmu"]
+[ext_resource type="Texture2D" uid="uid://bbp45feq566w6" path="res://assets/textures/cutscene_frames/end_B_01.png" id="18_gri15"]
+[ext_resource type="Texture2D" uid="uid://hr2j130js4jl" path="res://assets/textures/cutscene_frames/end_B_02.png" id="19_4fmr0"]
+[ext_resource type="Texture2D" uid="uid://d30cm2ngykdrd" path="res://assets/textures/cutscene_frames/end_D_02.png" id="20_y2s50"]
+[ext_resource type="Texture2D" uid="uid://cue06o3smewfl" path="res://assets/textures/cutscene_frames/end_D_03.png" id="21_pya3w"]
+[ext_resource type="Texture2D" uid="uid://wsiquhdgahwu" path="res://assets/textures/cutscene_frames/end_D_04.png" id="22_uiwty"]
+[ext_resource type="Texture2D" uid="uid://b08aie7fkfe5l" path="res://assets/textures/cutscene_frames/end_D_05.png" id="23_c8p4g"]
+[ext_resource type="Texture2D" uid="uid://be43m4t4ura1d" path="res://assets/textures/cutscene_frames/end_D_06.png" id="24_a23su"]
+[ext_resource type="Texture2D" uid="uid://cjgiooshwjfkg" path="res://assets/textures/cutscene_frames/end_E_01.png" id="25_88yd2"]
+
+[node name="CutScenes" type="Node2D"]
+script = ExtResource("1_51j35")
+
+[node name="Panels" type="Node2D" parent="."]
+
+[node name="StartA01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("1_tpj7i")
+centered = false
+
+[node name="StartA02" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("2_51j35")
+centered = false
+
+[node name="MiddleA01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("3_xtvpk")
+centered = false
+
+[node name="MiddleB01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("4_7224s")
+centered = false
+
+[node name="MiddleC01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("5_rib6v")
+centered = false
+
+[node name="MiddleC02" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("6_lgx2h")
+centered = false
+
+[node name="MiddleD01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("7_8x0uv")
+centered = false
+
+[node name="MiddleD02" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("8_ouuwq")
+centered = false
+
+[node name="MiddleD03" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("9_yibmh")
+centered = false
+
+[node name="MiddleE01" type="Sprite2D" parent="Panels"]
+visible = false
+scale = Vector2(1.43617, 1.43617)
+texture = ExtResource("10_ty1o6")
+centered = false
+
+[node name="MiddleE02" type="Sprite2D" parent="Panels"]
+visible = false
+scale = Vector2(2.37363, 2.37363)
+texture = ExtResource("11_tmcvk")
+centered = false
+
+[node name="MiddleE03" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("12_lwu68")
+centered = false
+
+[node name="MiddleE04" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("13_4xrjq")
+centered = false
+
+[node name="MiddleF01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("14_5pydw")
+centered = false
+
+[node name="MiddleG01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("15_86krs")
+centered = false
+
+[node name="MiddleH01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("16_xruwn")
+centered = false
+
+[node name="EndA01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("17_s4dmu")
+centered = false
+
+[node name="EndB01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("18_gri15")
+centered = false
+
+[node name="EndB02" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("19_4fmr0")
+centered = false
+
+[node name="EndD02" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("20_y2s50")
+centered = false
+
+[node name="EndD03" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("21_pya3w")
+centered = false
+
+[node name="EndD04" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("22_uiwty")
+centered = false
+
+[node name="EndD05" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("23_c8p4g")
+centered = false
+
+[node name="EndD06" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("24_a23su")
+centered = false
+
+[node name="EndE01" type="Sprite2D" parent="Panels"]
+visible = false
+texture = ExtResource("25_88yd2")
+centered = false
