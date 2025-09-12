@@ -4,25 +4,27 @@ extends Node2D
 var panels: Array[Node]
 var current_panel_idx
 
+var cut_scenes_dialogue = load("res://assets/dialogue/cut_scenes.dialogue")
+
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+
 
 func _ready():
-	panels = get_node("Panels").get_children()
-	current_panel_idx = 0
+	animation_player.animation_finished.connect(_on_animation_finished)
+
+	DialogueManager.show_dialogue_balloon(cut_scenes_dialogue, "StartA")
 
 
 func _process(_delta: float) -> void:
-	for i in panels.size():
-		var current_panel = panels[i] as Sprite2D
-		if i == current_panel_idx:
-			current_panel.visible = true
-		else:
-			current_panel.visible = false
+	pass
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_left"):
-		current_panel_idx = (current_panel_idx + panels.size() - 1) % panels.size()
-		print(panels[current_panel_idx])
-	if event.is_action_pressed("ui_right"):
-		current_panel_idx = (current_panel_idx + panels.size() + 1) % panels.size()
-		print(panels[current_panel_idx])
+func _on_animation_finished(animation_name: String):
+	print("Just finished ", animation_name)
+	match animation_name:
+		"MiddleC":
+			DialogueManager.show_dialogue_balloon(cut_scenes_dialogue, "MiddleD")
+
+
+func play_middle_c():
+	animation_player.play("MiddleC")
