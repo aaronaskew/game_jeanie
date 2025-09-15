@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://ct6qqay0f1a2s"]
+
+[ext_resource type="Texture2D" uid="uid://b7tq3h2bei2dy" path="res://assets/textures/gameplay.png" id="1_tb18q"]
+[ext_resource type="PackedScene" uid="uid://dq71wfanlrmy4" path="res://scenes/beef_blastoids/BeefBlastoids.tscn" id="3_nqbmw"]
+
+[node name="GamePlay" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 3840.0
+offset_bottom = 2160.0
+color = Color(0, 0, 0, 1)
+
+[node name="Gameplay" type="Sprite2D" parent="."]
+z_index = 1
+position = Vector2(1920, 1080)
+texture = ExtResource("1_tb18q")
+
+[node name="BeefBlastoids" parent="." instance=ExtResource("3_nqbmw")]
+position = Vector2(1691, 236)

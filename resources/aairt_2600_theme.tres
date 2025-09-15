@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://xownl2y8crfl"]
+
+[ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_8s0ra"]
+
+[resource]
+default_font = ExtResource("1_8s0ra")
+default_font_size = 150

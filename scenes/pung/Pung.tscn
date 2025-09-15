@@ -1,0 +1,70 @@
+[gd_scene load_steps=5 format=3 uid="uid://bci34edk178al"]
+
+[ext_resource type="Script" uid="uid://2nmjy445mybh" path="res://scripts/pung/Pung.gd" id="1_jpk8j"]
+[ext_resource type="Theme" uid="uid://xownl2y8crfl" path="res://resources/aairt_2600_theme.tres" id="1_wke20"]
+[ext_resource type="PackedScene" uid="uid://cyf6m46kcpysm" path="res://scenes/pung/gutter.tscn" id="2_k8e7a"]
+[ext_resource type="PackedScene" uid="uid://3pafxtnbvklg" path="res://scenes/pung/paddle.tscn" id="4_mhdru"]
+
+[node name="Pung" type="Node2D"]
+script = ExtResource("1_jpk8j")
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+metadata/_edit_lock_ = true
+metadata/_edit_group_ = true
+
+[node name="Background" type="ColorRect" parent="UI"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+color = Color(0, 0, 0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="UI"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme = ExtResource("1_wke20")
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/MarginContainer"]
+layout_mode = 2
+
+[node name="PlayerScore" type="Label" parent="UI/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+text = "100"
+
+[node name="AIScore" type="Label" parent="UI/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+text = "100"
+horizontal_alignment = 2
+
+[node name="Gutters" type="Node2D" parent="."]
+
+[node name="TopGutter" parent="Gutters" instance=ExtResource("2_k8e7a")]
+position = Vector2(960, 152)
+
+[node name="BottomGutter" parent="Gutters" instance=ExtResource("2_k8e7a")]
+position = Vector2(962, 1416)
+
+[node name="PlayerPaddle" parent="." instance=ExtResource("4_mhdru")]
+unique_name_in_owner = true
+position = Vector2(64, 720)
+size = Vector2(16, 140.815)
+speed = 1000.0
+
+[node name="AIPaddle" parent="." instance=ExtResource("4_mhdru")]
+unique_name_in_owner = true
+position = Vector2(1856, 720)
+size = Vector2(16, 140.815)
+speed = 1000.0
