@@ -1,0 +1,63 @@
+~ StartA
+do animation_player.play("StartA")
+Chet: Hey Jeanie, wanna try to beat some games on the Aairt 0026?
+Jeanie: Heck yeah, Chet.
+=> MiddleA
+
+~ MiddleA
+do animation_player.play("MiddleA")
+Jeanie: These games are unfair! Why are they so hard?
+Chet: I know! I wish there was some way to make them easier.
+=> MiddleB
+
+~ MiddleB
+do animation_player.play("MiddleB")
+Jeanie: I have a good idea.
+do play_animation("MiddleC")
+=> MiddleD
+
+~ MiddleD
+do animation_player.play("MiddleD")
+Chet: Jeanie!!
+do play_animation("MiddleE")
+=> MiddleF
+
+~ MiddleF
+do animation_player.play("MiddleF")
+Genie: You rang?
+=> MiddleG
+
+~ MiddleG
+do animation_player.play("MiddleG")
+Chet: Help! Jeanie’s in trouble!
+Genie: My pleasure. Anything you wish.
+Chet: Oh really? Can you help make these games easier?
+=> MiddleH
+
+~ MiddleH
+do animation_player.play("MiddleH")
+Genie: Of course. You may use these cheat codes.
+=> MiddleI
+
+~ MiddleI
+do animation_player.play("MiddleI")
+Genie: Games of three, beat them for me.
+=> EndA
+
+~ EndA
+do animation_player.play("EndA")
+Genie: Games of three, you have beaten them for me.
+do play_animation("EndB")
+=> EndC
+
+~ EndC
+do animation_player.play("EndC")
+Chet: What about Jeanie, Genie?!
+do play_animation("EndD")
+=> EndE
+
+~ EndE
+do animation_player.play("EndE")
+Jeanie: Did it work?
+=> END
+

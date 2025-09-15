@@ -1,13 +1,4 @@
 {
-    // Allow `rust-analyzer` and `cargo` to run simultaneously.
-    // This uses extra storage space, so consider commenting it out.
-    "rust-analyzer.cargo.targetDir": true,
-    // Display the directory of `mod.rs` files in the tab above the text editor.
-    "workbench.editor.customLabels.patterns": {
-        "**/mod.rs": "${dirname}/mod.rs"
-    },
-    // Enables Rust-Analyzer support for `rustc` crates.
-    "rust-analyzer.rustc.source": "discover",
-    // Show dependency types while fuzzy searching, including types from `rustc` crates.
-    "rust-analyzer.workspace.symbol.search.scope": "workspace_and_dependencies",
+    "editor.defaultFormatter": "EddieDover.gdscript-formatter-linter",
+    "godotFormatterAndLinter.lintSeverityLevel": "Warning"
 }
