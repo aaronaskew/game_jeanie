@@ -1,0 +1,67 @@
+[gd_scene load_steps=8 format=3 uid="uid://g5i5s6g4o0ut"]
+
+[ext_resource type="Script" uid="uid://couw105c3bde4" path="res://addons/godot_state_charts/state_chart.gd" id="1_an17e"]
+[ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="2_dscq2"]
+[ext_resource type="Script" uid="uid://c1vp0ojjvaby1" path="res://addons/godot_state_charts/parallel_state.gd" id="2_n4bsj"]
+[ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="3_n4bsj"]
+[ext_resource type="Script" uid="uid://cf1nsco3w0mf6" path="res://addons/godot_state_charts/transition.gd" id="4_7fko1"]
+[ext_resource type="Script" uid="uid://le5w1cm0ul8p" path="res://addons/godot_state_charts/expression_guard.gd" id="6_n4bsj"]
+
+[sub_resource type="Resource" id="Resource_7fko1"]
+script = ExtResource("6_n4bsj")
+expression = "pung_wins > 0 && beef_blastoids_wins > 0 && race_place_wins > 0"
+metadata/_custom_type_script = "uid://le5w1cm0ul8p"
+
+[node name="StateChart" type="Node"]
+script = ExtResource("1_an17e")
+
+[node name="Root" type="Node" parent="."]
+script = ExtResource("2_n4bsj")
+
+[node name="GameJeanie" type="Node" parent="Root"]
+script = ExtResource("2_dscq2")
+initial_state = NodePath("Deactivated")
+
+[node name="Deactivated" type="Node" parent="Root/GameJeanie"]
+script = ExtResource("3_n4bsj")
+
+[node name="To Activated" type="Node" parent="Root/GameJeanie/Deactivated"]
+script = ExtResource("4_7fko1")
+to = NodePath("../../Activated")
+event = &"activate_game_jeanie"
+delay_in_seconds = "0.0"
+
+[node name="Activated" type="Node" parent="Root/GameJeanie"]
+script = ExtResource("3_n4bsj")
+
+[node name="Genie" type="Node" parent="Root"]
+script = ExtResource("2_dscq2")
+initial_state = NodePath("NotArrived")
+
+[node name="NotArrived" type="Node" parent="Root/Genie"]
+script = ExtResource("3_n4bsj")
+
+[node name="To Arrived" type="Node" parent="Root/Genie/NotArrived"]
+script = ExtResource("4_7fko1")
+to = NodePath("../../Arrived")
+event = &"genie_arrived"
+delay_in_seconds = "0.0"
+
+[node name="Arrived" type="Node" parent="Root/Genie"]
+script = ExtResource("3_n4bsj")
+
+[node name="GameWon" type="Node" parent="Root"]
+script = ExtResource("2_dscq2")
+initial_state = NodePath("No")
+
+[node name="No" type="Node" parent="Root/GameWon"]
+script = ExtResource("3_n4bsj")
+
+[node name="To Yes" type="Node" parent="Root/GameWon/No"]
+script = ExtResource("4_7fko1")
+to = NodePath("../../Yes")
+guard = SubResource("Resource_7fko1")
+delay_in_seconds = "0.0"
+
+[node name="Yes" type="Node" parent="Root/GameWon"]
+script = ExtResource("3_n4bsj")
