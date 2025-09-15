@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Game Jeanie"
-run/main_scene="uid://g5i5s6g4o0ut"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+run/main_scene="uid://b2aoivlfhcxef"
+config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
