@@ -1,6 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://ba21jy1ivgnvr"]
+[gd_scene load_steps=6 format=4 uid="uid://ba21jy1ivgnvr"]
 
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
+[ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
+[ext_resource type="PackedScene" uid="uid://da2bck81vcakc" path="res://scenes/race_place/car.tscn" id="3_gu4cx"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gu4cx"]
+texture = ExtResource("2_60muf")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-4, -16, 4, -16, 4, 16, -4, 16)
+
+[sub_resource type="TileSet" id="TileSet_ow8qt"]
+tile_size = Vector2i(32, 32)
+physics_layer_0/collision_layer = 1
+sources/1 = SubResource("TileSetAtlasSource_gu4cx")
 
 [node name="RacePlace" type="Node2D"]
 
@@ -10,6 +23,7 @@ anchors_preset = 0
 offset_right = 1920.0
 offset_bottom = 1440.0
 metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
 
 [node name="Background" type="ColorRect" parent="UI"]
 layout_mode = 0
@@ -19,17 +33,20 @@ color = Color(0, 0, 0, 1)
 
 [node name="Label" type="Label" parent="UI"]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -11.5
-offset_right = 20.0
-offset_bottom = 11.5
+offset_left = -356.0
+offset_right = 356.0
+offset_bottom = 88.0
 grow_horizontal = 2
-grow_vertical = 2
 theme_override_fonts/font = ExtResource("1_qujda")
 theme_override_font_sizes/font_size = 100
 text = "RACE PLACE"
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAAKAAAAAQAAAAAAAAAKAAEAAQAAAAAAAAAKAAIAAQAAAAAAAAAKAAMAAQAAAAAAAAAKAAQAAQAAAAAAAAAKAAUAAQAAAAAAAAAKAAYAAQAAAAAAAAAKAAcAAQAAAAAAAAAKAAgAAQAAAAAAAAAKAAkAAQAAAAAAAAAKAAoAAQAAAAAAAAAKAAsAAQAAAAAAAAAKAAwAAQAAAAAAAAAKAA0AAQAAAAAAAAAKAA4AAQAAAAAAAAAKAA8AAQAAAAAAAAAKABAAAQAAAAAAAAAKABEAAQAAAAAAAAAKABIAAQAAAAAAAAAKABMAAQAAAAAAAAAKABQAAQAAAAAAAAAKABUAAQAAAAAAAAAKABYAAQAAAAAAAAAKABcAAQAAAAAAAAAKABgAAQAAAAAAAAAKABkAAQAAAAAAAAAKABoAAQAAAAAAAAAKABsAAQAAAAAAAAAKABwAAQAAAAAAAAAKAB0AAQAAAAAAAAAKAB4AAQAAAAAAAAAKAB8AAQAAAAAAAAAKACAAAQAAAAAAAAAKACEAAQAAAAAAAAAKACIAAQAAAAAAAAAKACMAAQAAAAAAAAAKACQAAQAAAAAAAAAKACUAAQAAAAAAAAAKACYAAQAAAAAAAAAKACcAAQAAAAAAAAAKACgAAQAAAAAAAAAKACkAAQAAAAAAAAAKACoAAQAAAAAAAAAKACsAAQAAAAAAAAAKACwAAQAAAAAAAAAxACwAAQAAAAAAAAAxACsAAQAAAAAAAAAxACoAAQAAAAAAAAAxACkAAQAAAAAAAAAxACgAAQAAAAAAAAAxACcAAQAAAAAAAAAxACYAAQAAAAAAAAAxACUAAQAAAAAAAAAxACQAAQAAAAAAAAAxACMAAQAAAAAAAAAxACIAAQAAAAAAAAAxACEAAQAAAAAAAAAxACAAAQAAAAAAAAAxAB8AAQAAAAAAAAAxAB4AAQAAAAAAAAAxAB0AAQAAAAAAAAAxABwAAQAAAAAAAAAxABsAAQAAAAAAAAAxABoAAQAAAAAAAAAxABkAAQAAAAAAAAAxABgAAQAAAAAAAAAxABcAAQAAAAAAAAAxABYAAQAAAAAAAAAxABUAAQAAAAAAAAAxABQAAQAAAAAAAAAxABMAAQAAAAAAAAAxABIAAQAAAAAAAAAxABEAAQAAAAAAAAAxABAAAQAAAAAAAAAxAA8AAQAAAAAAAAAxAA4AAQAAAAAAAAAxAA0AAQAAAAAAAAAxAAwAAQAAAAAAAAAxAAsAAQAAAAAAAAAxAAoAAQAAAAAAAAAxAAkAAQAAAAAAAAAxAAgAAQAAAAAAAAAxAAcAAQAAAAAAAAAxAAYAAQAAAAAAAAAxAAUAAQAAAAAAAAAxAAQAAQAAAAAAAAAxAAMAAQAAAAAAAAAxAAIAAQAAAAAAAAAxAAEAAQAAAAAAAAAxAAAAAQAAAAAAAAA=")
+tile_set = SubResource("TileSet_ow8qt")
+
+[node name="Car" parent="." instance=ExtResource("3_gu4cx")]
+position = Vector2(961, 1295)

@@ -6,6 +6,7 @@ extends Node2D
 
 func _ready():
 	state_chart_debugger.debug_node(game_manager.game_state)
+	state_chart_debugger.visible = false
 
 
 func _input(event: InputEvent) -> void:

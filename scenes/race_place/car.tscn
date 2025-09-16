@@ -1,0 +1,68 @@
+[gd_scene load_steps=9 format=3 uid="uid://da2bck81vcakc"]
+
+[ext_resource type="Script" uid="uid://btrrvxlw0ylkn" path="res://scripts/race_place/car.gd" id="1_i4yac"]
+[ext_resource type="Texture2D" uid="uid://cskdjwd8pkofb" path="res://assets/sprites/race_place/car32x32_sheet.png" id="1_rhihm"]
+[ext_resource type="AudioStream" uid="uid://c1v1ew2rw1kfy" path="res://assets/sounds/oof.ogg" id="3_bbrlh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4yac"]
+size = Vector2(20, 26)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ow8qt"]
+atlas = ExtResource("1_rhihm")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e27oq"]
+atlas = ExtResource("1_rhihm")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hh0xs"]
+atlas = ExtResource("1_rhihm")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hw5in"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ow8qt")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e27oq")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hh0xs")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
+
+[node name="Car" type="RigidBody2D"]
+texture_filter = 1
+lock_rotation = true
+contact_monitor = true
+max_contacts_reported = 10
+script = ExtResource("1_i4yac")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 5.722045e-07)
+scale = Vector2(10, 10)
+shape = SubResource("RectangleShape2D_i4yac")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(10, 10)
+sprite_frames = SubResource("SpriteFrames_hw5in")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_bbrlh")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
