@@ -9,6 +9,8 @@ var race_place_scene: PackedScene = preload("res://scenes/race_place/RacePlace.t
 
 var current_game = null
 
+# @onready var viewport: SubViewport = $SubViewport
+
 
 func choose_game(game: String):
 	if current_game != null:
@@ -24,8 +26,8 @@ func choose_game(game: String):
 
 	assert(current_game is Node2D)
 	current_game.position = TV_POSITION
-
 	add_child.call_deferred(current_game, true)
+	# viewport.add_child.call_deferred(current_game, true)
 
 
 func _input(event: InputEvent) -> void:

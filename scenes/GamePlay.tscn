@@ -1,23 +1,54 @@
-[gd_scene load_steps=4 format=3 uid="uid://ct6qqay0f1a2s"]
+[gd_scene load_steps=8 format=3 uid="uid://ct6qqay0f1a2s"]
 
 [ext_resource type="Script" uid="uid://bj5xylolvdd2w" path="res://scripts/game_play.gd" id="1_nqbmw"]
 [ext_resource type="Texture2D" uid="uid://b7tq3h2bei2dy" path="res://assets/textures/gameplay.png" id="1_tb18q"]
 [ext_resource type="Texture2D" uid="uid://x6w8qfom4t8t" path="res://assets/textures/gameplay_w_jeanie.png" id="2_tb18q"]
+[ext_resource type="Shader" uid="uid://cjq6akggxq0xm" path="res://shaders/CRTEffect.gdshader" id="4_7oah2"]
+[ext_resource type="Texture2D" uid="uid://d33xpho3eemf4" path="res://icon.svg" id="4_a6002"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7oah2"]
+shader = ExtResource("4_7oah2")
+shader_parameter/curvature = 9.245
+shader_parameter/vignette_multiplier = 0.065
+shader_parameter/scanline_brightness = 0.13
+shader_parameter/scanline_height = 440.0
+shader_parameter/frost = Color(1, 1, 1, 1)
+shader_parameter/lod = 0.2000000095
+
+[sub_resource type="QuadMesh" id="QuadMesh_a6002"]
 
 [node name="GamePlay" type="Node2D"]
 script = ExtResource("1_nqbmw")
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Gameplay" type="Sprite2D" parent="CanvasLayer2"]
+z_index = 2
+position = Vector2(1920, 1080)
+texture = ExtResource("1_tb18q")
+
+[node name="GameplayWJeanie" type="Sprite2D" parent="CanvasLayer2"]
+z_index = 2
+position = Vector2(1920, 1080)
+texture = ExtResource("2_tb18q")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 offset_right = 3840.0
 offset_bottom = 2160.0
 color = Color(0, 0, 0, 1)
 
-[node name="Gameplay" type="Sprite2D" parent="."]
-z_index = 1
-position = Vector2(1920, 1080)
-texture = ExtResource("1_tb18q")
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(2187, 796.99994)
+scale = Vector2(10, 10)
+texture = ExtResource("4_a6002")
 
-[node name="GameplayWJeanie" type="Sprite2D" parent="."]
-z_index = 1
-position = Vector2(1920, 1080)
-texture = ExtResource("2_tb18q")
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="CanvasLayer"]
+texture_filter = 4
+material = SubResource("ShaderMaterial_7oah2")
+position = Vector2(2662.5, 958.4999)
+scale = Vector2(2121.0005, 1602.9998)
+mesh = SubResource("QuadMesh_a6002")
