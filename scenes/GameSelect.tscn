@@ -1,0 +1,84 @@
+[gd_scene load_steps=9 format=3 uid="uid://c8aapmhshbd2a"]
+
+[ext_resource type="Script" uid="uid://cfap12wua36y6" path="res://scripts/game_select.gd" id="1_rrs35"]
+[ext_resource type="Texture2D" uid="uid://dh3m42kc1kvp7" path="res://assets/textures/panel2.png" id="2_uh3wc"]
+[ext_resource type="Texture2D" uid="uid://dfplgs8iot5kt" path="res://assets/textures/panel2_blastoid_glow.png" id="3_7ibiy"]
+[ext_resource type="Texture2D" uid="uid://c0kc2p6gwym64" path="res://assets/textures/panel2_blastoid_seal.png" id="4_4c2c1"]
+[ext_resource type="Texture2D" uid="uid://cc63kq5y0f1ac" path="res://assets/textures/panel2_pung_glow.png" id="5_2w6o8"]
+[ext_resource type="Texture2D" uid="uid://cddjdq8n547xr" path="res://assets/textures/panel2_pung_seal.png" id="6_xm52c"]
+[ext_resource type="Texture2D" uid="uid://cxxhnacqf6ege" path="res://assets/textures/panel2_raceplace_glow.png" id="7_onocq"]
+[ext_resource type="Texture2D" uid="uid://bydv47nk5vbya" path="res://assets/textures/panel2_raceplace_seal.png" id="8_lexud"]
+
+[node name="GameSelect" type="Node2D"]
+script = ExtResource("1_rrs35")
+
+[node name="Panel2" type="Sprite2D" parent="."]
+position = Vector2(1920, 1080)
+texture = ExtResource("2_uh3wc")
+metadata/_edit_lock_ = true
+
+[node name="Panel2BlastoidSeal" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1920, 1080)
+texture = ExtResource("4_4c2c1")
+metadata/_edit_lock_ = true
+
+[node name="Panel2PungSeal" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1920, 1080)
+texture = ExtResource("6_xm52c")
+metadata/_edit_lock_ = true
+
+[node name="Panel2RaceplaceSeal" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1920, 1080)
+texture = ExtResource("8_lexud")
+metadata/_edit_lock_ = true
+
+[node name="Panel2BlastoidGlow" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1920, 1080)
+texture = ExtResource("3_7ibiy")
+metadata/_edit_lock_ = true
+
+[node name="Panel2PungGlow" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1920, 1080)
+texture = ExtResource("5_2w6o8")
+metadata/_edit_lock_ = true
+
+[node name="Panel2RaceplaceGlow" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1920, 1080)
+texture = ExtResource("7_onocq")
+metadata/_edit_lock_ = true
+
+[node name="PungArea2D" type="Area2D" parent="."]
+position = Vector2(0, 1)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="PungArea2D"]
+polygon = PackedVector2Array(1022, 755, 1148, 983, 1964, 745, 1876, 621, 1806, 535)
+
+[node name="BeefBlastoidsArea2D" type="Area2D" parent="."]
+position = Vector2(0, 1)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BeefBlastoidsArea2D"]
+position = Vector2(190, 256)
+polygon = PackedVector2Array(1012, 747, 1144, 1012, 1572, 894, 2076, 752, 2000, 622, 1922, 518, 1704, 563, 1266, 672)
+
+[node name="RacePlaceArea2D" type="Area2D" parent="."]
+position = Vector2(0, 1)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="RacePlaceArea2D"]
+position = Vector2(523, 895)
+polygon = PackedVector2Array(839, 676, 863, 936, 909, 1076, 2091, 988, 2021, 648, 1967, 626)
+
+[connection signal="input_event" from="PungArea2D" to="." method="_on_pung_area_2d_input_event"]
+[connection signal="mouse_entered" from="PungArea2D" to="." method="_on_pung_area_2d_mouse_entered"]
+[connection signal="mouse_exited" from="PungArea2D" to="." method="_on_pung_area_2d_mouse_exited"]
+[connection signal="input_event" from="BeefBlastoidsArea2D" to="." method="_on_beef_blastoids_area_2d_input_event"]
+[connection signal="mouse_entered" from="BeefBlastoidsArea2D" to="." method="_on_beef_blastoids_area_2d_mouse_entered"]
+[connection signal="mouse_exited" from="BeefBlastoidsArea2D" to="." method="_on_beef_blastoids_area_2d_mouse_exited"]
+[connection signal="input_event" from="RacePlaceArea2D" to="." method="_on_race_place_area_2d_input_event"]
+[connection signal="mouse_entered" from="RacePlaceArea2D" to="." method="_on_race_place_area_2d_mouse_entered"]
+[connection signal="mouse_exited" from="RacePlaceArea2D" to="." method="_on_race_place_area_2d_mouse_exited"]

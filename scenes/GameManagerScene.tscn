@@ -4,4 +4,3 @@
 
 [node name="GameManager" type="Node"]
 script = ExtResource("1_34tde")
-metadata/_custom_type_script = "uid://hict7ytlw6kl"
