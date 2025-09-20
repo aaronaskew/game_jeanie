@@ -8,12 +8,27 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7oah2"]
 shader = ExtResource("4_7oah2")
-shader_parameter/curvature = 9.245
-shader_parameter/vignette_multiplier = 0.065
-shader_parameter/scanline_brightness = 0.13
-shader_parameter/scanline_height = 440.0
-shader_parameter/frost = Color(1, 1, 1, 1)
-shader_parameter/lod = 0.2000000095
+shader_parameter/overlay = true
+shader_parameter/scanlines_opacity = 0.4
+shader_parameter/scanlines_width = 0.25
+shader_parameter/grille_opacity = 0.0
+shader_parameter/resolution = Vector2(640, 480)
+shader_parameter/pixelate = true
+shader_parameter/roll = false
+shader_parameter/roll_speed = 0.0
+shader_parameter/roll_size = 0.0
+shader_parameter/roll_variation = 1.8
+shader_parameter/distort_intensity = 0.0
+shader_parameter/noise_opacity = 0.4
+shader_parameter/noise_speed = 5.0
+shader_parameter/static_noise_intensity = 0.06
+shader_parameter/aberration = 0.010000047974999982
+shader_parameter/brightness = 1.4
+shader_parameter/discolor = true
+shader_parameter/warp_amount = 0.0
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.91
+shader_parameter/vignette_opacity = 0.5
 
 [sub_resource type="QuadMesh" id="QuadMesh_a6002"]
 
@@ -40,8 +55,8 @@ color = Color(0, 0, 0, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(2187, 796.99994)
-scale = Vector2(10, 10)
+position = Vector2(2662.5, 958.49994)
+scale = Vector2(16.570313, 12.523437)
 texture = ExtResource("4_a6002")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
