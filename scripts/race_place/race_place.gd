@@ -1,7 +1,7 @@
 class_name RacePlace
 extends Node2D
 
-@export var player_max_speed: Vector2 = Vector2(2000.0, 500.0)
+@export var max_roadside_speed_scale: float = 10.0
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var player: Car = $Player
@@ -13,4 +13,7 @@ func _ready():
 
 
 func _process(_delta):
-	animation_player.speed_scale = -player.linear_velocity.y / player_max_speed.y
+	# animation_player.speed_scale = -player.linear_velocity.y / player_max_speed.y
+	animation_player.speed_scale = (
+		-player.linear_velocity.y / player.max_speed.y * max_roadside_speed_scale
+	)
