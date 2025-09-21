@@ -1,6 +1,8 @@
 class_name Car
 extends RigidBody2D
 
+signal turn
+
 @export var force: Vector2 = Vector2(5000, 5000)
 @export var max_speed: Vector2 = Vector2(2000.0, 500.0)
 @export var braking_force: float = 2000.0
@@ -9,6 +11,7 @@ var accelerator_brake: float = 0
 var direction: float = 0
 
 var init_y_position: float
+var current_animation: String = "default"
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var audio_collision: AudioStreamPlayer = $AudioStreamPlayer
@@ -27,6 +30,11 @@ func _process(_delta):
 		animated_sprite.animation = "left"
 	else:
 		animated_sprite.animation = "right"
+
+	if current_animation != animated_sprite.animation:
+		current_animation = animated_sprite.animation
+		if current_animation != "default":
+			turn.emit()
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
