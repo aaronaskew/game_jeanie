@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://co3xtnk1qyo60"]
+
+[ext_resource type="PackedScene" uid="uid://da2bck81vcakc" path="res://scenes/race_place/car.tscn" id="1_ftf41"]
+[ext_resource type="Script" uid="uid://baryyw1gmq2lq" path="res://scripts/race_place/player_car.gd" id="1_x04vn"]
+
+[node name="PlayerCar" instance=ExtResource("1_ftf41")]
+script = ExtResource("1_x04vn")
+fuel_effeciency = 1.0
+max_fuel = 100.0

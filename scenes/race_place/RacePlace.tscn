@@ -4,13 +4,13 @@
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
 [ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
 [ext_resource type="Texture2D" uid="uid://brgyj3rp8gh3b" path="res://assets/sprites/race_place/white_square.png" id="2_ow8qt"]
-[ext_resource type="PackedScene" uid="uid://da2bck81vcakc" path="res://scenes/race_place/car.tscn" id="3_gu4cx"]
+[ext_resource type="PackedScene" uid="uid://co3xtnk1qyo60" path="res://scenes/race_place/player_car.tscn" id="5_2ko2p"]
 [ext_resource type="Texture2D" uid="uid://bsdx57powvvf" path="res://assets/sprites/race_place/sand.png" id="5_e27oq"]
 [ext_resource type="Texture2D" uid="uid://chsjtsf5j0m0a" path="res://assets/sprites/race_place/black_square.png" id="7_hw5in"]
 [ext_resource type="AudioStream" uid="uid://bds4jlvx7yemf" path="res://assets/sounds/engine_audio.ogg" id="8_7sd7i"]
-[ext_resource type="Script" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
+[ext_resource type="Script" uid="uid://dsiusvkh072j4" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
 [ext_resource type="AudioStream" uid="uid://by4w0y4svnov7" path="res://assets/sounds/tire_squeal.ogg" id="10_r4ers"]
-[ext_resource type="Script" path="res://scripts/race_place/tire_squeal.gd" id="11_2ko2p"]
+[ext_resource type="Script" uid="uid://owtiku7thmjk" path="res://scripts/race_place/tire_squeal.gd" id="11_2ko2p"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2ko2p"]
 
@@ -234,7 +234,7 @@ show_percentage = false
 tile_map_data = PackedByteArray("AAAKAAAAAAAAAAAAAAAKAAEAAAAAAAAAAAAKAAIAAAAAAAAAAAAKAAMAAAAAAAAAAAAKAAQAAAAAAAAAAAAKAAUAAAAAAAAAAAAKAAYAAAAAAAAAAAAKAAcAAAAAAAAAAAAKAAgAAAAAAAAAAAAKAAkAAAAAAAAAAAAKAAoAAAAAAAAAAAAKAAsAAAAAAAAAAAAKAAwAAAAAAAAAAAAKAA0AAAAAAAAAAAAKAA4AAAAAAAAAAAAKAA8AAAAAAAAAAAAKABAAAAAAAAAAAAAKABEAAAAAAAAAAAAKABIAAAAAAAAAAAAKABMAAAAAAAAAAAAKABQAAAAAAAAAAAAKABUAAAAAAAAAAAAKABYAAAAAAAAAAAAKABcAAAAAAAAAAAAKABgAAAAAAAAAAAAKABkAAAAAAAAAAAAKABoAAAAAAAAAAAAKABsAAAAAAAAAAAAKABwAAAAAAAAAAAAKAB0AAAAAAAAAAAAKAB4AAAAAAAAAAAAKACEAAAAAAAAAAAAKACIAAAAAAAAAAAAKACMAAAAAAAAAAAAKACQAAAAAAAAAAAAKACUAAAAAAAAAAAAKACYAAAAAAAAAAAAKACcAAAAAAAAAAAAKACgAAAAAAAAAAAAKACkAAAAAAAAAAAAKACoAAAAAAAAAAAAKACsAAAAAAAAAAAAKACwAAAAAAAAAAAAxACwAAAAAAAAAAAAxACsAAAAAAAAAAAAxACoAAAAAAAAAAAAxACkAAAAAAAAAAAAxACgAAAAAAAAAAAAxACcAAAAAAAAAAAAxACYAAAAAAAAAAAAxACUAAAAAAAAAAAAxACQAAAAAAAAAAAAxACMAAAAAAAAAAAAxACIAAAAAAAAAAAAxACEAAAAAAAAAAAAxACAAAAAAAAAAAAAxAB8AAAAAAAAAAAAxAB4AAAAAAAAAAAAxAB0AAAAAAAAAAAAxABwAAAAAAAAAAAAxABsAAAAAAAAAAAAxABoAAAAAAAAAAAAxABkAAAAAAAAAAAAxABgAAAAAAAAAAAAxABcAAAAAAAAAAAAxABYAAAAAAAAAAAAxABUAAAAAAAAAAAAxABQAAAAAAAAAAAAxABMAAAAAAAAAAAAxABIAAAAAAAAAAAAxABEAAAAAAAAAAAAxABAAAAAAAAAAAAAxAA8AAAAAAAAAAAAxAA4AAAAAAAAAAAAxAA0AAAAAAAAAAAAxAAwAAAAAAAAAAAAxAAsAAAAAAAAAAAAxAAoAAAAAAAAAAAAxAAkAAAAAAAAAAAAxAAgAAAAAAAAAAAAxAAcAAAAAAAAAAAAxAAYAAAAAAAAAAAAxAAUAAAAAAAAAAAAxAAQAAAAAAAAAAAAxAAMAAAAAAAAAAAAxAAIAAAAAAAAAAAAxAAEAAAAAAAAAAAAxAAAAAAAAAAAAAAAKACAAAAAAAAAAAAAKAB8AAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_ow8qt")
 
-[node name="Player" parent="." instance=ExtResource("3_gu4cx")]
+[node name="PlayerCar" parent="." instance=ExtResource("5_2ko2p")]
 unique_name_in_owner = true
 position = Vector2(961, 1212)
 force = Vector2(5000, 500)
@@ -286,4 +286,4 @@ max_polyphony = 4
 bus = &"tires"
 script = ExtResource("11_2ko2p")
 
-[connection signal="turn" from="Player" to="TireSqueal" method="_on_player_turn"]
+[connection signal="turn" from="PlayerCar" to="TireSqueal" method="_on_player_car_turn"]

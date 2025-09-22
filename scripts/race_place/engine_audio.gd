@@ -4,7 +4,7 @@ extends AudioStreamPlayer
 @export var min_pitch_scale: float = 0.1
 @export var max_pitch_scale: float = 0.5
 
-@onready var player: Car = %Player
+@onready var player: PlayerCar = %PlayerCar
 
 
 func _process(_dt):

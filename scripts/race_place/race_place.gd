@@ -4,7 +4,7 @@ extends Node2D
 @export var max_roadside_speed_scale: float = 10.0
 
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
-@onready var player: Car = $Player
+@onready var player: PlayerCar = $PlayerCar
 @onready var fuel_gauge: ProgressBar = %FuelGauge
 
 
