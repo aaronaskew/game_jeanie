@@ -216,6 +216,7 @@ tile_set = SubResource("TileSet_ow8qt")
 [node name="Player" parent="." instance=ExtResource("3_gu4cx")]
 unique_name_in_owner = true
 position = Vector2(961, 1212)
+force = Vector2(5000, 500)
 braking_force = 500.0
 
 [node name="Roadside" type="TileMapLayer" parent="."]
