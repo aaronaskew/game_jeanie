@@ -7,8 +7,14 @@ extends RigidBody2D
 
 var accelerator_brake: float = 0
 var direction: float = 0
+var race_started := false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var race_place: RacePlace = find_parent("RacePlace")
+
+
+func _ready() -> void:
+	race_place.start_race.connect(_on_start_race)
 
 
 func _process(_dt):
@@ -21,18 +27,23 @@ func _process(_dt):
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
-	state.apply_force(
-		Vector2(
-			force.x * direction,
-			(
-				force.y * accelerator_brake
-				if accelerator_brake < 0
-				else braking_force * accelerator_brake
+	if race_started:
+		state.apply_force(
+			Vector2(
+				force.x * direction,
+				(
+					force.y * accelerator_brake
+					if accelerator_brake < 0
+					else braking_force * accelerator_brake
+				)
 			)
 		)
-	)
 
-	if direction == 0:
-		state.linear_velocity.x = 0
+		if direction == 0:
+			state.linear_velocity.x = 0
 
-	state.linear_velocity = state.linear_velocity.clamp(-max_speed, max_speed)
+		state.linear_velocity = state.linear_velocity.clamp(-max_speed, max_speed)
+
+
+func _on_start_race():
+	race_started = true

@@ -14,6 +14,7 @@ var init_y_position: float
 
 
 func _ready():
+	super()
 	init_y_position = position.y
 
 
