@@ -8,8 +8,13 @@ signal turn
 
 var distance_traveled: float = 0
 var current_animation: String = "default"
+var init_y_position: float
 
 @onready var audio_collision: AudioStreamPlayer = $AudioStreamPlayer
+
+
+func _ready():
+	init_y_position = position.y
 
 
 func _process(dt):
@@ -23,6 +28,15 @@ func _process(dt):
 			turn.emit()
 
 	distance_traveled += abs(linear_velocity.y) * dt
+
+
+func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
+	super(state)
+
+	# prevent player from going in reverse
+	state.linear_velocity.y = clampf(state.linear_velocity.y, -max_speed.y, 0)
+	# lock player's y position
+	position.y = init_y_position
 
 
 func _on_body_entered(_body: Node) -> void:

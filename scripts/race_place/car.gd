@@ -7,13 +7,8 @@ extends RigidBody2D
 
 var accelerator_brake: float = 0
 var direction: float = 0
-var init_y_position: float
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-
-
-func _ready():
-	init_y_position = position.y
 
 
 func _process(_dt):
@@ -41,6 +36,3 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 		state.linear_velocity.x = 0
 
 	state.linear_velocity = state.linear_velocity.clamp(-max_speed, max_speed)
-	state.linear_velocity.y = clampf(state.linear_velocity.y, -max_speed.y, 0)
-
-	position.y = init_y_position
