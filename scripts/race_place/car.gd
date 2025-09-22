@@ -6,10 +6,12 @@ signal turn
 @export var force: Vector2 = Vector2(5000, 5000)
 @export var max_speed: Vector2 = Vector2(2000.0, 500.0)
 @export var braking_force: float = 2000.0
+@export var fuel_effeciency: float = 1.0
+@export var max_fuel: float = 100.0
 
 var accelerator_brake: float = 0
 var direction: float = 0
-
+var distance_traveled: float = 0
 var init_y_position: float
 var current_animation: String = "default"
 
@@ -21,7 +23,7 @@ func _ready():
 	init_y_position = position.y
 
 
-func _process(_delta):
+func _process(dt):
 	handle_input()
 
 	if is_zero_approx(linear_velocity.x):
@@ -35,6 +37,8 @@ func _process(_delta):
 		current_animation = animated_sprite.animation
 		if current_animation != "default":
 			turn.emit()
+
+	distance_traveled += abs(linear_velocity.y) * dt
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:

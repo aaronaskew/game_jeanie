@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://ba21jy1ivgnvr"]
+[gd_scene load_steps=23 format=4 uid="uid://ba21jy1ivgnvr"]
 
 [ext_resource type="Script" uid="uid://cpxvk2h68d40i" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
@@ -8,9 +8,14 @@
 [ext_resource type="Texture2D" uid="uid://bsdx57powvvf" path="res://assets/sprites/race_place/sand.png" id="5_e27oq"]
 [ext_resource type="Texture2D" uid="uid://chsjtsf5j0m0a" path="res://assets/sprites/race_place/black_square.png" id="7_hw5in"]
 [ext_resource type="AudioStream" uid="uid://bds4jlvx7yemf" path="res://assets/sounds/engine_audio.ogg" id="8_7sd7i"]
-[ext_resource type="Script" uid="uid://dsiusvkh072j4" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
+[ext_resource type="Script" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
 [ext_resource type="AudioStream" uid="uid://by4w0y4svnov7" path="res://assets/sounds/tire_squeal.ogg" id="10_r4ers"]
-[ext_resource type="Script" uid="uid://owtiku7thmjk" path="res://scripts/race_place/tire_squeal.gd" id="11_2ko2p"]
+[ext_resource type="Script" path="res://scripts/race_place/tire_squeal.gd" id="11_2ko2p"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2ko2p"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wgfi7"]
+bg_color = Color(1, 1, 1, 1)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_e27oq"]
 texture = ExtResource("2_ow8qt")
@@ -208,6 +213,22 @@ grow_horizontal = 2
 theme_override_fonts/font = ExtResource("1_qujda")
 theme_override_font_sizes/font_size = 100
 text = "RACE PLACE"
+
+[node name="FuelGauge" type="ProgressBar" parent="UI"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -352.0
+offset_top = 95.0
+offset_right = 352.0
+offset_bottom = 122.0
+grow_horizontal = 2
+theme_override_styles/background = SubResource("StyleBoxEmpty_2ko2p")
+theme_override_styles/fill = SubResource("StyleBoxFlat_wgfi7")
+value = 86.77
+show_percentage = false
 
 [node name="Road" type="TileMapLayer" parent="."]
 tile_map_data = PackedByteArray("AAAKAAAAAAAAAAAAAAAKAAEAAAAAAAAAAAAKAAIAAAAAAAAAAAAKAAMAAAAAAAAAAAAKAAQAAAAAAAAAAAAKAAUAAAAAAAAAAAAKAAYAAAAAAAAAAAAKAAcAAAAAAAAAAAAKAAgAAAAAAAAAAAAKAAkAAAAAAAAAAAAKAAoAAAAAAAAAAAAKAAsAAAAAAAAAAAAKAAwAAAAAAAAAAAAKAA0AAAAAAAAAAAAKAA4AAAAAAAAAAAAKAA8AAAAAAAAAAAAKABAAAAAAAAAAAAAKABEAAAAAAAAAAAAKABIAAAAAAAAAAAAKABMAAAAAAAAAAAAKABQAAAAAAAAAAAAKABUAAAAAAAAAAAAKABYAAAAAAAAAAAAKABcAAAAAAAAAAAAKABgAAAAAAAAAAAAKABkAAAAAAAAAAAAKABoAAAAAAAAAAAAKABsAAAAAAAAAAAAKABwAAAAAAAAAAAAKAB0AAAAAAAAAAAAKAB4AAAAAAAAAAAAKACEAAAAAAAAAAAAKACIAAAAAAAAAAAAKACMAAAAAAAAAAAAKACQAAAAAAAAAAAAKACUAAAAAAAAAAAAKACYAAAAAAAAAAAAKACcAAAAAAAAAAAAKACgAAAAAAAAAAAAKACkAAAAAAAAAAAAKACoAAAAAAAAAAAAKACsAAAAAAAAAAAAKACwAAAAAAAAAAAAxACwAAAAAAAAAAAAxACsAAAAAAAAAAAAxACoAAAAAAAAAAAAxACkAAAAAAAAAAAAxACgAAAAAAAAAAAAxACcAAAAAAAAAAAAxACYAAAAAAAAAAAAxACUAAAAAAAAAAAAxACQAAAAAAAAAAAAxACMAAAAAAAAAAAAxACIAAAAAAAAAAAAxACEAAAAAAAAAAAAxACAAAAAAAAAAAAAxAB8AAAAAAAAAAAAxAB4AAAAAAAAAAAAxAB0AAAAAAAAAAAAxABwAAAAAAAAAAAAxABsAAAAAAAAAAAAxABoAAAAAAAAAAAAxABkAAAAAAAAAAAAxABgAAAAAAAAAAAAxABcAAAAAAAAAAAAxABYAAAAAAAAAAAAxABUAAAAAAAAAAAAxABQAAAAAAAAAAAAxABMAAAAAAAAAAAAxABIAAAAAAAAAAAAxABEAAAAAAAAAAAAxABAAAAAAAAAAAAAxAA8AAAAAAAAAAAAxAA4AAAAAAAAAAAAxAA0AAAAAAAAAAAAxAAwAAAAAAAAAAAAxAAsAAAAAAAAAAAAxAAoAAAAAAAAAAAAxAAkAAAAAAAAAAAAxAAgAAAAAAAAAAAAxAAcAAAAAAAAAAAAxAAYAAAAAAAAAAAAxAAUAAAAAAAAAAAAxAAQAAAAAAAAAAAAxAAMAAAAAAAAAAAAxAAIAAAAAAAAAAAAxAAEAAAAAAAAAAAAxAAAAAAAAAAAAAAAKACAAAAAAAAAAAAAKAB8AAAAAAAAAAAA=")
