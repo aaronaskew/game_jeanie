@@ -48,6 +48,7 @@ animations = [{
 
 [node name="Car" type="RigidBody2D"]
 texture_filter = 1
+can_sleep = false
 lock_rotation = true
 contact_monitor = true
 max_contacts_reported = 10

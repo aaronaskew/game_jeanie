@@ -1,31 +1,23 @@
 class_name Car
 extends RigidBody2D
 
-signal turn
-
 @export var force: Vector2 = Vector2(5000, 5000)
 @export var max_speed: Vector2 = Vector2(2000.0, 500.0)
 @export var braking_force: float = 2000.0
-@export var fuel_effeciency: float = 1.0
-@export var max_fuel: float = 100.0
 
 var accelerator_brake: float = 0
 var direction: float = 0
-var distance_traveled: float = 0
-var init_y_position: float
-var current_animation: String = "default"
+var race_started := false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var audio_collision: AudioStreamPlayer = $AudioStreamPlayer
+@onready var race_place: RacePlace = find_parent("RacePlace")
 
 
-func _ready():
-	init_y_position = position.y
+func _ready() -> void:
+	race_place.start_race.connect(_on_start_race)
 
 
-func _process(dt):
-	handle_input()
-
+func _process(_dt):
 	if is_zero_approx(linear_velocity.x):
 		animated_sprite.animation = "default"
 	elif linear_velocity.x < 0:
@@ -33,40 +25,25 @@ func _process(dt):
 	else:
 		animated_sprite.animation = "right"
 
-	if current_animation != animated_sprite.animation:
-		current_animation = animated_sprite.animation
-		if current_animation != "default":
-			turn.emit()
-
-	distance_traveled += abs(linear_velocity.y) * dt
-
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
-	state.apply_force(
-		Vector2(
-			force.x * direction,
-			(
-				force.y * accelerator_brake
-				if accelerator_brake < 0
-				else braking_force * accelerator_brake
+	if race_started:
+		state.apply_force(
+			Vector2(
+				force.x * direction,
+				(
+					force.y * accelerator_brake
+					if accelerator_brake < 0
+					else braking_force * accelerator_brake
+				)
 			)
 		)
-	)
 
-	if direction == 0:
-		state.linear_velocity.x = 0
+		if direction == 0:
+			state.linear_velocity.x = 0
 
-	state.linear_velocity = state.linear_velocity.clamp(-max_speed, max_speed)
-	state.linear_velocity.y = clampf(state.linear_velocity.y, -max_speed.y, 0)
-
-	position.y = init_y_position
+		state.linear_velocity = state.linear_velocity.clamp(-max_speed, max_speed)
 
 
-func handle_input():
-	direction = Input.get_axis("ui_left", "ui_right")
-
-	accelerator_brake = Input.get_axis("ui_up", "ui_down")
-
-
-func _on_body_entered(_body: Node) -> void:
-	audio_collision.play()
+func _on_start_race():
+	race_started = true
