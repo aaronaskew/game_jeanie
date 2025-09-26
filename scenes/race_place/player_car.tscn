@@ -5,5 +5,5 @@
 
 [node name="PlayerCar" instance=ExtResource("1_ftf41")]
 script = ExtResource("1_x04vn")
-fuel_effeciency = 1.0
-max_fuel = 100.0
+fuel_effeciency = 100.0
+max_fuel = 10000.0
