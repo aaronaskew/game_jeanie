@@ -3,12 +3,14 @@ extends Car
 
 signal turn
 
-@export var fuel_effeciency: float = 1.0
-@export var max_fuel: float = 100.0
+@export var fuel_effeciency: float = 100.0
+@export var max_fuel: float = 5000.0
 
-var distance_traveled: float = 0
+var current_fuel: float
+# var total_distance_traveled: float = 0
 var current_animation: String = "default"
 var init_y_position: float
+var virtual_y_pos: float = 0.0
 
 @onready var audio_collision: AudioStreamPlayer = $AudioStreamPlayer
 
@@ -16,6 +18,7 @@ var init_y_position: float
 func _ready():
 	super()
 	init_y_position = position.y
+	current_fuel = max_fuel
 
 
 func _process(dt):
@@ -28,10 +31,19 @@ func _process(dt):
 		if current_animation != "default":
 			turn.emit()
 
-	distance_traveled += abs(linear_velocity.y) * dt
+
+func _physics_process(dt):
+	var distance_traveled: float = abs(linear_velocity.y) * dt
+	# total_distance_traveled += distance_traveled
+	current_fuel = clampf(current_fuel - distance_traveled / fuel_effeciency, 0, max_fuel)
+
+	virtual_y_pos += linear_velocity.y * dt
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
+	if current_fuel <= 0 && accelerator_brake < 0:
+		accelerator_brake = 0
+
 	super(state)
 
 	# prevent player from going in reverse

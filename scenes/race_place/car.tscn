@@ -54,6 +54,7 @@ contact_monitor = true
 max_contacts_reported = 10
 linear_damp = 1.0
 script = ExtResource("1_i4yac")
+max_speed = Vector2(2000, 10000)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 5.722045e-07)
