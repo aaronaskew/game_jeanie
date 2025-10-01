@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://ba21jy1ivgnvr"]
+[gd_scene load_steps=37 format=4 uid="uid://ba21jy1ivgnvr"]
 
 [ext_resource type="Script" uid="uid://cpxvk2h68d40i" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
@@ -23,6 +23,15 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wgfi7"]
 bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fbwt4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_67ujg"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
 
 [sub_resource type="Animation" id="Animation_hh0xs"]
 length = 0.001
@@ -257,7 +266,7 @@ offset_right = 1920.0
 offset_bottom = 1440.0
 color = Color(0, 0, 0, 1)
 
-[node name="Label" type="Label" parent="UI"]
+[node name="RacePlaceLabel" type="Label" parent="UI"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -300,6 +309,54 @@ grow_horizontal = 2
 theme_override_fonts/font = ExtResource("1_qujda")
 theme_override_font_sizes/font_size = 100
 text = "READY"
+horizontal_alignment = 1
+
+[node name="Intro" type="PanelContainer" parent="UI"]
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_fbwt4")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Intro"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/Intro/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_67ujg")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/Intro/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="UI/Intro/MarginContainer/Panel/CenterContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_qujda")
+theme_override_font_sizes/font_size = 51
+text = "Get to the finish line before you run out of fuel
+
+Controls: 
+Up - Accelerate
+Down - Brake
+Left/Right - Steer
+
+
+
+Spacebar to continue"
 horizontal_alignment = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
