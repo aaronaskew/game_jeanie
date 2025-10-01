@@ -1,11 +1,15 @@
-[gd_scene load_steps=31 format=4 uid="uid://ba21jy1ivgnvr"]
+[gd_scene load_steps=35 format=4 uid="uid://ba21jy1ivgnvr"]
 
 [ext_resource type="Script" uid="uid://cpxvk2h68d40i" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
 [ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
+[ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="2_fbwt4"]
 [ext_resource type="Texture2D" uid="uid://brgyj3rp8gh3b" path="res://assets/sprites/race_place/white_square.png" id="2_ow8qt"]
+[ext_resource type="Script" uid="uid://bd36polrylnqq" path="res://addons/godot_state_charts/compound_state.gd" id="3_67ujg"]
+[ext_resource type="Script" uid="uid://cqicqsn1etk3s" path="res://addons/godot_state_charts/atomic_state.gd" id="4_hpo3h"]
 [ext_resource type="PackedScene" uid="uid://co3xtnk1qyo60" path="res://scenes/race_place/player_car.tscn" id="5_2ko2p"]
 [ext_resource type="Texture2D" uid="uid://bsdx57powvvf" path="res://assets/sprites/race_place/sand.png" id="5_e27oq"]
+[ext_resource type="Script" uid="uid://cdgjm0beq4kmf" path="res://addons/godot_state_charts/transition.gd" id="5_f8ct0"]
 [ext_resource type="Texture2D" uid="uid://chsjtsf5j0m0a" path="res://assets/sprites/race_place/black_square.png" id="7_hw5in"]
 [ext_resource type="AudioStream" uid="uid://bds4jlvx7yemf" path="res://assets/sounds/engine_audio.ogg" id="8_7sd7i"]
 [ext_resource type="Script" uid="uid://dsiusvkh072j4" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
@@ -212,6 +216,32 @@ size = Vector2(1216, 256)
 [node name="RacePlace" type="Node2D"]
 script = ExtResource("1_hh0xs")
 length_of_race = 100000.0
+
+[node name="StateChart" type="Node" parent="."]
+script = ExtResource("2_fbwt4")
+
+[node name="CompoundState" type="Node" parent="StateChart"]
+script = ExtResource("3_67ujg")
+initial_state = NodePath("Intro")
+
+[node name="Intro" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("4_hpo3h")
+
+[node name="ToPlaying" type="Node" parent="StateChart/CompoundState/Intro"]
+script = ExtResource("5_f8ct0")
+to = NodePath("../../Playing")
+delay_in_seconds = "0.0"
+
+[node name="Playing" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("4_hpo3h")
+
+[node name="ToGameOver" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("5_f8ct0")
+to = NodePath("../../GameOver")
+delay_in_seconds = "0.0"
+
+[node name="GameOver" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("4_hpo3h")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
