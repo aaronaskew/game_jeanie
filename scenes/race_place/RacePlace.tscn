@@ -1,11 +1,16 @@
-[gd_scene load_steps=31 format=4 uid="uid://ba21jy1ivgnvr"]
+[gd_scene load_steps=38 format=4 uid="uid://ba21jy1ivgnvr"]
 
 [ext_resource type="Script" uid="uid://cpxvk2h68d40i" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
 [ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
+[ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="2_fbwt4"]
 [ext_resource type="Texture2D" uid="uid://brgyj3rp8gh3b" path="res://assets/sprites/race_place/white_square.png" id="2_ow8qt"]
+[ext_resource type="Script" uid="uid://bd36polrylnqq" path="res://addons/godot_state_charts/compound_state.gd" id="3_67ujg"]
+[ext_resource type="Script" uid="uid://cqicqsn1etk3s" path="res://addons/godot_state_charts/atomic_state.gd" id="4_hpo3h"]
 [ext_resource type="PackedScene" uid="uid://co3xtnk1qyo60" path="res://scenes/race_place/player_car.tscn" id="5_2ko2p"]
 [ext_resource type="Texture2D" uid="uid://bsdx57powvvf" path="res://assets/sprites/race_place/sand.png" id="5_e27oq"]
+[ext_resource type="Script" uid="uid://cdgjm0beq4kmf" path="res://addons/godot_state_charts/transition.gd" id="5_f8ct0"]
+[ext_resource type="Script" uid="uid://c15r5sgfgqbth" path="res://addons/godot_state_charts/parallel_state.gd" id="6_67ujg"]
 [ext_resource type="Texture2D" uid="uid://chsjtsf5j0m0a" path="res://assets/sprites/race_place/black_square.png" id="7_hw5in"]
 [ext_resource type="AudioStream" uid="uid://bds4jlvx7yemf" path="res://assets/sounds/engine_audio.ogg" id="8_7sd7i"]
 [ext_resource type="Script" uid="uid://dsiusvkh072j4" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
@@ -19,6 +24,15 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wgfi7"]
 bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fbwt4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_67ujg"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
 
 [sub_resource type="Animation" id="Animation_hh0xs"]
 length = 0.001
@@ -213,6 +227,46 @@ size = Vector2(1216, 256)
 script = ExtResource("1_hh0xs")
 length_of_race = 100000.0
 
+[node name="StateChart" type="Node" parent="."]
+script = ExtResource("2_fbwt4")
+
+[node name="CompoundState" type="Node" parent="StateChart"]
+script = ExtResource("3_67ujg")
+initial_state = NodePath("Intro")
+
+[node name="Intro" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("4_hpo3h")
+
+[node name="ToPlaying" type="Node" parent="StateChart/CompoundState/Intro"]
+script = ExtResource("5_f8ct0")
+to = NodePath("../../Playing")
+event = &"intro_finished"
+delay_in_seconds = "1.0"
+
+[node name="Playing" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("4_hpo3h")
+
+[node name="ToGameOverWin" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("5_f8ct0")
+to = NodePath("../../GameOver/Win")
+event = &"game_won"
+delay_in_seconds = "0.5"
+
+[node name="ToGameOverLose" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("5_f8ct0")
+to = NodePath("../../GameOver/Win")
+event = &"game_lost"
+delay_in_seconds = "0.5"
+
+[node name="GameOver" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("6_67ujg")
+
+[node name="Win" type="Node" parent="StateChart/CompoundState/GameOver"]
+script = ExtResource("4_hpo3h")
+
+[node name="Lose" type="Node" parent="StateChart/CompoundState/GameOver"]
+script = ExtResource("4_hpo3h")
+
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
@@ -227,7 +281,7 @@ offset_right = 1920.0
 offset_bottom = 1440.0
 color = Color(0, 0, 0, 1)
 
-[node name="Label" type="Label" parent="UI"]
+[node name="RacePlaceLabel" type="Label" parent="UI"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -270,6 +324,108 @@ grow_horizontal = 2
 theme_override_fonts/font = ExtResource("1_qujda")
 theme_override_font_sizes/font_size = 100
 text = "READY"
+horizontal_alignment = 1
+
+[node name="IntroUI" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_fbwt4")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/IntroUI"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/IntroUI/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_67ujg")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/IntroUI/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -860.0
+offset_top = -620.0
+offset_right = 860.0
+offset_bottom = 620.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="UI/IntroUI/MarginContainer/Panel/CenterContainer"]
+custom_minimum_size = Vector2(1720, 1240)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_qujda")
+theme_override_font_sizes/font_size = 90
+text = "Get to the finish line before you run out of fuel
+
+Controls: 
+Up - Accelerate
+Down - Brake
+Left/Right - Steer
+
+
+
+Spacebar to continue"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="GameOverUI" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_fbwt4")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/GameOverUI"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/GameOverUI/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_67ujg")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/GameOverUI/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_qujda")
+theme_override_font_sizes/font_size = 90
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="GameOverResult" type="Label" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_qujda")
+theme_override_font_sizes/font_size = 90
+text = "You win!"
 horizontal_alignment = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -321,7 +477,11 @@ shape = SubResource("RectangleShape2D_a4dxi")
 [node name="PlayerCar" parent="." instance=ExtResource("5_2ko2p")]
 unique_name_in_owner = true
 position = Vector2(961, 1212)
+fuel_effeciency = null
 max_fuel = 947.0
+idle_fuel_use_rate = null
+force = null
+braking_force = null
 
 [node name="EnemyCar" parent="." instance=ExtResource("12_wgfi7")]
 position = Vector2(608, 1212)
@@ -347,13 +507,19 @@ bus = &"tires"
 script = ExtResource("11_2ko2p")
 
 [node name="ReadySet" type="AudioStreamPlayer" parent="Audio"]
+unique_name_in_owner = true
 stream = ExtResource("13_a4dxi")
-autoplay = true
 
 [node name="Go" type="AudioStreamPlayer" parent="Audio"]
 unique_name_in_owner = true
 stream = ExtResource("14_70bgm")
 
+[connection signal="state_entered" from="StateChart/CompoundState/Intro" to="." method="_on_intro_state_entered"]
+[connection signal="state_exited" from="StateChart/CompoundState/Intro" to="." method="_on_intro_state_exited"]
+[connection signal="state_entered" from="StateChart/CompoundState/Playing" to="." method="_on_playing_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver" to="." method="_on_game_over_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver/Win" to="." method="_on_win_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver/Lose" to="." method="_on_lose_state_entered"]
 [connection signal="body_entered" from="FinishLine/Area2D" to="." method="_on_finish_line_body_entered"]
 [connection signal="turn" from="PlayerCar" to="Audio/TireSqueal" method="_on_player_car_turn"]
 [connection signal="finished" from="Audio/ReadySet" to="." method="_on_ready_set_finished"]

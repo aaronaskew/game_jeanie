@@ -10,14 +10,17 @@ default_font_size = 40
 z_index = 100
 script = ExtResource("1_c2xgb")
 
-[node name="StateChartDebugger" parent="." instance=ExtResource("2_b1f3y")]
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="StateChartDebugger" parent="CanvasLayer" instance=ExtResource("2_b1f3y")]
 z_index = 100
 anchors_preset = 1
 anchor_left = 1.0
 anchor_bottom = 0.0
-offset_left = 2817.0
+offset_left = -1023.0
 offset_top = 18.0
-offset_right = 3827.0
+offset_right = -13.0
 offset_bottom = 2134.0
 grow_horizontal = 0
 grow_vertical = 1
