@@ -10,10 +10,11 @@ var direction: float = 0
 var race_started := false
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var race_place: RacePlace = find_parent("RacePlace")
+@onready var race_place: RacePlace = $".."
 
 
 func _ready() -> void:
+	assert(race_place is RacePlace)
 	race_place.start_race.connect(_on_start_race)
 
 

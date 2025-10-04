@@ -5,6 +5,7 @@ signal turn
 
 @export var fuel_effeciency: float = 100.0
 @export var max_fuel: float = 5000.0
+@export var idle_fuel_use_rate: float = 10.0
 
 var current_fuel: float
 # var total_distance_traveled: float = 0
@@ -33,9 +34,12 @@ func _process(dt):
 
 
 func _physics_process(dt):
-	var distance_traveled: float = abs(linear_velocity.y) * dt
-	# total_distance_traveled += distance_traveled
-	current_fuel = clampf(current_fuel - distance_traveled / fuel_effeciency, 0, max_fuel)
+	if race_started:
+		if accelerator_brake < 0:
+			var distance_traveled: float = abs(linear_velocity.y) * dt
+			current_fuel = clampf(current_fuel - distance_traveled / fuel_effeciency, 0, max_fuel)
+		else:
+			current_fuel -= idle_fuel_use_rate * dt
 
 	virtual_y_pos += linear_velocity.y * dt
 
