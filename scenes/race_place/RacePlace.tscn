@@ -1,6 +1,6 @@
 [gd_scene load_steps=37 format=4 uid="uid://ba21jy1ivgnvr"]
 
-[ext_resource type="Script" uid="uid://ddsiu7w4fb82g" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
+[ext_resource type="Script" uid="uid://cpxvk2h68d40i" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
 [ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
 [ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="2_fbwt4"]
@@ -477,11 +477,8 @@ shape = SubResource("RectangleShape2D_a4dxi")
 [node name="PlayerCar" parent="." instance=ExtResource("5_2ko2p")]
 unique_name_in_owner = true
 position = Vector2(961, 1212)
-fuel_effeciency = null
 max_fuel = 947.0
-idle_fuel_use_rate = null
-force = null
-braking_force = null
+idle_fuel_use_rate = 10.0
 
 [node name="EnemyCar" parent="." instance=ExtResource("12_wgfi7")]
 position = Vector2(608, 1212)

@@ -41,12 +41,14 @@ func _process(_delta):
 
 	if player.current_fuel <= 0 && abs(player.linear_velocity.y) < 1.0:
 		state_chart.send_event("game_lost")
+		print("player lost")
 
 	update_fuel_gauge()
 
 
 func _physics_process(_delta):
-	finish_line.position.y = floor(init_finish_line_position_y - player.virtual_y_pos)
+	var new_finish_line_position_y = init_finish_line_position_y - player.virtual_y_pos
+	finish_line.position.y = new_finish_line_position_y
 
 
 func start_countdown():
@@ -75,6 +77,7 @@ func _on_ready_set_finished() -> void:
 func _on_finish_line_body_entered(body: Node2D) -> void:
 	if body is PlayerCar:
 		state_chart.send_event("game_won")
+		print("player won")
 
 
 func _unhandled_input(event: InputEvent) -> void:
