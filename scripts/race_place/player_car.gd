@@ -41,7 +41,8 @@ func _physics_process(dt):
 		else:
 			current_fuel -= idle_fuel_use_rate * dt
 
-	virtual_y_pos += linear_velocity.y * dt
+	var delta_position_y = linear_velocity.y * dt
+	virtual_y_pos += delta_position_y
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
