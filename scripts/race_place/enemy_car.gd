@@ -1,9 +1,8 @@
 class_name EnemyCar
 extends Car
 
-var relative_velocity_y: float
-
 @onready var player_car: PlayerCar = %PlayerCar
+@onready var init_y_position: float = position.y
 
 
 func _ready():
@@ -14,11 +13,11 @@ func _ready():
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 	super(state)
 
-	relative_velocity_y = state.linear_velocity.y - player_car.linear_velocity.y
-
 
 func _physics_process(dt: float) -> void:
-	position.y += relative_velocity_y * dt
+	super(dt)
+
+	position.y = init_y_position + virtual_y_pos - player_car.virtual_y_pos
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
