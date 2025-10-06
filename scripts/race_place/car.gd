@@ -8,6 +8,7 @@ extends RigidBody2D
 var accelerator_brake: float = 0
 var direction: float = 0
 var race_started := false
+var virtual_y_pos: float = 0.0
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var race_place: RacePlace = $".."
@@ -25,6 +26,11 @@ func _process(_dt):
 		animated_sprite.animation = "left"
 	else:
 		animated_sprite.animation = "right"
+
+
+func _physics_process(dt: float) -> void:
+	var delta_position_y = linear_velocity.y * dt
+	virtual_y_pos += delta_position_y
 
 
 func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
