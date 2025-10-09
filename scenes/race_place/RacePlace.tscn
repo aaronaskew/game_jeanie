@@ -228,6 +228,7 @@ length_of_race = 100000.0
 
 [node name="StateChart" type="Node" parent="."]
 script = ExtResource("2_fbwt4")
+track_in_editor = true
 
 [node name="CompoundState" type="Node" parent="StateChart"]
 script = ExtResource("3_67ujg")
@@ -253,7 +254,7 @@ delay_in_seconds = "0.5"
 
 [node name="ToGameOverLose" type="Node" parent="StateChart/CompoundState/Playing"]
 script = ExtResource("5_f8ct0")
-to = NodePath("../../GameOver/Win")
+to = NodePath("../../GameOver/Lose")
 event = &"game_lost"
 delay_in_seconds = "0.5"
 
@@ -425,7 +426,6 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_qujda")
 theme_override_font_sizes/font_size = 90
-text = "You win!"
 horizontal_alignment = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -478,7 +478,6 @@ shape = SubResource("RectangleShape2D_a4dxi")
 unique_name_in_owner = true
 position = Vector2(961, 1212)
 max_fuel = 947.0
-idle_fuel_use_rate = 10.0
 
 [node name="EnemyCar" parent="." instance=ExtResource("12_wgfi7")]
 position = Vector2(608, 1212)
