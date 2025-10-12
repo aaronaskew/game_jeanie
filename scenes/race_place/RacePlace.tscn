@@ -1,21 +1,21 @@
 [gd_scene load_steps=37 format=4 uid="uid://ba21jy1ivgnvr"]
 
-[ext_resource type="Script" uid="uid://cpxvk2h68d40i" path="res://scripts/race_place/race_place.gd" id="1_hh0xs"]
+[ext_resource type="Script" uid="uid://ctxv2lepr3va0" path="res://scripts/race_place/RacePlace.gd" id="1_fbwt4"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
 [ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
 [ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="2_fbwt4"]
 [ext_resource type="Texture2D" uid="uid://brgyj3rp8gh3b" path="res://assets/sprites/race_place/white_square.png" id="2_ow8qt"]
 [ext_resource type="Script" uid="uid://bd36polrylnqq" path="res://addons/godot_state_charts/compound_state.gd" id="3_67ujg"]
 [ext_resource type="Script" uid="uid://cqicqsn1etk3s" path="res://addons/godot_state_charts/atomic_state.gd" id="4_hpo3h"]
-[ext_resource type="PackedScene" uid="uid://co3xtnk1qyo60" path="res://scenes/race_place/player_car.tscn" id="5_2ko2p"]
+[ext_resource type="PackedScene" path="res://scenes/race_place/player_car.tscn" id="5_2ko2p"]
 [ext_resource type="Texture2D" uid="uid://bsdx57powvvf" path="res://assets/sprites/race_place/sand.png" id="5_e27oq"]
 [ext_resource type="Script" uid="uid://cdgjm0beq4kmf" path="res://addons/godot_state_charts/transition.gd" id="5_f8ct0"]
 [ext_resource type="Texture2D" uid="uid://chsjtsf5j0m0a" path="res://assets/sprites/race_place/black_square.png" id="7_hw5in"]
 [ext_resource type="AudioStream" uid="uid://bds4jlvx7yemf" path="res://assets/sounds/engine_audio.ogg" id="8_7sd7i"]
-[ext_resource type="Script" uid="uid://v474u5twinnt" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
+[ext_resource type="Script" path="res://scripts/race_place/engine_audio.gd" id="9_lwhp8"]
 [ext_resource type="AudioStream" uid="uid://by4w0y4svnov7" path="res://assets/sounds/tire_squeal.ogg" id="10_r4ers"]
-[ext_resource type="Script" uid="uid://d2cdp7i8y7v5q" path="res://scripts/race_place/tire_squeal.gd" id="11_2ko2p"]
-[ext_resource type="PackedScene" uid="uid://bck0eqtn60g1s" path="res://scenes/race_place/enemy_car.tscn" id="12_wgfi7"]
+[ext_resource type="Script" path="res://scripts/race_place/tire_squeal.gd" id="11_2ko2p"]
+[ext_resource type="PackedScene" path="res://scenes/race_place/enemy_car.tscn" id="12_wgfi7"]
 [ext_resource type="AudioStream" uid="uid://3leiaoj32xd5" path="res://assets/sounds/race_start_ready.ogg" id="13_a4dxi"]
 [ext_resource type="AudioStream" uid="uid://dnmun166ob1hg" path="res://assets/sounds/race_start_go.ogg" id="14_70bgm"]
 
@@ -223,12 +223,11 @@ pattern_0 = SubResource("TileMapPattern_a4dxi")
 size = Vector2(1216, 256)
 
 [node name="RacePlace" type="Node2D"]
-script = ExtResource("1_hh0xs")
+script = ExtResource("1_fbwt4")
 length_of_race = 100000.0
 
 [node name="StateChart" type="Node" parent="."]
 script = ExtResource("2_fbwt4")
-track_in_editor = true
 
 [node name="CompoundState" type="Node" parent="StateChart"]
 script = ExtResource("3_67ujg")

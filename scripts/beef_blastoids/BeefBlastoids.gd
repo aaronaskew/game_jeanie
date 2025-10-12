@@ -34,35 +34,42 @@ var explosion_energy: float = 1.5
 @onready var beef_scene = preload("res://scenes/beef_blastoids/beef.tscn")
 @onready var beef_explosion_scene = preload("res://scenes/beef_blastoids/beef_explosion.tscn")
 
+@onready var state_chart: StateChart = $StateChart
+@onready var intro_state: AtomicState = $StateChart/CompoundState/Intro
+@onready var playing_state: AtomicState = $StateChart/CompoundState/Playing
+
+@onready var intro_ui: PanelContainer = $UI/IntroUI
+@onready var game_over_ui: PanelContainer = $UI/GameOverUI
+@onready var game_over_result: Label = game_over_ui.get_node(
+	"MarginContainer/Panel/CenterContainer/VBoxContainer/GameOverResult"
+)
+
 
 func _ready():
 	canvas_size = ui.size
-
-	spawn_ship()
-
-	spawn_initial_beef()
 
 
 func _process(_dt):
 	lives_label.text = str(lives)
 	score_label.text = str(score)
 
-	if lives == 0:
-		game_over()
-
 
 func _on_ship_death(ship_explosion: GPUParticles2D):
 	ship_explosion.finished.connect(_on_ship_explosion_finished)
 	lives -= 1
+	check_if_game_over()
+
+
+func check_if_game_over():
+	if score >= 10000:
+		state_chart.send_event("game_won")
+	elif lives <= 0:
+		state_chart.send_event("game_lost")
 
 
 func _on_ship_explosion_finished():
 	if lives > 0:
 		spawn_ship()
-
-
-func game_over():
-	print("game_over")
 
 
 func spawn_ship():
@@ -122,6 +129,8 @@ func _on_destroy_beef(node: Node2D):
 
 		score += beef.score_value
 
+		check_if_game_over()
+
 		var old_position = beef.position
 		var old_linear_velocity = beef.linear_velocity
 		var old_angular_velocity = beef.angular_velocity
@@ -139,3 +148,35 @@ func _on_destroy_beef(node: Node2D):
 				)
 			beef.Size.SMALL:
 				pass
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if intro_state.active:
+		if event.is_action_pressed("ui_accept"):
+			intro_ui.visible = false
+			state_chart.send_event("intro_finished")
+
+
+func _on_intro_state_entered() -> void:
+	intro_ui.visible = true
+
+
+func _on_intro_state_exited() -> void:
+	intro_ui.visible = false
+
+
+func _on_playing_state_entered() -> void:
+	spawn_ship()
+	spawn_initial_beef()
+
+
+func _on_game_over_child_state_entered() -> void:
+	game_over_ui.visible = true
+
+
+func _on_win_state_entered() -> void:
+	game_over_result.text = "You win!"
+
+
+func _on_lose_state_entered() -> void:
+	game_over_result.text = "You lose"

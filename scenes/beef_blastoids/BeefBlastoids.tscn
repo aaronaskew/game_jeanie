@@ -1,7 +1,21 @@
-[gd_scene load_steps=3 format=3 uid="uid://dq71wfanlrmy4"]
+[gd_scene load_steps=10 format=3 uid="uid://dq71wfanlrmy4"]
 
 [ext_resource type="Script" uid="uid://b7x275twk5sf" path="res://scripts/beef_blastoids/BeefBlastoids.gd" id="1_koaxf"]
 [ext_resource type="Theme" uid="uid://xownl2y8crfl" path="res://resources/aairt_2600_theme.tres" id="2_ic1rg"]
+[ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="3_yyswj"]
+[ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="4_3rqo1"]
+[ext_resource type="Script" uid="uid://bd36polrylnqq" path="res://addons/godot_state_charts/compound_state.gd" id="5_7qf71"]
+[ext_resource type="Script" uid="uid://cqicqsn1etk3s" path="res://addons/godot_state_charts/atomic_state.gd" id="6_uyby2"]
+[ext_resource type="Script" uid="uid://cdgjm0beq4kmf" path="res://addons/godot_state_charts/transition.gd" id="7_mqu88"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_koaxf"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ejcs7"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
 
 [node name="BeefBlastoids" type="Node2D"]
 script = ExtResource("1_koaxf")
@@ -71,5 +85,156 @@ size_flags_horizontal = 3
 size_flags_vertical = 0
 size_flags_stretch_ratio = 0.7
 theme_override_font_sizes/font_size = 80
-text = "10000"
+text = "0"
 horizontal_alignment = 2
+
+[node name="IntroUI" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_koaxf")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/IntroUI"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/IntroUI/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ejcs7")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/IntroUI/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -860.0
+offset_top = -620.0
+offset_right = 860.0
+offset_bottom = 620.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="UI/IntroUI/MarginContainer/Panel/CenterContainer"]
+custom_minimum_size = Vector2(1720, 1240)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_yyswj")
+theme_override_font_sizes/font_size = 90
+text = "Reach a score of 10,000 to win
+
+
+Controls: 
+Left/Right - Rotate ship
+Up - Thrust
+Spacebar - Fire blaster
+
+
+
+
+Spacebar to continue"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="GameOverUI" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_koaxf")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/GameOverUI"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/GameOverUI/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ejcs7")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/GameOverUI/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_yyswj")
+theme_override_font_sizes/font_size = 90
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="GameOverResult" type="Label" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_yyswj")
+theme_override_font_sizes/font_size = 90
+horizontal_alignment = 1
+
+[node name="StateChart" type="Node" parent="."]
+script = ExtResource("4_3rqo1")
+
+[node name="CompoundState" type="Node" parent="StateChart"]
+script = ExtResource("5_7qf71")
+initial_state = NodePath("Intro")
+
+[node name="Intro" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("6_uyby2")
+
+[node name="ToPlaying" type="Node" parent="StateChart/CompoundState/Intro"]
+script = ExtResource("7_mqu88")
+to = NodePath("../../Playing")
+event = &"intro_finished"
+delay_in_seconds = "0.1"
+
+[node name="Playing" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("6_uyby2")
+
+[node name="ToGameOverWin" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("7_mqu88")
+to = NodePath("../../GameOver/Win")
+event = &"game_won"
+delay_in_seconds = "0"
+
+[node name="ToGameOverLose" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("7_mqu88")
+to = NodePath("../../GameOver/Lose")
+event = &"game_lost"
+delay_in_seconds = "0"
+
+[node name="GameOver" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("5_7qf71")
+initial_state = NodePath("Lose")
+
+[node name="Win" type="Node" parent="StateChart/CompoundState/GameOver"]
+script = ExtResource("6_uyby2")
+
+[node name="Lose" type="Node" parent="StateChart/CompoundState/GameOver"]
+script = ExtResource("6_uyby2")
+
+[connection signal="state_entered" from="StateChart/CompoundState/Intro" to="." method="_on_intro_state_entered"]
+[connection signal="state_exited" from="StateChart/CompoundState/Intro" to="." method="_on_intro_state_exited"]
+[connection signal="state_entered" from="StateChart/CompoundState/Playing" to="." method="_on_playing_state_entered"]
+[connection signal="child_state_entered" from="StateChart/CompoundState/GameOver" to="." method="_on_game_over_child_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver/Win" to="." method="_on_win_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver/Lose" to="." method="_on_lose_state_entered"]

@@ -17,12 +17,12 @@ var init_finish_line_position_y: float
 @onready var ready_set_audio: AudioStreamPlayer = %ReadySet
 @onready var go_audio: AudioStreamPlayer = %Go
 @onready var finish_line: TileMapLayer = $FinishLine
+
 @onready var state_chart: StateChart = $StateChart
 @onready var intro_state: AtomicState = $StateChart/CompoundState/Intro
+
 @onready var intro_ui: PanelContainer = $UI/IntroUI
 @onready var game_over_ui: PanelContainer = $UI/GameOverUI
-@onready var game_over_win_state: AtomicState = get_node("StateChart/CompoundState/GameOver/Win")
-@onready var game_over_lose_state: AtomicState = get_node("StateChart/CompoundState/GameOver/Lose")
 @onready var game_over_result: Label = game_over_ui.get_node(
 	"MarginContainer/Panel/CenterContainer/VBoxContainer/GameOverResult"
 )
