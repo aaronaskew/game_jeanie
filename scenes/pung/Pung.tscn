@@ -1,9 +1,23 @@
-[gd_scene load_steps=5 format=3 uid="uid://bci34edk178al"]
+[gd_scene load_steps=12 format=3 uid="uid://bci34edk178al"]
 
-[ext_resource type="Script" uid="uid://e141ovv2kex1" path="res://scripts/pung/Pung.gd" id="1_jpk8j"]
+[ext_resource type="Script" uid="uid://2nmjy445mybh" path="res://scripts/pung/Pung.gd" id="1_jpk8j"]
 [ext_resource type="Theme" uid="uid://xownl2y8crfl" path="res://resources/aairt_2600_theme.tres" id="1_wke20"]
 [ext_resource type="PackedScene" uid="uid://cyf6m46kcpysm" path="res://scenes/pung/gutter.tscn" id="2_k8e7a"]
+[ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="3_mgq4r"]
 [ext_resource type="PackedScene" uid="uid://3pafxtnbvklg" path="res://scenes/pung/paddle.tscn" id="4_mhdru"]
+[ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="6_ee50c"]
+[ext_resource type="Script" uid="uid://bd36polrylnqq" path="res://addons/godot_state_charts/compound_state.gd" id="7_rc34o"]
+[ext_resource type="Script" uid="uid://cqicqsn1etk3s" path="res://addons/godot_state_charts/atomic_state.gd" id="8_gnpfc"]
+[ext_resource type="Script" uid="uid://cdgjm0beq4kmf" path="res://addons/godot_state_charts/transition.gd" id="9_qd1lk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mqg88"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p0pvk"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
 
 [node name="Pung" type="Node2D"]
 script = ExtResource("1_jpk8j")
@@ -39,15 +53,116 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-text = "100"
+text = "0"
 
 [node name="AIScore" type="Label" parent="UI/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-text = "100"
+text = "0"
 horizontal_alignment = 2
+
+[node name="IntroUI" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mqg88")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/IntroUI"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/IntroUI/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p0pvk")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/IntroUI/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -860.0
+offset_top = -620.0
+offset_right = 860.0
+offset_bottom = 620.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="UI/IntroUI/MarginContainer/Panel/CenterContainer"]
+custom_minimum_size = Vector2(1720, 1240)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_mgq4r")
+theme_override_font_sizes/font_size = 90
+text = "First to 10 wins
+
+
+Controls: 
+Up/Down - Move paddle
+
+
+
+
+Spacebar to continue"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="GameOverUI" type="PanelContainer" parent="UI"]
+visible = false
+z_index = 1
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1440.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mqg88")
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/GameOverUI"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="Panel" type="Panel" parent="UI/GameOverUI/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_p0pvk")
+
+[node name="CenterContainer" type="CenterContainer" parent="UI/GameOverUI/MarginContainer/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_mgq4r")
+theme_override_font_sizes/font_size = 90
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="GameOverResult" type="Label" parent="UI/GameOverUI/MarginContainer/Panel/CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_mgq4r")
+theme_override_font_sizes/font_size = 90
+horizontal_alignment = 1
 
 [node name="Gutters" type="Node2D" parent="."]
 
@@ -68,3 +183,51 @@ unique_name_in_owner = true
 position = Vector2(1856, 720)
 size = Vector2(16, 140.815)
 speed = 1000.0
+
+[node name="StateChart" type="Node" parent="."]
+script = ExtResource("6_ee50c")
+
+[node name="CompoundState" type="Node" parent="StateChart"]
+script = ExtResource("7_rc34o")
+initial_state = NodePath("Intro")
+
+[node name="Intro" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("8_gnpfc")
+
+[node name="ToPlaying" type="Node" parent="StateChart/CompoundState/Intro"]
+script = ExtResource("9_qd1lk")
+to = NodePath("../../Playing")
+event = &"intro_finished"
+delay_in_seconds = "1.0"
+
+[node name="Playing" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("8_gnpfc")
+
+[node name="ToGameOverWin" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("9_qd1lk")
+to = NodePath("../../GameOver/Win")
+event = &"game_won"
+delay_in_seconds = "0"
+
+[node name="ToGameOverLose" type="Node" parent="StateChart/CompoundState/Playing"]
+script = ExtResource("9_qd1lk")
+to = NodePath("../../GameOver/Lose")
+event = &"game_lost"
+delay_in_seconds = "0"
+
+[node name="GameOver" type="Node" parent="StateChart/CompoundState"]
+script = ExtResource("7_rc34o")
+initial_state = NodePath("Lose")
+
+[node name="Win" type="Node" parent="StateChart/CompoundState/GameOver"]
+script = ExtResource("8_gnpfc")
+
+[node name="Lose" type="Node" parent="StateChart/CompoundState/GameOver"]
+script = ExtResource("8_gnpfc")
+
+[connection signal="state_entered" from="StateChart/CompoundState/Intro" to="." method="_on_intro_state_entered"]
+[connection signal="state_exited" from="StateChart/CompoundState/Intro" to="." method="_on_intro_state_exited"]
+[connection signal="state_entered" from="StateChart/CompoundState/Playing" to="." method="_on_playing_state_entered"]
+[connection signal="child_state_entered" from="StateChart/CompoundState/GameOver" to="." method="_on_game_over_child_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver/Win" to="." method="_on_win_state_entered"]
+[connection signal="state_entered" from="StateChart/CompoundState/GameOver/Lose" to="." method="_on_lose_state_entered"]
