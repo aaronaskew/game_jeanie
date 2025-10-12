@@ -11,7 +11,7 @@ var pung_root: Pung
 var ball_scene = preload("res://scenes/pung/ball.tscn")
 
 var player_score: int = 0
-var ai_score: int = 9
+var ai_score: int = 0
 
 @onready var player_score_label: Label = %PlayerScore
 @onready var ai_score_label: Label = %AIScore
