@@ -1,6 +1,6 @@
 [gd_scene load_steps=37 format=4 uid="uid://ba21jy1ivgnvr"]
 
-[ext_resource type="Script" uid="uid://ctxv2lepr3va0" path="res://scripts/race_place/RacePlace.gd" id="1_fbwt4"]
+[ext_resource type="Script" uid="uid://rsul284yiw6r" path="res://scripts/race_place/RacePlace.gd" id="1_fbwt4"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="1_qujda"]
 [ext_resource type="Texture2D" uid="uid://dkbl1pm15xjnc" path="res://assets/sprites/race_place/stripe.png" id="2_60muf"]
 [ext_resource type="Script" uid="uid://mjcasvixml4p" path="res://addons/godot_state_charts/state_chart.gd" id="2_fbwt4"]
