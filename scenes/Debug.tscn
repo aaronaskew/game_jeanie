@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://djnnuvj3brygd"]
+[gd_scene format=3 uid="uid://djnnuvj3brygd"]
 
 [ext_resource type="Script" uid="uid://48t3pxtkeo06" path="res://scripts/debug.gd" id="1_c2xgb"]
 [ext_resource type="PackedScene" uid="uid://bcwkugn6v3oy7" path="res://addons/godot_state_charts/utilities/state_chart_debugger.tscn" id="2_b1f3y"]
@@ -6,14 +6,14 @@
 [sub_resource type="Theme" id="Theme_c2xgb"]
 default_font_size = 40
 
-[node name="Debug" type="Node2D"]
+[node name="Debug" type="Node2D" unique_id=1250257952]
 z_index = 100
 script = ExtResource("1_c2xgb")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=889859358]
 layer = 100
 
-[node name="StateChartDebugger" parent="CanvasLayer" instance=ExtResource("2_b1f3y")]
+[node name="StateChartDebugger" parent="CanvasLayer" unique_id=870297918 instance=ExtResource("2_b1f3y")]
 z_index = 100
 anchors_preset = 1
 anchor_left = 1.0

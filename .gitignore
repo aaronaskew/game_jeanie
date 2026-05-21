@@ -2,4 +2,6 @@
 .godot/
 /android/
 exports/
+
+# Other ignores
 notes.md

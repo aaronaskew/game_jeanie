@@ -1,6 +1,6 @@
-[gd_scene load_steps=44 format=3 uid="uid://b2aoivlfhcxef"]
+[gd_scene format=3 uid="uid://b2aoivlfhcxef"]
 
-[ext_resource type="Script" uid="uid://v86yb1vkw6bd" path="res://scripts/cut_scenes.gd" id="1_51j35"]
+[ext_resource type="Script" uid="uid://d2dj64gpb8ljc" path="res://scripts/cut_scenes.gd" id="1_51j35"]
 [ext_resource type="Texture2D" uid="uid://droud4riglk5e" path="res://assets/textures/cutscene_frames/start_A_01.png" id="1_tpj7i"]
 [ext_resource type="Texture2D" uid="uid://ce21t1seumhjd" path="res://assets/textures/cutscene_frames/start_A_02.png" id="2_51j35"]
 [ext_resource type="Texture2D" uid="uid://bg4bgkyod25qg" path="res://assets/textures/cutscene_frames/middle_A_01.png" id="3_xtvpk"]
@@ -738,139 +738,137 @@ _data = {
 &"StartA": SubResource("Animation_51j35")
 }
 
-[node name="CutScenes" type="Node2D"]
+[node name="CutScenes" type="Node2D" unique_id=194495779]
 script = ExtResource("1_51j35")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_7224s")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1872217991]
+libraries/ = SubResource("AnimationLibrary_7224s")
 
-[node name="Panels" type="Node2D" parent="."]
+[node name="Panels" type="Node2D" parent="." unique_id=1788616395]
 
-[node name="StartA01" type="Sprite2D" parent="Panels"]
+[node name="StartA01" type="Sprite2D" parent="Panels" unique_id=1353826710]
 visible = false
 texture = ExtResource("1_tpj7i")
 centered = false
 
-[node name="StartA02" type="Sprite2D" parent="Panels"]
+[node name="StartA02" type="Sprite2D" parent="Panels" unique_id=989243508]
 visible = false
 texture = ExtResource("2_51j35")
 centered = false
 
-[node name="MiddleA01" type="Sprite2D" parent="Panels"]
+[node name="MiddleA01" type="Sprite2D" parent="Panels" unique_id=1606990272]
 visible = false
 texture = ExtResource("3_xtvpk")
 centered = false
 
-[node name="MiddleB01" type="Sprite2D" parent="Panels"]
+[node name="MiddleB01" type="Sprite2D" parent="Panels" unique_id=1029016867]
 visible = false
 texture = ExtResource("4_7224s")
 centered = false
 
-[node name="MiddleC01" type="Sprite2D" parent="Panels"]
+[node name="MiddleC01" type="Sprite2D" parent="Panels" unique_id=1458971669]
 visible = false
 texture = ExtResource("5_rib6v")
 centered = false
 
-[node name="MiddleC02" type="Sprite2D" parent="Panels"]
+[node name="MiddleC02" type="Sprite2D" parent="Panels" unique_id=1676827181]
 visible = false
 texture = ExtResource("6_lgx2h")
 centered = false
 
-[node name="MiddleD01" type="Sprite2D" parent="Panels"]
+[node name="MiddleD01" type="Sprite2D" parent="Panels" unique_id=2013803807]
 visible = false
 texture = ExtResource("7_8x0uv")
 centered = false
 
-[node name="MiddleD02" type="Sprite2D" parent="Panels"]
+[node name="MiddleD02" type="Sprite2D" parent="Panels" unique_id=778221860]
 visible = false
 texture = ExtResource("8_ouuwq")
 centered = false
 
-[node name="MiddleD03" type="Sprite2D" parent="Panels"]
+[node name="MiddleD03" type="Sprite2D" parent="Panels" unique_id=844835810]
 visible = false
 texture = ExtResource("9_yibmh")
 centered = false
 
-[node name="MiddleE01" type="Sprite2D" parent="Panels"]
+[node name="MiddleE01" type="Sprite2D" parent="Panels" unique_id=1126228918]
 visible = false
 scale = Vector2(1.43617, 1.43617)
 texture = ExtResource("10_ty1o6")
 centered = false
 
-[node name="MiddleE02" type="Sprite2D" parent="Panels"]
+[node name="MiddleE02" type="Sprite2D" parent="Panels" unique_id=297600099]
 visible = false
 scale = Vector2(2.37363, 2.37363)
 texture = ExtResource("11_tmcvk")
 centered = false
 
-[node name="MiddleE03" type="Sprite2D" parent="Panels"]
+[node name="MiddleE03" type="Sprite2D" parent="Panels" unique_id=1559950132]
 visible = false
 texture = ExtResource("12_lwu68")
 centered = false
 
-[node name="MiddleE04" type="Sprite2D" parent="Panels"]
+[node name="MiddleE04" type="Sprite2D" parent="Panels" unique_id=290604084]
 visible = false
 texture = ExtResource("13_4xrjq")
 centered = false
 
-[node name="MiddleF01" type="Sprite2D" parent="Panels"]
+[node name="MiddleF01" type="Sprite2D" parent="Panels" unique_id=1376711833]
 visible = false
 texture = ExtResource("14_5pydw")
 centered = false
 
-[node name="MiddleG01" type="Sprite2D" parent="Panels"]
+[node name="MiddleG01" type="Sprite2D" parent="Panels" unique_id=73057677]
 visible = false
 texture = ExtResource("15_86krs")
 centered = false
 
-[node name="MiddleH01" type="Sprite2D" parent="Panels"]
+[node name="MiddleH01" type="Sprite2D" parent="Panels" unique_id=1234422498]
 visible = false
 texture = ExtResource("16_xruwn")
 centered = false
 
-[node name="EndA01" type="Sprite2D" parent="Panels"]
+[node name="EndA01" type="Sprite2D" parent="Panels" unique_id=98235990]
 visible = false
 texture = ExtResource("17_s4dmu")
 centered = false
 
-[node name="EndB01" type="Sprite2D" parent="Panels"]
+[node name="EndB01" type="Sprite2D" parent="Panels" unique_id=946811916]
 visible = false
 texture = ExtResource("18_gri15")
 centered = false
 
-[node name="EndB02" type="Sprite2D" parent="Panels"]
+[node name="EndB02" type="Sprite2D" parent="Panels" unique_id=323038172]
 visible = false
 texture = ExtResource("19_4fmr0")
 centered = false
 
-[node name="EndD02" type="Sprite2D" parent="Panels"]
+[node name="EndD02" type="Sprite2D" parent="Panels" unique_id=671102438]
 visible = false
 texture = ExtResource("20_y2s50")
 centered = false
 
-[node name="EndD03" type="Sprite2D" parent="Panels"]
+[node name="EndD03" type="Sprite2D" parent="Panels" unique_id=1113498233]
 visible = false
 texture = ExtResource("21_pya3w")
 centered = false
 
-[node name="EndD04" type="Sprite2D" parent="Panels"]
+[node name="EndD04" type="Sprite2D" parent="Panels" unique_id=752071408]
 visible = false
 texture = ExtResource("22_uiwty")
 centered = false
 
-[node name="EndD05" type="Sprite2D" parent="Panels"]
+[node name="EndD05" type="Sprite2D" parent="Panels" unique_id=176769229]
 visible = false
 texture = ExtResource("23_c8p4g")
 centered = false
 
-[node name="EndD06" type="Sprite2D" parent="Panels"]
+[node name="EndD06" type="Sprite2D" parent="Panels" unique_id=1978067544]
 visible = false
 texture = ExtResource("24_a23su")
 centered = false
 
-[node name="EndE01" type="Sprite2D" parent="Panels"]
+[node name="EndE01" type="Sprite2D" parent="Panels" unique_id=589730348]
 visible = false
 texture = ExtResource("25_88yd2")
 centered = false

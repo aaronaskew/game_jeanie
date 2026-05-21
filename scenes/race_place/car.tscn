@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://da2bck81vcakc"]
+[gd_scene format=3 uid="uid://da2bck81vcakc"]
 
 [ext_resource type="Script" uid="uid://btrrvxlw0ylkn" path="res://scripts/race_place/car.gd" id="1_i4yac"]
 [ext_resource type="Texture2D" uid="uid://cskdjwd8pkofb" path="res://assets/sprites/race_place/car32x32_sheet.png" id="1_rhihm"]
@@ -46,7 +46,7 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="Car" type="RigidBody2D"]
+[node name="Car" type="RigidBody2D" unique_id=699957966]
 texture_filter = 1
 can_sleep = false
 lock_rotation = true
@@ -56,16 +56,16 @@ linear_damp = 1.0
 script = ExtResource("1_i4yac")
 max_speed = Vector2(2000, 10000)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1513257523]
 position = Vector2(0, 5.722045e-07)
 scale = Vector2(10, 10)
 shape = SubResource("RectangleShape2D_i4yac")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2086452071]
 scale = Vector2(10, 10)
 sprite_frames = SubResource("SpriteFrames_hw5in")
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1833464664]
 stream = ExtResource("3_bbrlh")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://boku5bkvjs1j2"]
+[gd_scene format=3 uid="uid://boku5bkvjs1j2"]
 
 [ext_resource type="Script" uid="uid://hict7ytlw6kl" path="res://scripts/game_manager.gd" id="1_34tde"]
 
-[node name="GameManager" type="Node"]
+[node name="GameManager" type="Node" unique_id=1209688956]
 script = ExtResource("1_34tde")
