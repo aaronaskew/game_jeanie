@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bt382k8oc6hlb"]
+[gd_scene format=3 uid="uid://bt382k8oc6hlb"]
 
 [ext_resource type="Script" uid="uid://cfihn1xu166lb" path="res://scripts/beef_blastoids/despawn_one_shot.gd" id="1_afbhf"]
 
@@ -28,7 +28,7 @@ scale_max = 29.85
 scale_curve = SubResource("CurveTexture_koaxf")
 alpha_curve = SubResource("CurveTexture_yyswj")
 
-[node name="ShipExplosion" type="GPUParticles2D"]
+[node name="ShipExplosion" type="GPUParticles2D" unique_id=1204098709]
 emitting = false
 amount = 15
 lifetime = 0.4

@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://bck0eqtn60g1s"]
+[gd_scene format=3 uid="uid://bck0eqtn60g1s"]
 
 [ext_resource type="PackedScene" uid="uid://da2bck81vcakc" path="res://scenes/race_place/car.tscn" id="1_wiwxf"]
 [ext_resource type="Script" uid="uid://chpo5t5kvr58o" path="res://scripts/race_place/enemy_car.gd" id="2_1bmdt"]
@@ -6,15 +6,15 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_wiwxf"]
 radius = 250.0
 
-[node name="EnemyCar" instance=ExtResource("1_wiwxf")]
+[node name="EnemyCar" unique_id=1691683076 instance=ExtResource("1_wiwxf")]
 script = ExtResource("2_1bmdt")
 
-[node name="AnimatedSprite2D" parent="." index="1"]
+[node name="AnimatedSprite2D" parent="." index="1" unique_id=2086452071]
 modulate = Color(1, 0.110000014, 0.110000014, 1)
 
-[node name="Area2D" type="Area2D" parent="." index="3"]
+[node name="Area2D" type="Area2D" parent="." index="3" unique_id=62741838]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" index="0"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" index="0" unique_id=1778985812]
 shape = SubResource("CircleShape2D_wiwxf")
 
 [connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
