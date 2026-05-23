@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://btr3wdw4yqkxs"]
+
+[ext_resource type="Texture2D" uid="uid://715l5rdf670i" path="res://assets/textures/scene_missing.png" id="1_qyuap"]
+
+[node name="Node2D" type="Node2D" unique_id=862389286]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1726632682]
+texture = ExtResource("1_qyuap")
+centered = false
+
+[node name="Button" type="Button" parent="." unique_id=2091883058]
+offset_right = 8.0
+offset_bottom = 8.0
