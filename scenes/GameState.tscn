@@ -68,7 +68,17 @@ script = ExtResource("3_n4bsj")
 
 [node name="Screen" type="Node" parent="Root" unique_id=1667541903]
 script = ExtResource("2_dscq2")
-initial_state = NodePath("CutSceneStart")
+initial_state = NodePath("TitleScreen")
+
+[node name="TitleScreen" type="Node" parent="Root/Screen" unique_id=64657815]
+script = ExtResource("3_n4bsj")
+metadata/_custom_type_script = "uid://cytafq8i1y8qm"
+
+[node name="ToCutSceneStart" type="Node" parent="Root/Screen/TitleScreen" unique_id=1001477003]
+script = ExtResource("4_7fko1")
+to = NodePath("../../CutSceneStart")
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
 [node name="CutSceneStart" type="Node" parent="Root/Screen" unique_id=982864594]
 script = ExtResource("3_n4bsj")
