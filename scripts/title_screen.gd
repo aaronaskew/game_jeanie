@@ -1,5 +1,7 @@
 extends Control
 
+@onready var game_manager: GameManager = $"/root/GameManagerScene"
+
 
 func _on_start_game_button_pressed() -> void:
-	pass # Replace with function body.
+	game_manager.start_game()
