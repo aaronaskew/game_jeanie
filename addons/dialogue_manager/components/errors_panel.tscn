@@ -6,7 +6,7 @@
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
 "
 
-[node name="ErrorsPanel" type="HBoxContainer" unique_id=1733029004]
+[node name="ErrorsPanel" type="HBoxContainer" unique_id=361497635]
 visible = false
 offset_right = 1024.0
 offset_bottom = 600.0
@@ -15,7 +15,7 @@ grow_vertical = 2
 script = ExtResource("1_nfm3c")
 metadata/_edit_layout_mode = 1
 
-[node name="ErrorButton" type="Button" parent="." unique_id=906515856]
+[node name="ErrorButton" type="Button" parent="." unique_id=270221860]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0, 0, 0, 1)
@@ -26,19 +26,19 @@ flat = true
 alignment = 0
 text_overrun_behavior = 4
 
-[node name="Spacer" type="Control" parent="." unique_id=464069954]
+[node name="Spacer" type="Control" parent="." unique_id=1699330751]
 custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 
-[node name="PreviousButton" type="Button" parent="." unique_id=481119899]
+[node name="PreviousButton" type="Button" parent="." unique_id=1239304240]
 layout_mode = 2
 icon = SubResource("DPITexture_w0gko")
 flat = true
 
-[node name="CountLabel" type="Label" parent="." unique_id=1502512596]
+[node name="CountLabel" type="Label" parent="." unique_id=2055309082]
 layout_mode = 2
 
-[node name="NextButton" type="Button" parent="." unique_id=1544872435]
+[node name="NextButton" type="Button" parent="." unique_id=106515275]
 layout_mode = 2
 icon = SubResource("DPITexture_w0gko")
 flat = true

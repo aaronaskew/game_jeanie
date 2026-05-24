@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://kpwo418lb2t2" path="res://addons/dialogue_manager/components/download_update_panel.gd" id="1_4tm1k"]
 [ext_resource type="Texture2D" uid="uid://d3baj6rygkb3f" path="res://addons/dialogue_manager/assets/update.svg" id="2_4o2m6"]
 
-[node name="DownloadUpdatePanel" type="Control" unique_id=1408028474]
+[node name="DownloadUpdatePanel" type="Control" unique_id=1134449731]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,9 +12,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_4tm1k")
 
-[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=1794698975]
+[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=976369707]
 
-[node name="VBox" type="VBoxContainer" parent="." unique_id=747385928]
+[node name="VBox" type="VBoxContainer" parent="." unique_id=732081650]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -27,7 +27,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="Logo" type="TextureRect" parent="VBox" unique_id=703032846]
+[node name="Logo" type="TextureRect" parent="VBox" unique_id=1903475548]
 unique_name_in_owner = true
 clip_contents = true
 custom_minimum_size = Vector2(300, 80)
@@ -35,23 +35,23 @@ layout_mode = 2
 texture = ExtResource("2_4o2m6")
 stretch_mode = 5
 
-[node name="Label" type="Label" parent="VBox" unique_id=1028852627]
+[node name="Label" type="Label" parent="VBox" unique_id=2092661065]
 layout_mode = 2
 text = "v1.2.3 is available for download."
 horizontal_alignment = 1
 
-[node name="Center" type="CenterContainer" parent="VBox" unique_id=471301853]
+[node name="Center" type="CenterContainer" parent="VBox" unique_id=1332638385]
 layout_mode = 2
 
-[node name="DownloadButton" type="Button" parent="VBox/Center" unique_id=1583782723]
+[node name="DownloadButton" type="Button" parent="VBox/Center" unique_id=86258650]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Download update"
 
-[node name="Center2" type="CenterContainer" parent="VBox" unique_id=2129566032]
+[node name="Center2" type="CenterContainer" parent="VBox" unique_id=1701595982]
 layout_mode = 2
 
-[node name="NotesButton" type="LinkButton" parent="VBox/Center2" unique_id=1944058324]
+[node name="NotesButton" type="LinkButton" parent="VBox/Center2" unique_id=991828623]
 layout_mode = 2
 text = "Read release notes"
 
