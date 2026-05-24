@@ -1,13 +1,74 @@
 [gd_scene format=3 uid="uid://btr3wdw4yqkxs"]
 
+[ext_resource type="Script" uid="uid://bah21irb4wa33" path="res://scripts/title_screen.gd" id="1_ch40n"]
 [ext_resource type="Texture2D" uid="uid://715l5rdf670i" path="res://assets/textures/scene_missing.png" id="1_qyuap"]
 
-[node name="Node2D" type="Node2D" unique_id=862389286]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qyuap"]
+content_margin_left = 50.0
+content_margin_top = 20.0
+content_margin_right = 50.0
+content_margin_bottom = 20.0
+bg_color = Color(0.6317009, 0.33950055, 0.13765472, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0031725867, 0.24905807, 0.9388135, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_size = 4
+shadow_offset = Vector2(1.095, 2.67)
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1726632682]
+[node name="TitleScreenMenu" type="Control" unique_id=1671780226]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ch40n")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=536018615]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("1_qyuap")
-centered = false
 
-[node name="Button" type="Button" parent="." unique_id=2091883058]
-offset_right = 8.0
-offset_bottom = 8.0
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1848154819]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 92
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=253067876]
+layout_mode = 2
+theme_override_constants/separation = 358
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=931519781]
+layout_mode = 2
+theme_override_font_sizes/font_size = 227
+text = "Game Jeanie"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer" unique_id=1200403626]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StartGameButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=948226698]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_pressed_color = Color(0.17663807, 0.41286692, 0.24393293, 1)
+theme_override_colors/font_hover_color = Color(0.17663807, 0.41286692, 0.24393293, 1)
+theme_override_font_sizes/font_size = 172
+theme_override_styles/normal = SubResource("StyleBoxFlat_qyuap")
+text = "Start Game"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/StartGameButton" to="." method="_on_start_game_button_pressed"]
