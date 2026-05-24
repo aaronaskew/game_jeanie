@@ -54,3 +54,11 @@ func _on_title_screen_state_entered() -> void:
 func _on_title_screen_state_exited() -> void:
 	if active_scene:
 		active_scene.queue_free()
+
+
+func _on_cut_scene_start_state_entered() -> void:
+	pass # Replace with function body.
+
+
+func _on_cut_scene_start_state_exited() -> void:
+	pass # Replace with function body.

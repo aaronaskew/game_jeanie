@@ -229,3 +229,5 @@ delay_in_seconds = "0.0"
 
 [connection signal="state_entered" from="GameState/Root/Screen/TitleScreen" to="." method="_on_title_screen_state_entered"]
 [connection signal="state_exited" from="GameState/Root/Screen/TitleScreen" to="." method="_on_title_screen_state_exited"]
+[connection signal="state_entered" from="GameState/Root/Screen/CutSceneStart" to="." method="_on_cut_scene_start_state_entered"]
+[connection signal="state_exited" from="GameState/Root/Screen/CutSceneStart" to="." method="_on_cut_scene_start_state_exited"]
