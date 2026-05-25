@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Game Jeanie"
-run/main_scene="uid://btr3wdw4yqkxs"
+run/main_scene="uid://db8xbt8yp61id"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -22,7 +22,8 @@ DialogueManager="*uid://c3rodes2l3gxb"
 
 [dialogue_manager]
 
-runtime/balloon_path="res://scenes/dialogue/balloon.tscn"
+runtime/balloon_path="uid://b44xtkwcowiat"
+runtime/warn_about_method_property_or_signal_name_conflicts=true
 
 [display]
 

@@ -1,16 +1,20 @@
 class_name GameManager
 extends Node
 
-var game_wins = {
+var game_wins: Dictionary = {
 	"pung": 0,
 	"beef_blastoids": 0,
 	"race_place": 0,
 }
 
-# var game_state_scene = preload("res://scenes/GameState.tscn")
-var debug_scene = preload("res://scenes/Debug.tscn")
-var gameplay_scene = preload("res://scenes/GamePlay.tscn")
-var title_screen_scene = preload("res://scenes/TitleScreen.tscn")
+# TODO: Refactor scene logic into a SceneManager global
+
+# var game_state_scene: Resource = preload("res://scenes/GameState.tscn")
+var debug_scene: Resource = preload("res://scenes/Debug.tscn")
+var gameplay_scene: Resource = preload("res://scenes/GamePlay.tscn")
+var title_screen_scene: Resource = preload("res://scenes/TitleScreen.tscn")
+var cut_scenes_scene: Resource = preload("res://scenes/CutScenes.tscn")
+var game_select_screen_scene: Resource = preload("res://scenes/GameSelect.tscn")
 
 var active_scene: Node
 
@@ -41,24 +45,28 @@ func start_game():
 	game_state.send_event("start_game")
 
 
-func _on_title_screen_state_entered() -> void:
-	var title_screen_menu_node = get_node_or_null("/root/TitleScreenMenu")
-
-	if title_screen_menu_node == null:
-		active_scene = title_screen_scene.instantiate()
-		add_sibling(active_scene)
-	else:
-		active_scene = title_screen_menu_node
+func game_select_screen():
+	game_state.send_event("game_select")
 
 
-func _on_title_screen_state_exited() -> void:
+func load_scene(scene: Resource):
 	if active_scene:
 		active_scene.queue_free()
 
+	active_scene = scene.instantiate()
+	add_sibling.call_deferred(active_scene)
+
+
+func _on_title_screen_state_entered() -> void:
+	load_scene(title_screen_scene)
+
 
 func _on_cut_scene_start_state_entered() -> void:
-	pass # Replace with function body.
+	load_scene(cut_scenes_scene)
+
+	# TODO: Add logic to choose which dialogue block to start at
 
 
-func _on_cut_scene_start_state_exited() -> void:
-	pass # Replace with function body.
+func _on_game_select_state_entered() -> void:
+	print("loading game select screen")
+	load_scene(game_select_screen_scene)

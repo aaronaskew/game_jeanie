@@ -91,6 +91,7 @@ script = ExtResource("5_n5l5i")
 [node name="ToGameSelect" type="Node" parent="GameState/Root/Screen/CutSceneStart" unique_id=1576535187]
 script = ExtResource("6_l513l")
 to = NodePath("../../GameSelect")
+event = &"game_select"
 delay_in_seconds = "0.0"
 
 [node name="CutSceneMiddle" type="Node" parent="GameState/Root/Screen" unique_id=1662992102]
@@ -228,6 +229,5 @@ to = NodePath("../../CutSceneWinSingleGame")
 delay_in_seconds = "0.0"
 
 [connection signal="state_entered" from="GameState/Root/Screen/TitleScreen" to="." method="_on_title_screen_state_entered"]
-[connection signal="state_exited" from="GameState/Root/Screen/TitleScreen" to="." method="_on_title_screen_state_exited"]
 [connection signal="state_entered" from="GameState/Root/Screen/CutSceneStart" to="." method="_on_cut_scene_start_state_entered"]
-[connection signal="state_exited" from="GameState/Root/Screen/CutSceneStart" to="." method="_on_cut_scene_start_state_exited"]
+[connection signal="state_entered" from="GameState/Root/Screen/GameSelect" to="." method="_on_game_select_state_entered"]
