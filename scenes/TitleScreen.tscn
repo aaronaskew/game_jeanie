@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://btr3wdw4yqkxs"]
 
-[ext_resource type="Script" uid="uid://bah21irb4wa33" path="res://scripts/title_screen.gd" id="1_ch40n"]
+[ext_resource type="Script" uid="uid://pkdxgjig65n" path="res://scripts/title_screen.gd" id="1_ch40n"]
 [ext_resource type="Texture2D" uid="uid://715l5rdf670i" path="res://assets/textures/scene_missing.png" id="1_qyuap"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qyuap"]
