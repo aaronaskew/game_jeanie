@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 GameManagerScene="*res://scenes/globals/GameManagerScene.tscn"
 DialogueManager="*uid://c3rodes2l3gxb"
+SoundManager="*uid://caupldc25g54p"
 
 [dialogue_manager]
 
