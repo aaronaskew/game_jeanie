@@ -2,6 +2,7 @@ class_name GameSelect
 extends Node2D
 
 @onready var game_manager: GameManager = $"/root/GameManagerScene"
+@onready var game_state: StateChart = $"/root/GameManagerScene/GameState"
 
 @onready var pung_glow: Sprite2D = $Panel2PungGlow
 @onready var beef_blastoids_glow: Sprite2D = $Panel2BlastoidGlow
@@ -12,6 +13,7 @@ extends Node2D
 @onready var race_place_seal: Sprite2D = $Panel2RaceplaceSeal
 
 
+# TODO: change in statechart instead
 func _ready():
 	if game_manager.game_wins["pung"] > 0:
 		pung_seal.visible = true
@@ -48,7 +50,8 @@ func _on_race_place_area_2d_mouse_exited() -> void:
 func _on_pung_area_2d_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT && event.pressed:
-			game_manager.play_game("pung")
+			# game_manager.play_game("pung")
+			game_state.send_event("play_pung")
 			queue_free()
 
 
@@ -57,7 +60,8 @@ func _on_beef_blastoids_area_2d_input_event(
 ) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT && event.pressed:
-			game_manager.play_game("beef_blastoids")
+			# game_manager.play_game("beef_blastoids")
+			game_state.send_event("play_beef_blastoids")
 			queue_free()
 
 
@@ -66,6 +70,6 @@ func _on_race_place_area_2d_input_event(
 ) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT && event.pressed:
-			game_manager.play_game("race_place")
+			# game_manager.play_game("race_place")
+			game_state.send_event("play_race_place")
 			queue_free()
-

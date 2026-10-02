@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://boku5bkvjs1j2"]
 
-[ext_resource type="Script" uid="uid://hict7ytlw6kl" path="res://scripts/game_manager.gd" id="1_34tde"]
+[ext_resource type="Script" uid="uid://hict7ytlw6kl" path="res://scripts/globals/GameManager.gd" id="1_34tde"]
 [ext_resource type="Script" uid="uid://couw105c3bde4" path="res://addons/godot_state_charts/state_chart.gd" id="2_4u3ff"]
 [ext_resource type="Script" uid="uid://c1vp0ojjvaby1" path="res://addons/godot_state_charts/parallel_state.gd" id="3_e1t1p"]
 [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="4_jm6kj"]
@@ -228,6 +228,62 @@ script = ExtResource("6_l513l")
 to = NodePath("../../CutSceneWinSingleGame")
 delay_in_seconds = "0.0"
 
+[node name="CurrentGame" type="Node" parent="GameState/Root" unique_id=775954182]
+script = ExtResource("4_jm6kj")
+initial_state = NodePath("None")
+
+[node name="None" type="Node" parent="GameState/Root/CurrentGame" unique_id=169226653]
+script = ExtResource("5_n5l5i")
+
+[node name="To Pung" type="Node" parent="GameState/Root/CurrentGame/None" unique_id=443704675]
+script = ExtResource("6_l513l")
+to = NodePath("../../Pung")
+event = &"play_pung"
+delay_in_seconds = "0.0"
+
+[node name="To BeefBlastoids" type="Node" parent="GameState/Root/CurrentGame/None" unique_id=1725570265]
+script = ExtResource("6_l513l")
+to = NodePath("../../BeefBlastoids")
+event = &"play_beef_blastoids"
+delay_in_seconds = "0.0"
+
+[node name="To RacePlace" type="Node" parent="GameState/Root/CurrentGame/None" unique_id=1510538]
+script = ExtResource("6_l513l")
+to = NodePath("../../RacePlace")
+event = &"play_race_place"
+delay_in_seconds = "0.0"
+
+[node name="Pung" type="Node" parent="GameState/Root/CurrentGame" unique_id=1905700732]
+script = ExtResource("5_n5l5i")
+
+[node name="To None" type="Node" parent="GameState/Root/CurrentGame/Pung" unique_id=385835248]
+script = ExtResource("6_l513l")
+to = NodePath("../../None")
+event = &"play_none"
+delay_in_seconds = "0.0"
+
+[node name="BeefBlastoids" type="Node" parent="GameState/Root/CurrentGame" unique_id=713082728]
+script = ExtResource("5_n5l5i")
+
+[node name="To None" type="Node" parent="GameState/Root/CurrentGame/BeefBlastoids" unique_id=5322823]
+script = ExtResource("6_l513l")
+to = NodePath("../../None")
+event = &"play_none"
+delay_in_seconds = "0.0"
+
+[node name="RacePlace" type="Node" parent="GameState/Root/CurrentGame" unique_id=828277724]
+script = ExtResource("5_n5l5i")
+
+[node name="To None" type="Node" parent="GameState/Root/CurrentGame/RacePlace" unique_id=1613034628]
+script = ExtResource("6_l513l")
+to = NodePath("../../None")
+event = &"play_none"
+delay_in_seconds = "0.0"
+
 [connection signal="state_entered" from="GameState/Root/Screen/TitleScreen" to="." method="_on_title_screen_state_entered"]
 [connection signal="state_entered" from="GameState/Root/Screen/CutSceneStart" to="." method="_on_cut_scene_start_state_entered"]
 [connection signal="state_entered" from="GameState/Root/Screen/GameSelect" to="." method="_on_game_select_state_entered"]
+[connection signal="state_entered" from="GameState/Root/CurrentGame/None" to="." method="_on_current_game_none_state_entered"]
+[connection signal="state_entered" from="GameState/Root/CurrentGame/Pung" to="." method="_on_game_select_pung_state_entered"]
+[connection signal="state_entered" from="GameState/Root/CurrentGame/BeefBlastoids" to="." method="_on_current_game_beef_blastoids_state_entered"]
+[connection signal="state_entered" from="GameState/Root/CurrentGame/RacePlace" to="." method="_on_current_game_race_place_state_entered"]

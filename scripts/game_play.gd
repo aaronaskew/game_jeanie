@@ -3,11 +3,13 @@ extends Node2D
 
 const TV_POSITION: Vector2 = Vector2(1694, 240)
 
-var pung_scene: PackedScene = preload("res://scenes/pung/Pung.tscn")
-var beef_blastoids_scene: PackedScene = preload("res://scenes/beef_blastoids/BeefBlastoids.tscn")
-var race_place_scene: PackedScene = preload("res://scenes/race_place/RacePlace.tscn")
+var pung_scene: PackedScene = preload("res://scenes/games/pung/Pung.tscn")
+var beef_blastoids_scene: PackedScene = preload(
+	"res://scenes/games/beef_blastoids/BeefBlastoids.tscn"
+)
+var race_place_scene: PackedScene = preload("res://scenes/games/race_place/RacePlace.tscn")
 
-var current_game = null
+var current_game: Game = null
 
 # @onready var viewport: SubViewport = $SubViewport
 
@@ -24,7 +26,7 @@ func choose_game(game: String):
 		"race_place":
 			current_game = race_place_scene.instantiate()
 
-	assert(current_game is Node2D)
+	assert(current_game is Game)
 	current_game.position = TV_POSITION
 	add_child.call_deferred(current_game, true)
 	# viewport.add_child.call_deferred(current_game, true)

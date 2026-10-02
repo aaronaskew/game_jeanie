@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://utpar0sxywec"]
 
-[ext_resource type="Script" uid="uid://bruc08xqor3uu" path="res://scripts/beef_blastoids/blaster_bullet.gd" id="1_xiuf3"]
+[ext_resource type="Script" uid="uid://bruc08xqor3uu" path="res://scripts/games/beef_blastoids/blaster_bullet.gd" id="1_xiuf3"]
 
 [node name="BlasterBullet" type="Area2D" unique_id=151515057]
 script = ExtResource("1_xiuf3")

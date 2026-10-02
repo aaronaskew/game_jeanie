@@ -1,5 +1,5 @@
 class_name BeefBlastoids
-extends Node2D
+extends Game
 
 # pub DESCRIPTION: String,
 # pub MAX_SCORE: u32,
@@ -30,9 +30,9 @@ var explosion_energy: float = 1.5
 @onready var lives_label: Label = %Lives
 @onready var score_label: Label = %Score
 @onready var ui: Control = $UI
-@onready var ship_scene = preload("res://scenes/beef_blastoids/ship.tscn")
-@onready var beef_scene = preload("res://scenes/beef_blastoids/beef.tscn")
-@onready var beef_explosion_scene = preload("res://scenes/beef_blastoids/beef_explosion.tscn")
+@onready var ship_scene = preload("res://scenes/games/beef_blastoids/ship.tscn")
+@onready var beef_scene = preload("res://scenes/games/beef_blastoids/beef.tscn")
+@onready var beef_explosion_scene = preload("res://scenes/games/beef_blastoids/beef_explosion.tscn")
 
 @onready var state_chart: StateChart = $StateChart
 @onready var intro_state: AtomicState = $StateChart/CompoundState/Intro
@@ -180,3 +180,10 @@ func _on_win_state_entered() -> void:
 
 func _on_lose_state_entered() -> void:
 	game_over_result.text = "You lose"
+
+func win():
+	pass
+
+
+func lose():
+	pass

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bnsubn7wydp08"]
 
-[ext_resource type="Script" uid="uid://dlne233recaro" path="res://scripts/beef_blastoids/ship.gd" id="1_icn4f"]
+[ext_resource type="Script" uid="uid://dlne233recaro" path="res://scripts/games/beef_blastoids/ship.gd" id="1_icn4f"]
 
 [node name="Ship" type="Area2D" unique_id=762571644]
 script = ExtResource("1_icn4f")

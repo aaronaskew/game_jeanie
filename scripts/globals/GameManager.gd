@@ -35,6 +35,7 @@ func log_game_win(game: String):
 	game_state.set_expression_property(game + "_wins", game_wins[game])
 
 
+# TODO: make this a signal response from statechart currentgame change
 func play_game(game: String):
 	var gameplay: GamePlay = gameplay_scene.instantiate()
 	gameplay.choose_game(game)
@@ -70,3 +71,19 @@ func _on_cut_scene_start_state_entered() -> void:
 func _on_game_select_state_entered() -> void:
 	print("loading game select screen")
 	load_scene(game_select_screen_scene)
+
+
+func _on_current_game_none_state_entered() -> void:
+	pass  # Replace with function body.
+
+
+func _on_game_select_pung_state_entered() -> void:
+	pass  # Replace with function body.
+
+
+func _on_current_game_beef_blastoids_state_entered() -> void:
+	pass  # Replace with function body.
+
+
+func _on_current_game_race_place_state_entered() -> void:
+	pass  # Replace with function body.

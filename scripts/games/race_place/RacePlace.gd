@@ -1,5 +1,5 @@
 class_name RacePlace
-extends Node2D
+extends Game
 
 signal start_race
 
@@ -109,3 +109,10 @@ func _on_win_state_entered() -> void:
 
 func _on_lose_state_entered() -> void:
 	game_over_result.text = "You lose"
+
+
+func win():
+	pass
+
+func lose():
+	pass

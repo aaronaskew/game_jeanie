@@ -1,5 +1,5 @@
 class_name Pung
-extends Node2D
+extends Game
 
 const PUNG_PLAY_AREA_SIZE: Vector2i = Vector2i(1920, 1248)
 const PUNG_PLAY_AREA_START_Y: int = 160
@@ -8,7 +8,7 @@ const PUNG_PLAY_AREA: Rect2i = Rect2i(Vector2i(0, PUNG_PLAY_AREA_START_Y), PUNG_
 var ball: Ball = null
 var pung_root: Pung
 
-var ball_scene = preload("res://scenes/pung/ball.tscn")
+var ball_scene = preload("res://scenes/games/pung/ball.tscn")
 
 var player_score: int = 0
 var ai_score: int = 0
@@ -118,3 +118,11 @@ func _on_win_state_entered() -> void:
 
 func _on_lose_state_entered() -> void:
 	game_over_result.text = "You lose"
+
+
+func win():
+	pass
+
+
+func lose():
+	pass

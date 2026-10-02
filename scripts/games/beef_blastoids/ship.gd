@@ -21,8 +21,8 @@ var canvas_size: Vector2
 var is_invincible = false
 var time_passed: float = 0
 var velocity: Vector2
-var blaster_bullet_scene = preload("res://scenes/beef_blastoids/blaster_bullet.tscn")
-var ship_explosion_scene = preload("res://scenes/beef_blastoids/ship_explosion.tscn")
+var blaster_bullet_scene = preload("res://scenes/games/beef_blastoids/blaster_bullet.tscn")
+var ship_explosion_scene = preload("res://scenes/games/beef_blastoids/ship_explosion.tscn")
 
 @onready var collision_polygon: CollisionPolygon2D = $CollisionPolygon2D
 @onready var ship_polygon: Polygon2D = $Polygon2D

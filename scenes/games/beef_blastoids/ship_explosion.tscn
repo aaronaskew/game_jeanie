@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bt382k8oc6hlb"]
 
-[ext_resource type="Script" uid="uid://cfihn1xu166lb" path="res://scripts/beef_blastoids/despawn_one_shot.gd" id="1_afbhf"]
+[ext_resource type="Script" uid="uid://cfihn1xu166lb" path="res://scripts/games/beef_blastoids/despawn_one_shot.gd" id="1_afbhf"]
 
 [sub_resource type="Curve" id="Curve_ghyjy"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.45887), 0.0, 0.0, 0, 0]

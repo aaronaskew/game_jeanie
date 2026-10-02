@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://mvx28f1lc4ew"]
 
-[ext_resource type="Script" uid="uid://c7pey56pcdurj" path="res://scripts/beef_blastoids/beef.gd" id="1_qaakm"]
+[ext_resource type="Script" uid="uid://c7pey56pcdurj" path="res://scripts/games/beef_blastoids/beef.gd" id="1_qaakm"]
 
 [node name="Beef" type="StaticBody2D" unique_id=1970139218]
 script = ExtResource("1_qaakm")

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://3pafxtnbvklg"]
 
-[ext_resource type="Script" uid="uid://dnkp2kh2b6fc" path="res://scripts/pung/paddle.gd" id="1_pqfiy"]
+[ext_resource type="Script" uid="uid://dnkp2kh2b6fc" path="res://scripts/games/pung/paddle.gd" id="1_pqfiy"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_pqfiy"]
 friction = 0.0

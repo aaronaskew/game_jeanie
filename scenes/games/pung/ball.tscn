@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d3ip81cm8eabn"]
 
-[ext_resource type="Script" uid="uid://lslc37td8tu" path="res://scripts/pung/ball.gd" id="1_w4uvm"]
+[ext_resource type="Script" uid="uid://lslc37td8tu" path="res://scripts/games/pung/ball.gd" id="1_w4uvm"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_w4uvm"]
 friction = 0.0

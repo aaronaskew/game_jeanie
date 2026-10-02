@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://bci34edk178al"]
 
-[ext_resource type="Script" uid="uid://2nmjy445mybh" path="res://scripts/pung/Pung.gd" id="1_jpk8j"]
+[ext_resource type="Script" uid="uid://2nmjy445mybh" path="res://scripts/games/pung/Pung.gd" id="1_jpk8j"]
 [ext_resource type="Theme" uid="uid://xownl2y8crfl" path="res://resources/aairt_2600_theme.tres" id="1_wke20"]
-[ext_resource type="PackedScene" uid="uid://cyf6m46kcpysm" path="res://scenes/pung/gutter.tscn" id="2_k8e7a"]
+[ext_resource type="PackedScene" uid="uid://cyf6m46kcpysm" path="res://scenes/games/pung/gutter.tscn" id="2_k8e7a"]
 [ext_resource type="FontFile" uid="uid://gbgbj4g2725u" path="res://assets/fonts/RasterForgeRegular-JpBgm.ttf" id="3_mgq4r"]
-[ext_resource type="PackedScene" uid="uid://3pafxtnbvklg" path="res://scenes/pung/paddle.tscn" id="4_mhdru"]
+[ext_resource type="PackedScene" uid="uid://3pafxtnbvklg" path="res://scenes/games/pung/paddle.tscn" id="4_mhdru"]
 [ext_resource type="Script" uid="uid://couw105c3bde4" path="res://addons/godot_state_charts/state_chart.gd" id="6_ee50c"]
 [ext_resource type="Script" uid="uid://jk2jm1g6q853" path="res://addons/godot_state_charts/compound_state.gd" id="7_rc34o"]
 [ext_resource type="Script" uid="uid://cytafq8i1y8qm" path="res://addons/godot_state_charts/atomic_state.gd" id="8_gnpfc"]
@@ -175,14 +175,14 @@ position = Vector2(962, 1416)
 [node name="PlayerPaddle" parent="." unique_id=36227420 instance=ExtResource("4_mhdru")]
 unique_name_in_owner = true
 position = Vector2(64, 720)
-size = Vector2(16, 140.815)
 speed = 1000.0
+size = Vector2(16, 140.815)
 
 [node name="AIPaddle" parent="." unique_id=647692029 instance=ExtResource("4_mhdru")]
 unique_name_in_owner = true
 position = Vector2(1856, 720)
-size = Vector2(16, 140.815)
 speed = 1000.0
+size = Vector2(16, 140.815)
 
 [node name="StateChart" type="Node" parent="." unique_id=364933501]
 script = ExtResource("6_ee50c")
